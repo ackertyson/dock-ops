@@ -1,11 +1,11 @@
-#dock-ops
+# dock-ops
 
 Docker CLI helpers including common development and deployment commands. Run
 these commands in your project directory as you would normal Docker Compose
 commands. Assumes you have `docker-compose.yaml` and
 `docker-compose.development.yaml`.
 
-##Installation
+## Installation
 
 `git clone git@github.com:ackertyson/dock-ops.git`
 
@@ -15,62 +15,62 @@ commands. Assumes you have `docker-compose.yaml` and
 
 `sudo gem install dock-ops`
 
-##Usage
+## Usage
 
 `dock COMMAND [OPTIONS]`
 
 E.g., `dock up -d my-service`
 
-##Command equivalents
+## Command equivalents
 
-###build
+### build
 
 `docker-compose build`
 
-###clean
+### clean
 
 `docker rm $(docker ps -f status=exited -a -q); docker rmi $(docker images -f dangling=true -a -q); docker volume rm $(docker volume ls -f dangling=true -q)`
 
-###down
+### down
 
 `docker-compose down`
 
-###ls
+### ls
 
 List services defined in docker-compose file(s).
 
-###ps
+### ps
 
 `docker ps`
 
-###rls
+### rls
 
 `docker-machine ls`
 
-###run
+### run
 
 `docker-compose run --rm`
 
-###scp
+### scp
 
 `docker-machine scp`
 
-###ssh
+### ssh
 
 `docker-machine ssh`
 
-###stop
+### stop
 
 `docker-compose stop`
 
-###up
+### up
 
 `docker-compose up`
 
-###unuse
+### unuse
 
 `eval $(docker-machine env -u)`
 
-###use
+### use
 
 `eval $(docker-machine env ____)`
