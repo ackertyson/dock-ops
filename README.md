@@ -4,6 +4,10 @@ Docker CLI helpers including common development and deployment commands. Run
 these commands in your project directory as you would normal Docker Compose
 commands.
 
+Also allows per-project (and per-mode, i.e., development/production/etc.)
+configuration of how `docker-compose` commands are formulated (which YAML files
+should be used); see the `config` command below.
+
 ## Installation
 
 `git clone git@github.com:ackertyson/dock-ops.git`
