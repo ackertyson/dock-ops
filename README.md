@@ -31,6 +31,11 @@ E.g., `dock up -d my-service`
 
 `docker rm $(docker ps -f status=exited -a -q); docker rmi $(docker images -f dangling=true -a -q); docker volume rm $(docker volume ls -f dangling=true -q)`
 
+### config
+
+Configure the Docker Compose command which `dock-ops` should use for current
+project (this is *not* `docker-compose config`!).
+
 ### down
 
 `docker-compose down`
