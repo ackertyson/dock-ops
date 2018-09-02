@@ -29,7 +29,7 @@ class DockOps
   end
 
   def bail(msg)
-    abort "DOCK-TOOLS: #{msg}"
+    abort "DOCK-OPS: #{msg}"
   end
 
   def build(service)
