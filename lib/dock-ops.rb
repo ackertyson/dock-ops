@@ -36,53 +36,16 @@ class DockOps
   end
 
   def compose(yamls=nil)
-    input = yamls ? yamls : get_config()
+    input = yamls ? yamls : get_setup()
     flag = -> arg { "-f #{arg}" }
     return "docker-compose #{input.map(&flag).join(' ')}"
   end
 
   def config
-    yamls = find_yamls
-    @term.show 'Available YAML files:'
-    @term.show numbered yamls
-    @term.show ''
-    @term.show 'Commands:'
-    @term.show '- [1, 2, ..., N] Add YAML file'
-    @term.show '- [BACKSPACE] Remove YAML file'
-    @term.show '- [C]ancel (exit without saving changes)'
-    @term.show '- [ENTER] or e[X]it (save changes)'
-    @term.show ''
-    @term.show "In #{@mode.upcase} mode, Docker Compose commands should use:"
-    update_config config_ui yamls, get_config()
+    sys "#{compose} config"
   end
 
-  def config_ui(yamls, current)
-    do_save = :false
-    loop do
-      @term.content "% #{compose current}"
-      c = @term.readc
-      c = c.to_i if /[1-9]/ =~ c
-      case c
-      when 1..9
-        yaml = yamls[c - 1]
-        current.push(yaml) if yaml and !current.include?(yaml)
-      when "\177" # backspace
-        current.pop()
-      when 'x', 'X', "\r" # enter
-        do_save = :true
-        break
-      when 'c', 'C'
-        do_save = :false
-        break
-      end
-    end
-    return do_save, current
-  rescue => e
-    puts e
-    puts e.backtrace
-  end
-
-  def confirm_create_config_store
+  def confirm_create_setup_store
     @term.show 'No ~/.dock-ops directory found; okay to create? (y/N)'
     c = @term.readc
     case c
@@ -97,7 +60,7 @@ class DockOps
     sys "docker ps -q -f name=#{name}", :true
   end
 
-  def default_config
+  def default_setup
     return {
       :development => ['docker-compose.development.yaml', 'docker-compose.yaml'],
       :production => ['docker-compose.yaml']
@@ -112,23 +75,23 @@ class DockOps
     Dir.glob '*.y{a,}ml'
   end
 
-  def get_config
+  def get_setup
     raise NoModeError unless @mode
     mode = @mode.to_sym
     @cnfg[mode] = [] unless @cnfg.has_key? mode
     @cnfg[mode]
   end
 
-  def load_config
-    @cnfg = default_config()
+  def load_setup
+    @cnfg = default_setup()
     home = Dir.home
     pwd = Dir.pwd
-    config_dir = File.join home, '.dock-ops'
-    project_config_dir = File.join config_dir, pwd
-    yaml = IO.read File.join(project_config_dir, "#{@mode}.yaml")
+    setup_dir = File.join home, '.dock-ops'
+    project_setup_dir = File.join setup_dir, pwd
+    yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
     @cnfg[@mode.to_sym] = Psych.load yaml
   rescue Errno::ENOENT => e
-    puts "No existing config; using default (do 'dock config' to set for this project)"
+    puts "No existing setup; using default (do 'dock setup' to define for this project)"
   rescue => e
     puts e
     puts e.backtrace
@@ -194,7 +157,7 @@ class DockOps
 
   def service(name) # parse docker-compose*.yaml files for NAME service
     candidates = []
-    get_config.each do |yaml|
+    get_setup.each do |yaml|
       put yaml
       services(yaml).each do |item|
         candidates.push(item) unless candidates.include? item
@@ -222,6 +185,47 @@ class DockOps
     yaml['services'].keys
   end
 
+  def setup
+    yamls = find_yamls
+    @term.show 'Available YAML files:'
+    @term.show numbered yamls
+    @term.show ''
+    @term.show 'Commands:'
+    @term.show '- [1, 2, ..., N] Add YAML file'
+    @term.show '- [BACKSPACE] Remove YAML file'
+    @term.show '- [C]ancel (exit without saving changes)'
+    @term.show '- [ENTER] or e[X]it (save changes)'
+    @term.show ''
+    @term.show "In #{@mode.upcase} mode, Docker Compose commands should use:"
+    update_setup setup_ui yamls, get_setup()
+  end
+
+  def setup_ui(yamls, current)
+    do_save = :false
+    loop do
+      @term.content "% #{compose current}"
+      c = @term.readc
+      c = c.to_i if /[1-9]/ =~ c
+      case c
+      when 1..9
+        yaml = yamls[c - 1]
+        current.push(yaml) if yaml and !current.include?(yaml)
+      when "\177" # backspace
+        current.pop()
+      when 'x', 'X', "\r" # enter
+        do_save = :true
+        break
+      when 'c', 'C'
+        do_save = :false
+        break
+      end
+    end
+    return do_save, current
+  rescue => e
+    puts e
+    puts e.backtrace
+  end
+
   def stop(name)
     raise BadArgsError unless name and name.length > 0
     sys "docker stop #{as_args container(as_args name)}"
@@ -246,7 +250,7 @@ class DockOps
     sys "#{compose} up #{as_args args}"
   end
 
-  def update_config(args)
+  def update_setup(args)
     should_save, yamls = args
     if should_save == :false
       puts ''
@@ -254,7 +258,7 @@ class DockOps
     end
     @cnfg[@mode] = yamls
     puts "\n#{@mode.upcase} mode will now use: #{compose yamls}"
-    write_config()
+    write_setup()
   rescue => e
     puts e
     puts e.backtrace
@@ -266,11 +270,11 @@ class DockOps
 
   def work(argv) # MAIN (entry point)
     cmd, *opts = parse_args argv
-    load_config()
+    load_setup()
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
   rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, ssh, stop, up, unuse, use"
+    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up, unuse, use"
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist"
   rescue Interrupt # user hit Ctrl-c
@@ -280,18 +284,18 @@ class DockOps
     puts e.backtrace
   end
 
-  def write_config
+  def write_setup
     home = Dir.home
     pwd = Dir.pwd
-    config_dir = File.join home, '.dock-ops'
-    project_config_dir = File.join config_dir, pwd
-    unless Dir.exist? config_dir
-      proceed = confirm_create_config_store()
+    setup_dir = File.join home, '.dock-ops'
+    project_setup_dir = File.join setup_dir, pwd
+    unless Dir.exist? setup_dir
+      proceed = confirm_create_setup_store()
       return if proceed == :false
-      FileUtils.mkpath config_dir
+      FileUtils.mkpath setup_dir
     end
-    FileUtils.mkpath project_config_dir unless Dir.exist? project_config_dir
-    IO.write File.join(project_config_dir, "#{@mode}.yaml"), Psych.dump(get_config)
+    FileUtils.mkpath project_setup_dir unless Dir.exist? project_setup_dir
+    IO.write File.join(project_setup_dir, "#{@mode}.yaml"), Psych.dump(get_setup)
   rescue => e
     puts e
     puts e.backtrace

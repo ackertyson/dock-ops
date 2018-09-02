@@ -6,7 +6,7 @@ commands.
 
 Also allows per-project (and per-mode, i.e., development/production/etc.)
 configuration of how `docker-compose` commands are formulated (which YAML files
-should be used); see the `config` command below.
+should be used); see the `setup` command below.
 
 ## Installation
 
@@ -29,7 +29,7 @@ E.g., `dock up -d my-service`
 
 ## Modes
 
-Commands which invoke Docker Compose can be configured by "mode"
+Commands which invoke Docker Compose can be set up by "mode"
 (development/production/etc.) in order to designate which YAML files should be
 used. The default is "development" mode; you can specify a different mode with
 `-m`:
@@ -55,11 +55,7 @@ do:
 
 ### config
 
-Configure the Docker Compose command which `dock-ops` should use for current
-project (this is *not* `docker-compose config`!).
-
-This command will set config for the specified mode (see MODES section above).
-To set config for "deploy" mode, for instance, do `dock -m deploy config`.
+`docker-compose config`
 
 ### down
 
@@ -88,6 +84,14 @@ List services defined in `docker-compose` YAML file(s).
 ### scp
 
 `docker-machine scp`
+
+### setup
+
+Configure the Docker Compose command which `dock-ops` should use for current
+project.
+
+This command will set up the specified mode (see MODES section above).
+To set up for "deploy" mode, for instance, do `dock -m deploy setup`.
 
 ### ssh
 
