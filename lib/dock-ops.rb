@@ -25,7 +25,7 @@ class DockOps
   def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
     arr = [arr] unless arr.kind_of? Array
     fn = -> arg { quote arg }
-    arr.map(&fn).join(' ')
+    arr.compact.map(&fn).join(' ')
   end
 
   def bail(msg)
@@ -195,38 +195,47 @@ class DockOps
     sys "#{compose} run --rm #{service name} #{as_args args}"
   end
 
-  def scp(args)
-    sys "docker-machine scp #{as_args args}"
+  def scp(remote)
+    sys "docker-machine scp #{as_args remote}"
   end
 
   def service(name) # parse docker-compose*.yaml files for NAME service
-    result, *rest = services('docker-compose.development.yaml').select do |candidate|
+    candidates = []
+    get_config.each do |yaml|
+      put yaml
+      services(yaml).each do |item|
+        candidates.push(item) unless candidates.include? item
+      end
+    end
+    puts 'service', candidates
+    match, *rest = candidates.select do |candidate|
       /#{Regexp.escape(name)}/ =~ candidate
     end
     bail("more than one matching service for '#{name}'") if rest
-    return result
+    return match
   end
 
   def services(path) # return names of all services in docker-compose*.yaml files
     yaml = Psych.load_file path
-    does_extend = :false
-    yaml['services'].keys #.each_pair do |name, config|
-      # config.each_pair do |k, v|
-      #   if k == 'extends'
-      #     does_extend = :true
-      #     puts File.exist? File.absolute_path(prod)
-      #     puts File.absolute_path(v['file']) == prod
-      #   end
-      # end
+    # does_extend = :false
+    # yaml['services'].each_pair do |name, config|
+    #   config.each_pair do |k, v|
+    #     if k == 'extends'
+    #       does_extend = :true
+    #       puts File.exist? File.absolute_path(v['file'])
+    #     end
+    #   end
     # end
+    yaml['services'].keys
   end
 
-  def stop(name=nil)
-    sys "docker stop #{as_args container(name)}"
+  def stop(name)
+    raise BadArgsError unless name and name.length > 0
+    sys "docker stop #{as_args container(as_args name)}"
   end
 
-  def ssh(args)
-    sys "docker-machine ssh #{as_args args}"
+  def ssh(remote)
+    sys "docker-machine ssh #{as_args remote}"
   end
 
   def sys(cmd, capture=:false)

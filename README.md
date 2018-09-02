@@ -1,6 +1,6 @@
 # dock-ops
 
-Docker CLI helpers including common development and deployment commands. Run
+Docker CLI helpers, including common development and deployment commands. Run
 these commands in your project directory as you would normal Docker Compose
 commands.
 
