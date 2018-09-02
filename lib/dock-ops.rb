@@ -16,7 +16,7 @@ class DockOps
   rescue BadModeError
     bail "You're trying to use a mode (development/production/etc.) that doesn't exist"
   rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, ls, ps, rls, run, scp, ssh, stop, up, unuse, use"
+    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, ssh, stop, up, unuse, use"
   rescue => e
     puts e
     puts e.backtrace
@@ -139,6 +139,10 @@ class DockOps
   rescue => e
     puts e
     puts e.backtrace
+  end
+
+  def logs(args)
+    sys "#{compose} logs #{as_args args}"
   end
 
   def ls

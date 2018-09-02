@@ -10,13 +10,13 @@ should be used); see the `config` command below.
 
 ## Installation
 
-`git clone git@github.com:ackertyson/dock-ops.git`
+1. `git clone git@github.com:ackertyson/dock-ops.git`
 
-`cd dock-ops/`
+2. `cd dock-ops/`
 
-`gem build dock-ops.gemspec`
+3. `gem build dock-ops.gemspec`
 
-`sudo gem install dock-ops`
+4. `sudo gem install dock-ops`
 
 ## Usage
 
@@ -58,6 +58,10 @@ project (this is *not* `docker-compose config`!).
 ### down
 
 `docker-compose down`
+
+### logs
+
+`docker-compose logs`
 
 ### ls
 
