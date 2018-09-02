@@ -27,6 +27,19 @@ run normal Docker Compose commands).
 
 E.g., `dock up -d my-service`
 
+Commands which invoke Docker Compose can be configured by "mode"
+(development/production/etc.) in order to designate which YAML files should be
+used. The default is `development` mode; you can specify a different mode with
+`-m`:
+
+- `dock -m production COMMAND`, or
+- `dock -m some-other-crazy-mode COMMAND`
+
+For `production` mode, you can also do:
+
+- `dock -p COMMAND`, or
+- `dock --production COMMAND`
+
 ## Command equivalents
 
 ### build
