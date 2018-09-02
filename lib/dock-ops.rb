@@ -11,7 +11,8 @@ class DockOps
     @term = Term.new
     cmd, *opts = parse_args argv
     load_config()
-    self.send cmd.to_sym, *opts
+    return self.send(cmd.to_sym) unless opts.length > 0
+    self.send cmd.to_sym, opts
   rescue BadModeError
     bail "You're trying to use a mode (development/production/etc.) that doesn't exist"
   rescue NoMethodError
@@ -46,9 +47,9 @@ class DockOps
   end
 
   def compose(yamls=nil)
-    yamls ? yamls : get_config()
+    input = yamls ? yamls : get_config()
     flag = -> arg { "-f #{arg}" }
-    return "docker-compose #{yamls.map(&flag).join(' ')}"
+    return "docker-compose #{input.map(&flag).join(' ')}"
   end
 
   def config
@@ -216,7 +217,7 @@ class DockOps
     # end
   end
 
-  def stop(name)
+  def stop(name=nil)
     sys "docker stop #{as_args container(name)}"
   end
 

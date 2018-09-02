@@ -2,8 +2,7 @@
 
 Docker CLI helpers including common development and deployment commands. Run
 these commands in your project directory as you would normal Docker Compose
-commands. Assumes you have `docker-compose.yaml` and
-`docker-compose.development.yaml`.
+commands.
 
 ## Installation
 
@@ -16,6 +15,9 @@ commands. Assumes you have `docker-compose.yaml` and
 `sudo gem install dock-ops`
 
 ## Usage
+
+Commands should be run from within your project directory (just as you would
+run normal Docker Compose commands).
 
 `dock COMMAND [OPTIONS]`
 
@@ -42,7 +44,7 @@ project (this is *not* `docker-compose config`!).
 
 ### ls
 
-List services defined in docker-compose file(s).
+List services defined in `docker-compose` YAML file(s).
 
 ### ps
 
@@ -66,7 +68,10 @@ List services defined in docker-compose file(s).
 
 ### stop
 
-`docker-compose stop`
+`docker stop $(docker ps -q -f name=_____)`
+
+Note that this allows you to stop containers by _name_ (instead of by container
+ID, which is how `docker stop` works).
 
 ### up
 
