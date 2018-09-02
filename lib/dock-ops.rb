@@ -253,11 +253,11 @@ class DockOps
   def update_setup(args)
     should_save, yamls = args
     if should_save == :false
-      puts ''
+      puts "\nNo changes saved."
       return
     end
     @cnfg[@mode] = yamls
-    puts "\n#{@mode.upcase} mode will now use: #{compose yamls}"
+    puts "\n\n#{@mode.upcase} mode will now use: #{compose yamls}"
     write_setup()
   rescue => e
     puts e
@@ -295,7 +295,9 @@ class DockOps
       FileUtils.mkpath setup_dir
     end
     FileUtils.mkpath project_setup_dir unless Dir.exist? project_setup_dir
-    IO.write File.join(project_setup_dir, "#{@mode}.yaml"), Psych.dump(get_setup)
+    project_setup_file = File.join(project_setup_dir, "#{@mode}.yaml")
+    IO.write project_setup_file, Psych.dump(get_setup)
+    puts "Saved to file #{project_setup_file}"
   rescue => e
     puts e
     puts e.backtrace
@@ -303,5 +305,5 @@ class DockOps
 
 end
 
-# dock = DockOps.new
-# dock.work(ARGV)
+dock = DockOps.new
+dock.work(ARGV)
