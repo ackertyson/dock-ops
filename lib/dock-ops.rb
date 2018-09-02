@@ -305,5 +305,5 @@ class DockOps
 
 end
 
-dock = DockOps.new
-dock.work(ARGV)
+# dock = DockOps.new
+# dock.work(ARGV)
