@@ -3,23 +3,12 @@ require 'yaml'
 require 'fileutils'
 
 class BadArgsError < StandardError; end
-class BadModeError < StandardError; end
+class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
 class DockOps
-  def initialize(argv)
+  def initialize
     @term = Term.new
-    cmd, *opts = parse_args argv
-    load_config()
-    return self.send(cmd.to_sym) unless opts.length > 0
-    self.send cmd.to_sym, opts
-  rescue BadModeError
-    bail "You're trying to use a mode (development/production/etc.) that doesn't exist"
-  rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, ssh, stop, up, unuse, use"
-  rescue => e
-    puts e
-    puts e.backtrace
   end
 
   def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
@@ -124,8 +113,10 @@ class DockOps
   end
 
   def get_config
-    raise BadModeError unless @mode and @cnfg[@mode]
-    @cnfg[@mode]
+    raise NoModeError unless @mode
+    mode = @mode.to_sym
+    @cnfg[mode] = [] unless @cnfg.has_key? mode
+    @cnfg[mode]
   end
 
   def load_config
@@ -135,7 +126,9 @@ class DockOps
     config_dir = File.join home, '.dock-ops'
     project_config_dir = File.join config_dir, pwd
     yaml = IO.read File.join(project_config_dir, "#{@mode}.yaml")
-    @cnfg[@mode] = Psych.load yaml
+    @cnfg[@mode.to_sym] = Psych.load yaml
+  rescue Errno::ENOENT => e
+    puts "No existing config; using default (do 'dock config' to set for this project)"
   rescue => e
     puts e
     puts e.backtrace
@@ -271,6 +264,22 @@ class DockOps
     sys "eval $(docker-machine env #{name})"
   end
 
+  def work(argv) # MAIN (entry point)
+    cmd, *opts = parse_args argv
+    load_config()
+    return self.send(cmd.to_sym) unless opts.length > 0
+    self.send cmd.to_sym, opts
+  rescue NoMethodError
+    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, ssh, stop, up, unuse, use"
+  rescue NoModeError
+    bail "You somehow tried to work with a MODE which doesn't exist"
+  rescue Interrupt # user hit Ctrl-c
+    puts "\nQuitting..."
+  rescue => e
+    puts e
+    puts e.backtrace
+  end
+
   def write_config
     home = Dir.home
     pwd = Dir.pwd
@@ -289,3 +298,6 @@ class DockOps
   end
 
 end
+
+# dock = DockOps.new
+# dock.work(ARGV)

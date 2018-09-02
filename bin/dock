@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
 require 'dock-ops'
 
-DockOps.new ARGV
+dock = DockOps.new
+dock.work ARGV
