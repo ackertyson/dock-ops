@@ -3,10 +3,13 @@
 Docker CLI helpers, including common development and deployment commands. Run
 these commands in your project directory as you would normal Docker commands.
 
-Why should you care? The biggest benefit--apart from succinctness--is that you
-can configure how `docker-compose` commands are run on a per-project (and
-per-mode, i.e., development/production/etc.) basis, specifying which YAML files
-should be used for each; see the `setup` command below.
+Why should you care? The biggest benefit apart from succinctness is that you can
+configure how `docker-compose` commands are formulated on a per-project basis
+(_and_ per-mode, i.e., development/production/etc.), specifying which YAML files
+should be used for each; see the `setup` command below. You might not get how
+awesome this is until you're managing many different projects which all have
+different conventions with respect to compose file naming and extending. Trust
+me: it's awesome!
 
 ## Installation
 
