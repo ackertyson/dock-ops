@@ -68,7 +68,7 @@ class DockOps
   def setup
     has_services = -> arg { services arg }
     with_color = lambda { |color, text| @term.color text, color }
-    highlight = with_color.curry.call(:aqua)
+    highlight = with_color.curry.call get_mode_color
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     @term.show [
       'Available YAML files:',
@@ -189,6 +189,15 @@ class DockOps
 
   def find_yamls
     Dir.glob('*.y{a,}ml').sort
+  end
+
+  def get_mode_color
+    colors = {
+      :development => :aqua,
+      :production => :red,
+      :other => :green
+    }
+    return colors[@mode] ? colors[@mode] : colors[:other]
   end
 
   def get_setup
@@ -359,6 +368,3 @@ class DockOps
   end
 
 end
-
-# dock = DockOps.new
-# dock.work(ARGV)

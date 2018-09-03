@@ -16,16 +16,19 @@ should be used for each; see the `setup` command below.
 
 3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec`)
 
-4. `rake install` (or, if you don't have Rake, `sudo gem install dock-ops`)
+4. `rake install` (or, if you don't have Rake, `sudo gem install -l dock-ops`)
 
 ## Testing
+
+(Requires `sudo gem install minitest-reporters`)
 
 `rake test`
 
 ## Usage
 
-Commands should be run from within your project directory (just as you would
-run normal Docker commands).
+Commands should be run from within your project directory (just as you would run
+normal Docker commands). Defaults to "development" mode if none is explicitly
+specified (see MODES below).
 
 `dock COMMAND [OPTIONS]`
 
