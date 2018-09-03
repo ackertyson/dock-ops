@@ -110,8 +110,8 @@ class DockOps
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist"
   rescue RunFailedError => e
-    puts 'erg'
     puts e
+    bail 'Oops!'
   rescue => e
     puts e
     puts e.backtrace
@@ -177,7 +177,7 @@ class DockOps
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
     @cnfg[@mode.to_sym] = Psych.load yaml
   rescue Errno::ENOENT => e
-    puts "No existing setup; using default (do 'dock setup' to define for this project)"
+    puts "No existing setup; using default (do 'dock setup' to define for this project/mode)"
   rescue => e
     puts e
     puts e.backtrace
