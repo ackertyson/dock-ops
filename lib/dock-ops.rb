@@ -96,16 +96,8 @@ class DockOps
     sys "docker stop #{as_args container(as_args name)}"
   end
 
-  def unuse
-    sys "eval $(docker-machine env -u)"
-  end
-
   def up(args)
     sys "#{compose} up #{as_args args}"
-  end
-
-  def use(name)
-    sys "eval $(docker-machine env #{name})"
   end
 
   def work(argv) # MAIN (entry point)
@@ -122,7 +114,7 @@ class DockOps
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up, unuse, use"
+    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up"
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
@@ -222,7 +214,7 @@ class DockOps
     puts e.backtrace
   end
 
-  def numbered(arr, highlight=nil)
+  def numbered(arr, highlight=nil) # prepend numeric cardinal to each (string) element of ARR
     arr = [arr] unless arr.kind_of? Array
     with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
     arr.map.with_index(&with_color)
@@ -233,7 +225,8 @@ class DockOps
   def parse_args(argv)
     flags = {
       :mode => ['-m', '-p', '--production'],
-      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine']
+      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
+      :remote => ['-h']
     }
     if flags[:mode].include?(argv[0])
       flag = argv.shift
@@ -328,7 +321,7 @@ class DockOps
     puts e.backtrace
   end
 
-  def sys(cmd, capture=:false)
+  def sys(cmd, capture=:false) # exec shell command
     return system(cmd) unless capture == :true
     output = %x[#{cmd} 2>&1]
     return raise(RunFailedError, output) if $?.exitstatus > 0
@@ -343,6 +336,24 @@ class DockOps
     end
     @cnfg[@mode] = yamls
     write_setup()
+  rescue => e
+    puts e
+    puts e.backtrace
+  end
+
+  def with_remote(name)
+    env = Hash.new
+    `docker-machine env #{as_args name}`.each_line do |line|
+      cmd, keyval = line.split ' ', 2 # split "export KEY=VALUE" on first occurrence of whitespace
+      next unless cmd == "export" # ignore lines which aren't EXPORTing vars
+      key, value = keyval.split '=', 2 # split "KEY=VALUE" on first occurrence of "=" (VALUE may contain "=")
+      /^"(.+)"$/.match(value) do |m|
+        value = m[1] # strip enclosing double-quotes
+      end
+      env[key] = value # set env var
+    end
+    puts env
+    system(env, "echo 'Ready...'")
   rescue => e
     puts e
     puts e.backtrace

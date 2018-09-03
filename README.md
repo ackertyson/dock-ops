@@ -126,14 +126,6 @@ To set up for "deploy" mode, for instance, do `dock -m deploy setup`.
 Note that this allows you to stop containers by _name_ (instead of by container
 ID, which is how `docker stop` works).
 
-### unuse
-
-`eval $(docker-machine env -u)`
-
 ### up
 
 `docker-compose up`
-
-### use
-
-`eval $(docker-machine env ____)`
