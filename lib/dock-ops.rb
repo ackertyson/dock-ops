@@ -1,6 +1,6 @@
-require 'term'
 require 'yaml'
 require 'fileutils'
+require 'term'
 
 class BadArgsError < StandardError; end
 class NoModeError < StandardError; end
@@ -38,10 +38,13 @@ class DockOps
   end
 
   def ls
-    find_yamls.each do |file|
-      puts file
-      services(file).each do |filename|
-        puts sprintf "  - %s", filename
+    find_yamls.each do |filename|
+      servicenames = services filename
+      if servicenames and servicenames.length > 0
+        puts filename
+        servicenames.each do |servicename|
+          puts(sprintf "  - %s", servicename) if servicename
+        end
       end
     end
   end
@@ -63,7 +66,8 @@ class DockOps
   end
 
   def setup
-    yamls = find_yamls
+    fn = -> arg { services arg }
+    yamls = find_yamls.select(&fn) # only include YAMLs with defined services
     highlight = :aqua
     @term.show [
       'Available YAML files:',
@@ -107,6 +111,8 @@ class DockOps
     return delegate(opts) if cmd == :native
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
+  rescue ArgumentError
+    bail "bad inputs: '#{as_args argv}'; this can happen if you're not in a Docker-equipped project."
   rescue BadArgsError => e
     puts e
     puts e.backtrace
@@ -115,7 +121,7 @@ class DockOps
   rescue NoMethodError
     bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up, unuse, use"
   rescue NoModeError
-    bail "You somehow tried to work with a MODE which doesn't exist"
+    bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
     puts e
     bail 'Oops!'
@@ -231,7 +237,7 @@ class DockOps
       @mode = :development
     end
 
-    if flags[:native].include?(argv[0])
+    if flags[:native].include?(argv[0]) # flag for delegate handling
       flag = argv.shift
       case flag
       when '-nc', '--compose'
@@ -241,7 +247,7 @@ class DockOps
       when '-nm', '--machine'
         argv.unshift :machine
       end
-      argv.unshift :native # flag for later routing
+      argv.unshift :native
     end
 
     return argv
@@ -280,6 +286,8 @@ class DockOps
     #   end
     # end
     yaml['services'].keys
+  rescue NoMethodError
+    return # probably not a docker-compose file!
   end
 
   def setup_ui(yamls, current)
