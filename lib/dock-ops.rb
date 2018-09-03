@@ -11,16 +11,6 @@ class DockOps
     @term = Term.new
   end
 
-  def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
-    arr = [arr] unless arr.kind_of? Array
-    fn = -> arg { quote arg }
-    arr.compact.map(&fn).join(' ')
-  end
-
-  def bail(msg)
-    abort "DOCK-OPS: #{msg}"
-  end
-
   def build(service)
     sys "#{compose} build #{service}"
   end
@@ -35,14 +25,114 @@ class DockOps
     %x[docker volume rm #{as_args volumes}] if volumes and volumes.length > 0
   end
 
+  def config
+    sys "#{compose} config"
+  end
+
+  def down
+    sys "#{compose} down --remove-orphans"
+  end
+
+  def logs(args)
+    sys "#{compose} logs #{as_args args}"
+  end
+
+  def ls
+    find_yamls.each do |file|
+      puts file
+      services(file).each do |filename|
+        puts sprintf "  - %s", filename
+      end
+    end
+  end
+
+  def ps
+    sys "docker ps"
+  end
+
+  def rls
+    sys "docker-machine ls"
+  end
+
+  def run(name, *args)
+    sys "#{compose} run --rm #{service name} #{as_args args}"
+  end
+
+  def scp(remote)
+    sys "docker-machine scp #{as_args remote}"
+  end
+
+  def setup
+    yamls = find_yamls
+    @term.show 'Available YAML files:'
+    @term.show numbered yamls
+    @term.show ''
+    @term.show 'Commands:'
+    @term.show '- [1, 2, ..., N] Add YAML file'
+    @term.show '- [BACKSPACE] Remove YAML file'
+    @term.show '- [C]ancel (exit without saving changes)'
+    @term.show '- [ENTER] or e[X]it (save changes)'
+    @term.show ''
+    @term.show "In #{@mode.upcase} mode, Docker Compose commands should use:"
+    update_setup setup_ui yamls, get_setup()
+  end
+
+  def ssh(remote)
+    sys "docker-machine ssh #{as_args remote}"
+  end
+
+  def stop(name)
+    raise BadArgsError unless name and name.length > 0
+    sys "docker stop #{as_args container(as_args name)}"
+  end
+
+  def unuse
+    sys "eval $(docker-machine env -u)"
+  end
+
+  def up(args)
+    sys "#{compose} up #{as_args args}"
+  end
+
+  def use(name)
+    sys "eval $(docker-machine env #{name})"
+  end
+
+  def work(argv) # MAIN (entry point)
+    cmd, *opts = parse_args argv
+    load_setup()
+    return self.send(cmd.to_sym) unless opts.length > 0
+    self.send cmd.to_sym, opts
+  rescue Interrupt # user hit Ctrl-c
+    puts "\nQuitting..."
+  rescue NoMethodError
+    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up, unuse, use"
+  rescue NoModeError
+    bail "You somehow tried to work with a MODE which doesn't exist"
+  rescue RunFailedError => e
+    puts 'erg'
+    puts e
+  rescue => e
+    puts e
+    puts e.backtrace
+  end
+
+  private ### internal methods #############
+
+  def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
+    arr = [arr] unless arr.kind_of? Array
+    fn = -> arg { quote arg }
+    arr.compact.map(&fn).join(' ')
+  end
+
+  def bail(msg)
+    abort "DOCK-OPS: #{msg}"
+  end
+
   def compose(yamls=nil)
     input = yamls ? yamls : get_setup()
     flag = -> arg { "-f #{arg}" }
     return "docker-compose #{input.map(&flag).join(' ')}"
-  end
-
-  def config
-    sys "#{compose} config"
   end
 
   def confirm_create_setup_store
@@ -65,10 +155,6 @@ class DockOps
       :development => ['docker-compose.development.yaml', 'docker-compose.yaml'],
       :production => ['docker-compose.yaml']
     }
-  end
-
-  def down
-    sys "#{compose} down --remove-orphans"
   end
 
   def find_yamls
@@ -97,19 +183,6 @@ class DockOps
     puts e.backtrace
   end
 
-  def logs(args)
-    sys "#{compose} logs #{as_args args}"
-  end
-
-  def ls
-    find_yamls.each do |file|
-      puts file
-      services(file).each do |filename|
-        puts sprintf "  - %s", filename
-      end
-    end
-  end
-
   def numbered(arr)
     arr = [arr] unless arr.kind_of? Array
     fn = lambda { |arg, i| "#{i + 1}. #{arg}" }
@@ -134,25 +207,9 @@ class DockOps
     return argv
   end
 
-  def ps
-    sys "docker ps"
-  end
-
   def quote(str) # single-quote strings which contain a space
     return str unless str.include?(' ')
     return "'#{str}'"
-  end
-
-  def rls
-    sys "docker-machine ls"
-  end
-
-  def run(name, *args)
-    sys "#{compose} run --rm #{service name} #{as_args args}"
-  end
-
-  def scp(remote)
-    sys "docker-machine scp #{as_args remote}"
   end
 
   def service(name) # parse docker-compose*.yaml files for NAME service
@@ -185,21 +242,6 @@ class DockOps
     yaml['services'].keys
   end
 
-  def setup
-    yamls = find_yamls
-    @term.show 'Available YAML files:'
-    @term.show numbered yamls
-    @term.show ''
-    @term.show 'Commands:'
-    @term.show '- [1, 2, ..., N] Add YAML file'
-    @term.show '- [BACKSPACE] Remove YAML file'
-    @term.show '- [C]ancel (exit without saving changes)'
-    @term.show '- [ENTER] or e[X]it (save changes)'
-    @term.show ''
-    @term.show "In #{@mode.upcase} mode, Docker Compose commands should use:"
-    update_setup setup_ui yamls, get_setup()
-  end
-
   def setup_ui(yamls, current)
     do_save = :false
     loop do
@@ -226,28 +268,11 @@ class DockOps
     puts e.backtrace
   end
 
-  def stop(name)
-    raise BadArgsError unless name and name.length > 0
-    sys "docker stop #{as_args container(as_args name)}"
-  end
-
-  def ssh(remote)
-    sys "docker-machine ssh #{as_args remote}"
-  end
-
   def sys(cmd, capture=:false)
     return system(cmd) unless capture == :true
     output = %x[#{cmd} 2>&1]
     return raise(RunFailedError, output) if $?.exitstatus > 0
     output.strip.lines.map { |line| line.strip }
-  end
-
-  def unuse
-    sys "eval $(docker-machine env -u)"
-  end
-
-  def up(args)
-    sys "#{compose} up #{as_args args}"
   end
 
   def update_setup(args)
@@ -259,26 +284,6 @@ class DockOps
     @cnfg[@mode] = yamls
     puts "\n\n#{@mode.upcase} mode will now use: #{compose yamls}"
     write_setup()
-  rescue => e
-    puts e
-    puts e.backtrace
-  end
-
-  def use(name)
-    sys "eval $(docker-machine env #{name})"
-  end
-
-  def work(argv) # MAIN (entry point)
-    cmd, *opts = parse_args argv
-    load_setup()
-    return self.send(cmd.to_sym) unless opts.length > 0
-    self.send cmd.to_sym, opts
-  rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up, unuse, use"
-  rescue NoModeError
-    bail "You somehow tried to work with a MODE which doesn't exist"
-  rescue Interrupt # user hit Ctrl-c
-    puts "\nQuitting..."
   rescue => e
     puts e
     puts e.backtrace

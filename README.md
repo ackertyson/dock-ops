@@ -1,12 +1,12 @@
 # dock-ops
 
 Docker CLI helpers, including common development and deployment commands. Run
-these commands in your project directory as you would normal Docker Compose
-commands.
+these commands in your project directory as you would normal Docker commands.
 
-Also allows per-project (and per-mode, i.e., development/production/etc.)
-configuration of how `docker-compose` commands are formulated (which YAML files
-should be used); see the `setup` command below.
+Why should you care? The biggest benefit--apart from succinctness--is that you
+can configure how `docker-compose` commands are run on a per-project (and
+per-mode, i.e., development/production/etc.) basis, specifying which YAML files
+should be used for each; see the `setup` command below.
 
 ## Installation
 
@@ -21,7 +21,7 @@ should be used); see the `setup` command below.
 ## Usage
 
 Commands should be run from within your project directory (just as you would
-run normal Docker Compose commands).
+run normal Docker commands).
 
 `dock COMMAND [OPTIONS]`
 
@@ -31,8 +31,8 @@ E.g., `dock up -d my-service`
 
 Commands which invoke Docker Compose can be set up by "mode"
 (development/production/etc.) in order to designate which YAML files should be
-used. The default is "development" mode; you can specify a different mode with
-`-m`:
+used (see `setup` command below). The default is "development" mode; you can
+specify a different mode with `-m`:
 
 - `dock -m production COMMAND`, or
 - `dock -m some-other-crazy-mode COMMAND`
@@ -104,13 +104,13 @@ To set up for "deploy" mode, for instance, do `dock -m deploy setup`.
 Note that this allows you to stop containers by _name_ (instead of by container
 ID, which is how `docker stop` works).
 
-### up
-
-`docker-compose up`
-
 ### unuse
 
 `eval $(docker-machine env -u)`
+
+### up
+
+`docker-compose up`
 
 ### use
 
