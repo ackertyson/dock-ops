@@ -66,22 +66,25 @@ class DockOps
   end
 
   def setup
-    fn = -> arg { services arg }
-    yamls = find_yamls.select(&fn) # only include YAMLs with defined services
-    highlight = :aqua
+    has_services = -> arg { services arg }
+    with_color = lambda { |color, text| @term.color text, color }
+    highlight = with_color.curry.call(:aqua)
+    yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     @term.show [
       'Available YAML files:',
       numbered(yamls, highlight),
       '',
       'Commands:',
-      "- [#{@term.color 1, highlight}, #{@term.color 2, highlight}, ..., #{@term.color 'N', highlight}] Add YAML file",
-      "- [#{@term.color 'BACKSPACE', highlight}] Remove YAML file",
-      "- [#{@term.color 'C', highlight}]ancel (exit without saving changes)",
-      "- [#{@term.color 'ENTER', highlight}] or e[#{@term.color 'X', highlight}]it (save changes)",
+      "- [#{highlight.call 1}, #{highlight.call 2}, ..., #{highlight.call 'N'}] Add YAML file",
+      "- [#{highlight.call 'BACKSPACE'}] Remove YAML file",
+      "- [#{highlight.call 'C'}]ancel (exit without saving changes)",
+      "- [#{highlight.call 'ENTER'}] or e[#{highlight.call 'X'}]it (save changes)",
       '',
       "In #{@mode.upcase} mode, Docker Compose commands should use:"
     ]
     update_setup setup_ui yamls, get_setup()
+  rescue => e
+    puts e
   end
 
   def ssh(remote)
@@ -134,8 +137,8 @@ class DockOps
 
   def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
     arr = [arr] unless arr.kind_of? Array
-    fn = -> arg { quote arg }
-    arr.compact.map(&fn).join(' ')
+    with_quotes = -> arg { quote arg }
+    arr.compact.map(&with_quotes).join(' ')
   end
 
   def bail(msg)
@@ -210,10 +213,10 @@ class DockOps
     puts e.backtrace
   end
 
-  def numbered(arr, color=nil)
+  def numbered(arr, highlight=nil)
     arr = [arr] unless arr.kind_of? Array
-    fn = lambda { |arg, i| "#{color ? "#{@term.color(i + 1, color)}" : i + 1}. #{arg}" }
-    arr.map.with_index(&fn)
+    with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
+    arr.map.with_index(&with_color)
   rescue => e
     puts e
   end
