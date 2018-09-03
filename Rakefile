@@ -5,15 +5,15 @@ task :build do
   sh %{ gem build dock-ops.gemspec }
 end
 
+task :install => ['build'] do
+  puts "\nInstalling (requires sudo access)..."
+  sh %{ sudo gem install -f -l dock-ops }
+end
+
 task :test do
   puts 'Running tests...'
   ruby "test/*.rb"
   puts "\n"
-end
-
-task :install => ['build'] do
-  puts "\nInstalling (requires sudo access)..."
-  sh %{ sudo gem install -f dock-ops }
 end
 
 task :dist => ['test', 'build'] do
