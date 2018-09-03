@@ -333,7 +333,6 @@ class DockOps
       return
     end
     @cnfg[@mode] = yamls
-    puts "\n\n#{@mode.upcase} mode will now use: #{compose yamls}"
     write_setup()
   rescue => e
     puts e
@@ -353,7 +352,7 @@ class DockOps
     FileUtils.mkpath project_setup_dir unless Dir.exist? project_setup_dir
     project_setup_file = File.join(project_setup_dir, "#{@mode}.yaml")
     IO.write project_setup_file, Psych.dump(get_setup)
-    puts "Saved to file #{project_setup_file}"
+    puts "\nSaved to file #{project_setup_file}"
   rescue => e
     puts e
     puts e.backtrace

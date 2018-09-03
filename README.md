@@ -16,7 +16,7 @@ should be used for each; see the `setup` command below.
 
 3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec`)
 
-4. `sudo gem install dock-ops`
+4. `rake install` (or, if you don't have Rake, `sudo gem install dock-ops`)
 
 ## Testing
 
