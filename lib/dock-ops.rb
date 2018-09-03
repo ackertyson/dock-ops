@@ -64,16 +64,19 @@ class DockOps
 
   def setup
     yamls = find_yamls
-    @term.show 'Available YAML files:'
-    @term.show numbered yamls
-    @term.show ''
-    @term.show 'Commands:'
-    @term.show '- [1, 2, ..., N] Add YAML file'
-    @term.show '- [BACKSPACE] Remove YAML file'
-    @term.show '- [C]ancel (exit without saving changes)'
-    @term.show '- [ENTER] or e[X]it (save changes)'
-    @term.show ''
-    @term.show "In #{@mode.upcase} mode, Docker Compose commands should use:"
+    highlight = :aqua
+    @term.show [
+      'Available YAML files:',
+      numbered(yamls, highlight),
+      '',
+      'Commands:',
+      "- [#{@term.color 1, highlight}, #{@term.color 2, highlight}, ..., #{@term.color 'N', highlight}] Add YAML file",
+      "- [#{@term.color 'BACKSPACE', highlight}] Remove YAML file",
+      "- [#{@term.color 'C', highlight}]ancel (exit without saving changes)",
+      "- [#{@term.color 'ENTER', highlight}] or e[#{@term.color 'X', highlight}]it (save changes)",
+      '',
+      "In #{@mode.upcase} mode, Docker Compose commands should use:"
+    ]
     update_setup setup_ui yamls, get_setup()
   end
 
@@ -101,8 +104,12 @@ class DockOps
   def work(argv) # MAIN (entry point)
     cmd, *opts = parse_args argv
     load_setup()
+    return delegate(opts) if cmd == :native
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
+  rescue BadArgsError => e
+    puts e
+    puts e.backtrace
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
@@ -132,7 +139,7 @@ class DockOps
   def compose(yamls=nil)
     input = yamls ? yamls : get_setup()
     flag = -> arg { "-f #{arg}" }
-    return "docker-compose #{input.map(&flag).join(' ')}"
+    return "docker-compose #{input.map(&flag).join(' ')}".chomp
   end
 
   def confirm_create_setup_store
@@ -152,13 +159,27 @@ class DockOps
 
   def default_setup
     return {
-      :development => ['docker-compose.development.yaml', 'docker-compose.yaml'],
+      :development => ['docker-compose.development.yaml'],
       :production => ['docker-compose.yaml']
     }
   end
 
+  def delegate(args) # pass args through to Docker
+    flag, *argv = args
+    case flag
+    when :compose
+      sys "#{compose} #{as_args argv}"
+    when :docker
+      sys "docker #{as_args argv}"
+    when :machine
+      sys "docker-machine #{as_args argv}"
+    else
+      raise BadArgsError
+    end
+  end
+
   def find_yamls
-    Dir.glob '*.y{a,}ml'
+    Dir.glob('*.y{a,}ml').sort
   end
 
   def get_setup
@@ -183,15 +204,20 @@ class DockOps
     puts e.backtrace
   end
 
-  def numbered(arr)
+  def numbered(arr, color=nil)
     arr = [arr] unless arr.kind_of? Array
-    fn = lambda { |arg, i| "#{i + 1}. #{arg}" }
+    fn = lambda { |arg, i| "#{color ? "#{@term.color(i + 1, color)}" : i + 1}. #{arg}" }
     arr.map.with_index(&fn)
+  rescue => e
+    puts e
   end
 
   def parse_args(argv)
-    flags = ['-p', '-m', '--production']
-    if flags.include?(argv[0])
+    flags = {
+      :mode => ['-m', '-p', '--production'],
+      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine']
+    }
+    if flags[:mode].include?(argv[0])
       flag = argv.shift
       case flag
       when '-p', '--production'
@@ -204,6 +230,20 @@ class DockOps
     else
       @mode = :development
     end
+
+    if flags[:native].include?(argv[0])
+      flag = argv.shift
+      case flag
+      when '-nc', '--compose'
+        argv.unshift :compose
+      when '-nd', '--docker'
+        argv.unshift :docker
+      when '-nm', '--machine'
+        argv.unshift :machine
+      end
+      argv.unshift :native # flag for later routing
+    end
+
     return argv
   end
 

@@ -43,6 +43,21 @@ do:
 - `dock -p COMMAND`, or
 - `dock --production COMMAND`
 
+## Native pass-thru
+
+Want to use a `docker`/`docker-compose`/`docker-machine` command that isn't
+implemented here? You can tell `dock-ops` to pass the command along to be
+handled natively:
+
+- `-nc` / `--compose`, or
+- `-nd` / `--docker`, or
+- `-nm` / `--machine`
+
+For example, to call `docker-machine regenerate-certs my-app`, do:
+
+- `dock -nm regenerate-certs my-app`, or
+- `dock --machine regenerate-certs my-app`
+
 ## Command equivalents
 
 ### build

@@ -34,7 +34,8 @@ class Term
   end
 
   def show(text, with_leading_newline=false)
+    text = [text] unless text.kind_of? Array
     puts '' if with_leading_newline
-    puts text
+    text.each do |line| puts line end
   end
 end
