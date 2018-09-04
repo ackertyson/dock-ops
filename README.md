@@ -32,7 +32,7 @@ already.)
 ## Usage
 
 Commands should be run from **within your project directory** (just as you would
-run normal Docker commands). Commands default to "development" mode if none is
+run normal Docker commands). Commands default to *development* mode if none is
 explicitly specified (see MODES below). The general format is:
 
 `dock [FLAGS] COMMAND [ARGS]`
@@ -40,8 +40,8 @@ explicitly specified (see MODES below). The general format is:
 FLAGS influence the behavior of `dock-ops` and ARGS are passed to the
 corresponding Docker COMMAND. For example:
 
-- `dock up -d my-service` (run UP command in "development" mode), or
-- `dock -p up -d my-service` (do the same in "production" mode)
+- `dock up -d my-service` (run UP command in *development* mode), or
+- `dock -p up -d my-service` (do the same in *production* mode)
 
 A **good first step** is generating the configuration for your project:
 
@@ -49,7 +49,7 @@ A **good first step** is generating the configuration for your project:
 
 ...which allows you to define which docker-compose files to use (see the `setup`
 command below). Add a MODE flag to configure modes other than the default
-"development" mode.
+*development* mode.
 
 ## Shell completion
 
@@ -61,13 +61,13 @@ IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 
 Commands which invoke Docker Compose can be set up by "mode"
 (development/production/etc.) in order to designate which YAML files should be
-used (see `setup` command below). The default is "development" mode; you can
+used (see `setup` command below). The default is *development* mode; you can
 specify a different mode with `-m`:
 
 - `dock -m production COMMAND`, or
 - `dock -m some-other-crazy-mode COMMAND`
 
-For "production" mode (since that is a fairly common use-case :) you can also
+For *production* mode (since that is a fairly common use-case :) you can also
 do:
 
 - `dock -p COMMAND`, or
