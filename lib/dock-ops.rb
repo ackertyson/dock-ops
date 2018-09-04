@@ -104,6 +104,10 @@ class DockOps
     cmd, *opts = parse_args argv
     load_setup()
     return delegate(opts) if cmd == :native
+    # if cmd == :remote
+    #   cmd, *opts = opts.last opts.length - 1
+    #   callback = -> { self.send cmd.to_sym, opts }
+    #   return with_remote name, &callback
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
   rescue ArgumentError
@@ -225,8 +229,8 @@ class DockOps
   def parse_args(argv)
     flags = {
       :mode => ['-m', '-p', '--production'],
-      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
-      :remote => ['-h']
+      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine']
+      # :remote => ['-r', '--remote']
     }
     if flags[:mode].include?(argv[0])
       flag = argv.shift
@@ -254,6 +258,11 @@ class DockOps
       end
       argv.unshift :native
     end
+
+    # if flags[:remote].include?(argv[0]) # flag for delegate handling
+    #   flag = argv.shift
+    #   argv.unshift :remote
+    # end
 
     return argv
   end
@@ -341,23 +350,18 @@ class DockOps
     puts e.backtrace
   end
 
-  def with_remote(name)
-    env = Hash.new
-    `docker-machine env #{as_args name}`.each_line do |line|
-      cmd, keyval = line.split ' ', 2 # split "export KEY=VALUE" on first occurrence of whitespace
-      next unless cmd == "export" # ignore lines which aren't EXPORTing vars
-      key, value = keyval.split '=', 2 # split "KEY=VALUE" on first occurrence of "=" (VALUE may contain "=")
-      /^"(.+)"$/.match(value) do |m|
-        value = m[1] # strip enclosing double-quotes
-      end
-      env[key] = value # set env var
-    end
-    puts env
-    system(env, "echo 'Ready...'")
-  rescue => e
-    puts e
-    puts e.backtrace
-  end
+  # def with_remote(name, callback)
+  #   `docker-machine env #{name}`.each_line do |line|
+  #     cmd, keyval = line.split ' ', 2 # split "export KEY=VALUE" on first occurrence of whitespace
+  #     next unless cmd == "export" # ignore lines which aren't EXPORTing vars
+  #     key, value = keyval.split '=', 2 # split "KEY=VALUE" on first occurrence of "=" (VALUE may contain "=")
+  #     /^"(.+)"$/.match(value) do |m|
+  #       value = m[1] # strip enclosing double-quotes
+  #     end
+  #     ENV[key] = value # set env var
+  #   end
+  #   callback.call
+  # end
 
   def write_setup
     home = Dir.home

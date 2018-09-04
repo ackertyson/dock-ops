@@ -7,7 +7,7 @@ Why should you care? The biggest benefit apart from succinctness is that you can
 configure how `docker-compose` commands are formulated on a per-project basis
 (_and_ per-mode, i.e., development/production/etc.), specifying which YAML files
 should be used for each; see the `setup` command below. You might not get how
-awesome this is until you're managing many different projects which all have
+awesome this is until you're managing several different projects which all have
 different conventions with respect to compose file naming and extending. Trust
 me: it's awesome!
 
@@ -67,6 +67,19 @@ For example, to call `docker-machine regenerate-certs my-app`, do:
 
 - `dock -nm regenerate-certs my-app`, or
 - `dock --machine regenerate-certs my-app`
+
+## Deployed Docker machines
+
+If you're the type of person who finds themselves deploying Docker Compose apps
+to remote hosts provisioned via `docker-machine create`, I recommend following
+the directions found in the `dock-ops-aliases.sh` script included with this
+project. You can then do `dock-use MACHINENAME` to connect to a remote instance,
+run Docker commands on the remote just the same as you might run them locally,
+and then `dock-unuse` when you're done.
+
+If you have no idea what I'm talking about but have a Docker Compose app which
+you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
+should look into this!
 
 ## Command equivalents
 
