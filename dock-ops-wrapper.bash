@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Copy this file to your ~/ and add the following line to ~/.bash_profile (yes,
-# it should start with 'dot'):
+# it should start with a 'dot'):
 #
-# . ~/dock-ops-wrapper.sh
+# . ~/dock-ops-wrapper.bash
 
 __dock_wrapper () {
   if [[ "$1" == use ]]; then

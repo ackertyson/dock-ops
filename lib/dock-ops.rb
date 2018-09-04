@@ -25,6 +25,10 @@ class DockOps
     %x[docker volume rm #{as_args volumes}] if volumes and volumes.length > 0
   end
 
+  def commands
+    puts get_commands.join ' '
+  end
+
   def config
     sys "#{compose} config"
   end
@@ -43,7 +47,7 @@ class DockOps
 
   def ls
     find_yamls.each do |filename|
-      servicenames = services filename
+      servicenames = get_services filename
       if servicenames and servicenames.length > 0
         puts filename
         servicenames.each do |servicename|
@@ -69,8 +73,8 @@ class DockOps
     sys "docker-machine ls"
   end
 
-  def rmi(name)
-    sys "docker rmi #{as_args name}"
+  def rmi(args)
+    sys "docker rmi #{as_args args}"
   end
 
   def run(name, *args)
@@ -81,8 +85,18 @@ class DockOps
     sys "docker-machine scp #{as_args remote}"
   end
 
+  def services
+    has_services = -> arg { get_services arg }
+    yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
+    candidates = []
+    yamls.each do |yaml|
+      candidates.concat get_services yaml
+    end
+    puts as_args candidates.uniq
+  end
+
   def setup
-    has_services = -> arg { services arg }
+    has_services = -> arg { get_services arg }
     with_color = lambda { |color, text| @term.color text, color }
     bling = with_color.curry.call get_mode_color
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
@@ -134,7 +148,7 @@ class DockOps
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, images, logs, ls, ps, push, pull, rls, rmi, run, scp, setup, ssh, stop, tag, up"
+    bail "'#{cmd}' is not a choice: #{get_commands.join ', '}"
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
@@ -219,6 +233,10 @@ class DockOps
     @cnfg[mode]
   end
 
+  def get_commands
+    return ['build', 'clean', 'config', 'down', 'images', 'logs', 'ls', 'ps', 'push', 'pull', 'rls', 'rmi', 'run', 'scp', 'setup', 'ssh', 'stop', 'tag', 'up']
+  end
+
   def load_setup
     @cnfg = default_setup()
     home = Dir.home
@@ -286,7 +304,7 @@ class DockOps
     candidates = []
     get_setup.each do |yaml|
       put yaml
-      services(yaml).each do |item|
+      get_services(yaml).each do |item|
         candidates.push(item) unless candidates.include? item
       end
     end
@@ -298,7 +316,7 @@ class DockOps
     return match
   end
 
-  def services(path) # return names of all services in docker-compose*.yaml files
+  def get_services(path) # return names of all services in docker-compose*.yaml files
     yaml = Psych.load_file path
     # does_extend = :false
     # yaml['services'].each_pair do |name, config|

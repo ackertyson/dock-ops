@@ -21,6 +21,11 @@ me: it's awesome!
 
 4. `rake install` (or, if you don't have Rake, `sudo gem install -l dock-ops`)
 
+## Shell completion
+
+Follow the directions in the `dock-ops-completion.bash` file included with this
+project.
+
 ## Testing
 
 `rake test`
@@ -74,7 +79,7 @@ If you're the type of person who finds themselves deploying Docker Compose apps
 to remote hosts provisioned via `docker-machine create`, I recommend following
 the directions found in the `dock-ops-wrapper.sh` script included with this
 project. You can then do `dock use MACHINENAME` to connect to a remote instance,
-run Docker commands on the remote just the same as you might run them locally,
+run Docker commands on the remote just the same as you would run them locally,
 and then `dock unuse` when you're done.
 
 If you have no idea what I'm talking about but have a Docker Compose app which
