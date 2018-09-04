@@ -3,24 +3,48 @@
 #
 # . ~/dock-ops-completion.bash
 
-_dock()
-{
+__dock() {
     local cur prev opts base
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    cmd="${COMP_WORDS[1]}"
 
-    opts=`dock commands` # Basic commands to complete
+    # skip over prefix flags to find command...
+    for ((i = 1; i < ${#COMP_WORDS[@]}; ++i))
+      do
+        case "${COMP_WORDS[i]}" in
+          -m|-nc|-nd|-nm|--compose|--docker|--machine)
+            cmd="${COMP_WORDS[i+2]}"
+            break
+            ;;
+          -p|--production)
+            cmd="${COMP_WORDS[i+1]}"
+            break
+            ;;
+          *)
+          ;;
+        esac
+    done
 
-    # Complete the arguments to some of the basic commands.
-    case "${prev}" in
+    opts="build clean config down images logs ls ps push pull rls rmi run scp setup ssh stop tag up" # Basic commands to complete
+    running=`docker ps --format "{{.Names}}"` # names of running containers
+    services=`dock services` # service names from YAML file(s)
+
+    # Complete the arguments to specified commands...
+    case "${cmd}" in
+        build)
+            local names="$services"
+            COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
+            return 0
+            ;;
         down)
-            local running=`docker ps --format "{{.Names}}"`
+            local running="$running"
             COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
             return 0
             ;;
         up)
-            local names=`dock services`
+            local names="$services"
             COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
             return 0
             ;;
@@ -31,4 +55,4 @@ _dock()
    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
    return 0
 }
-complete -F _dock dock
+complete -F __dock dock

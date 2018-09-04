@@ -41,8 +41,9 @@ E.g., `dock up -d my-service`
 
 ## Shell completion
 
-Follow the directions in the `dock-ops-completion.bash` file included with this
-project.
+IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
+`<TAB>` suggestions are awesome, so follow the directions in the
+`dock-ops-completion.bash` file included with this project.
 
 ## Modes
 
