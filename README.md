@@ -13,7 +13,7 @@ me: it's awesome!
 
 ## Installation
 
-1. `git clone git@github.com:ackertyson/dock-ops.git`
+1. `git clone https://github.com/ackertyson/dock-ops.git`
 
 2. `cd dock-ops/`
 
@@ -34,6 +34,12 @@ already.)
 Commands should be run from within your project directory (just as you would run
 normal Docker commands). Defaults to "development" mode if none is explicitly
 specified (see MODES below).
+
+Start by generating the config file for your project:
+
+`dock setup`
+
+Use the prompt shown to configure the docker-compose files to use with this project.
 
 `dock COMMAND [OPTIONS]`
 
