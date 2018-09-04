@@ -12,7 +12,7 @@ class DockOps
   end
 
   def build(service)
-    sys "#{compose} build #{service}"
+    sys "#{compose} build #{as_args service}"
   end
 
   def clean
@@ -33,8 +33,12 @@ class DockOps
     sys "#{compose} down --remove-orphans"
   end
 
-  def logs(args)
-    sys "#{compose} logs #{as_args args}"
+  def images
+    sys "docker images"
+  end
+
+  def logs(service)
+    sys "#{compose} logs #{as_args service}"
   end
 
   def ls
@@ -55,6 +59,10 @@ class DockOps
 
   def rls
     sys "docker-machine ls"
+  end
+
+  def rmi(name)
+    sys "docker rmi #{name}"
   end
 
   def run(name, *args)
@@ -114,7 +122,7 @@ class DockOps
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
-    bail "'#{cmd}' is not a choice: build, clean, config, down, logs, ls, ps, rls, run, scp, setup, ssh, stop, up"
+    bail "'#{cmd}' is not a choice: build, clean, config, down, images, logs, ls, ps, rls, rmi, run, scp, setup, ssh, stop, up"
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e

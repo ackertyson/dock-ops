@@ -103,6 +103,10 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 `docker-compose down`
 
+### images
+
+`docker images`
+
 ### logs
 
 `docker-compose logs`
@@ -118,6 +122,10 @@ List services defined in `docker-compose` YAML file(s).
 ### rls
 
 `docker-machine ls`
+
+### rmi
+
+`docker rmi`
 
 ### run
 
