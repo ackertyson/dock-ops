@@ -70,7 +70,7 @@ class DockOps
   end
 
   def rmi(name)
-    sys "docker rmi #{name}"
+    sys "docker rmi #{as_args name}"
   end
 
   def run(name, *args)
