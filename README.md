@@ -21,16 +21,13 @@ me: it's awesome!
 
 4. `rake install` (or, if you don't have Rake, `sudo gem install -l dock-ops`)
 
-## Shell completion
-
-Follow the directions in the `dock-ops-completion.bash` file included with this
-project.
-
 ## Testing
 
 `rake test`
 
-(Requires `sudo gem install minitest-reporters`)
+(Requires `sudo gem install minitest-reporters`. And I'm not giving you the
+non-Rake version of this command. If you want to run tests, just install Rake
+already.)
 
 ## Usage
 
@@ -41,6 +38,11 @@ specified (see MODES below).
 `dock COMMAND [OPTIONS]`
 
 E.g., `dock up -d my-service`
+
+## Shell completion
+
+Follow the directions in the `dock-ops-completion.bash` file included with this
+project.
 
 ## Modes
 
