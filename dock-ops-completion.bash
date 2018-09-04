@@ -38,7 +38,7 @@ __dock() {
             COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
             return 0
             ;;
-        down)
+        stop)
             local running="$running"
             COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
             return 0
