@@ -31,19 +31,25 @@ already.)
 
 ## Usage
 
-Commands should be run from within your project directory (just as you would run
-normal Docker commands). Defaults to "development" mode if none is explicitly
-specified (see MODES below).
+Commands should be run from *within your project directory* (just as you would
+run normal Docker commands). Commands default to "development" mode if none is
+explicitly specified (see MODES below). The general format is:
 
-Start by generating the config file for your project:
+`dock [FLAGS] COMMAND [ARGS]`
+
+FLAGS influence the behavior of `dock-ops` and ARGS are passed to the
+corresponding Docker COMMAND. For example:
+
+- `dock up -d my-service` (run UP command in "development" mode), or
+- `dock -p up -d my-service` (do the same in "production" mode)
+
+A *good first step* is generating the configuration for your project:
 
 `dock setup`
 
-Use the prompt shown to configure the docker-compose files to use with this project.
-
-`dock COMMAND [OPTIONS]`
-
-E.g., `dock up -d my-service`
+...which allows you to define which docker-compose files to use (see the `setup`
+command below). Add a MODE flag to configure modes other than the default
+"development" mode.
 
 ## Shell completion
 
