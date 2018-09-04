@@ -81,7 +81,7 @@ If you have no idea what I'm talking about but have a Docker Compose app which
 you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
 should look into this!
 
-You'll probably also want to check out [https://github.com/docker/machine/blob/master/contrib/completion/bash/docker-machine-prompt.bash](docker-machine-prompt).
+You'll probably also want to check out [docker-machine-prompt](https://github.com/docker/machine/blob/master/contrib/completion/bash/docker-machine-prompt.bash).
 
 ## Command equivalents
 
