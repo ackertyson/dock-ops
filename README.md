@@ -31,7 +31,7 @@ already.)
 
 ## Usage
 
-Commands should be run from *within your project directory* (just as you would
+Commands should be run from **within your project directory** (just as you would
 run normal Docker commands). Commands default to "development" mode if none is
 explicitly specified (see MODES below). The general format is:
 
@@ -43,7 +43,7 @@ corresponding Docker COMMAND. For example:
 - `dock up -d my-service` (run UP command in "development" mode), or
 - `dock -p up -d my-service` (do the same in "production" mode)
 
-A *good first step* is generating the configuration for your project:
+A **good first step** is generating the configuration for your project:
 
 `dock setup`
 
