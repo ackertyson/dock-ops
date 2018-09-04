@@ -68,17 +68,17 @@ class DockOps
   def setup
     has_services = -> arg { services arg }
     with_color = lambda { |color, text| @term.color text, color }
-    highlight = with_color.curry.call get_mode_color
+    bling = with_color.curry.call get_mode_color
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     @term.show [
       'Available YAML files:',
-      numbered(yamls, highlight),
+      numbered(yamls, bling),
       '',
       'Commands:',
-      "- [#{highlight.call 1}, #{highlight.call 2}, ..., #{highlight.call 'N'}] Add YAML file",
-      "- [#{highlight.call 'BACKSPACE'}] Remove YAML file",
-      "- [#{highlight.call 'C'}]ancel (exit without saving changes)",
-      "- [#{highlight.call 'ENTER'}] or e[#{highlight.call 'X'}]it (save changes)",
+      "- [#{bling.call 1}, #{bling.call 2}, ..., #{bling.call 'N'}] Add YAML file",
+      "- [#{bling.call 'BACKSPACE'}] Remove YAML file",
+      "- [#{bling.call 'C'}]ancel (exit without saving changes)",
+      "- [#{bling.call 'ENTER'}] or e[#{bling.call 'X'}]it (save changes)",
       '',
       "In #{@mode.upcase} mode, Docker Compose commands should use:"
     ]
@@ -104,10 +104,6 @@ class DockOps
     cmd, *opts = parse_args argv
     load_setup()
     return delegate(opts) if cmd == :native
-    # if cmd == :remote
-    #   cmd, *opts = opts.last opts.length - 1
-    #   callback = -> { self.send cmd.to_sym, opts }
-    #   return with_remote name, &callback
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
   rescue ArgumentError
@@ -230,7 +226,6 @@ class DockOps
     flags = {
       :mode => ['-m', '-p', '--production'],
       :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine']
-      # :remote => ['-r', '--remote']
     }
     if flags[:mode].include?(argv[0])
       flag = argv.shift
@@ -258,11 +253,6 @@ class DockOps
       end
       argv.unshift :native
     end
-
-    # if flags[:remote].include?(argv[0]) # flag for delegate handling
-    #   flag = argv.shift
-    #   argv.unshift :remote
-    # end
 
     return argv
   end
@@ -349,19 +339,6 @@ class DockOps
     puts e
     puts e.backtrace
   end
-
-  # def with_remote(name, callback)
-  #   `docker-machine env #{name}`.each_line do |line|
-  #     cmd, keyval = line.split ' ', 2 # split "export KEY=VALUE" on first occurrence of whitespace
-  #     next unless cmd == "export" # ignore lines which aren't EXPORTing vars
-  #     key, value = keyval.split '=', 2 # split "KEY=VALUE" on first occurrence of "=" (VALUE may contain "=")
-  #     /^"(.+)"$/.match(value) do |m|
-  #       value = m[1] # strip enclosing double-quotes
-  #     end
-  #     ENV[key] = value # set env var
-  #   end
-  #   callback.call
-  # end
 
   def write_setup
     home = Dir.home

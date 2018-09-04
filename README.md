@@ -23,9 +23,9 @@ me: it's awesome!
 
 ## Testing
 
-(Requires `sudo gem install minitest-reporters`)
-
 `rake test`
+
+(Requires `sudo gem install minitest-reporters`)
 
 ## Usage
 
@@ -72,16 +72,20 @@ For example, to call `docker-machine regenerate-certs my-app`, do:
 
 If you're the type of person who finds themselves deploying Docker Compose apps
 to remote hosts provisioned via `docker-machine create`, I recommend following
-the directions found in the `dock-ops-aliases.sh` script included with this
-project. You can then do `dock-use MACHINENAME` to connect to a remote instance,
+the directions found in the `dock-ops-wrapper.sh` script included with this
+project. You can then do `dock use MACHINENAME` to connect to a remote instance,
 run Docker commands on the remote just the same as you might run them locally,
-and then `dock-unuse` when you're done.
+and then `dock unuse` when you're done.
 
 If you have no idea what I'm talking about but have a Docker Compose app which
 you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
 should look into this!
 
+You'll probably also want to check out [https://github.com/docker/machine/blob/master/contrib/completion/bash/docker-machine-prompt.bash](docker-machine-prompt).
+
 ## Command equivalents
+
+Last but not least, here's what all the `dock-ops` commands actually do...
 
 ### build
 
