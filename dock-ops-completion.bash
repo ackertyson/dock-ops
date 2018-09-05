@@ -41,6 +41,11 @@ __dock() {
             COMPREPLY=( $(compgen -W "${containers}" -- ${cur}) )
             return 0
             ;;
+        rmi)
+            local images=`docker images --format "{{.Repository}}"`
+            COMPREPLY=( $(compgen -W "${images}" -- ${cur}) )
+            return 0
+            ;;
         use)
             local machines=`docker-machine ls --format "{{.Name}}"`
             COMPREPLY=( $(compgen -W "${machines}" -- ${cur}) )

@@ -141,7 +141,7 @@ class DockOps
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
   rescue ArgumentError
-    bail "bad inputs: '#{as_args argv}'; this can happen if you're not in a Docker-equipped project."
+    bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue BadArgsError => e
     puts e
     puts e.backtrace

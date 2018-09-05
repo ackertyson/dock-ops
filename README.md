@@ -14,8 +14,8 @@ Trust me: it's awesome!
 
 The tab-completion feature is pretty sweet, too. Read on...
 
-*NOTE:* you do still need to install the real Docker applications; `dock-ops` is
-just a wrapper.
+*NOTE: you do still need to install the real Docker applications; `dock-ops` is
+just a wrapper.*
 
 ## Installation
 
@@ -62,7 +62,7 @@ command below). Add a mode flag to configure modes other than the default
 IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 `<TAB>` suggestions are awesome, so follow the directions in the
 `dock-ops-completion.bash` file included with this project. Commands with
-additional completion options are noted below.
+parameter completion options are noted below.
 
 ## Modes
 
@@ -166,6 +166,8 @@ List services defined in Compose YAML file(s).
 
 `docker rmi`
 
+*Completions: existing image names*
+
 ### run
 
 `docker-compose run --rm`
@@ -181,8 +183,8 @@ List services defined in Compose YAML file(s).
 Configure the Docker Compose command which `dock-ops` should use for current
 project.
 
-This command will set up the specified mode (see MODES section above).
-To set up for "deploy" mode, for instance, do `dock -m deploy setup`.
+This command will configure the specified mode (see MODES section above).
+To set up for *deploy* mode, for instance, do `dock -m deploy setup`.
 
 ### ssh
 
