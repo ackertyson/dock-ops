@@ -1,15 +1,21 @@
 # dock-ops
 
-Docker CLI helpers, including common development and deployment commands. Run
-these commands in your project directory as you would normal Docker commands.
+This is an eminently useful CLI utility for nerds who do a lot of Docker
+development, particularly using Docker Compose. It includes shorthand for many
+common development and deployment commands.
 
-Why should you care? The biggest benefit apart from succinctness is that you can
-configure how `docker-compose` commands are formulated on a per-project basis
-(_and_ per-mode, i.e., development/production/etc.), specifying which YAML files
-should be used for each; see the `setup` command below. You might not get how
-awesome this is until you're managing several different projects which all have
-different conventions with respect to compose file naming and extending. Trust
-me: it's awesome!
+But it's not merely about succinctness! The coolest feature is arguably that you
+can configure how `docker-compose` commands are formulated on a per-project
+basis (*and* per-mode, i.e., development/production/etc.), specifying which YAML
+files should be used for each; see the `setup` command below. You might not get
+how awesome this is until you're managing several different projects which all
+have different conventions with respect to compose file naming and extending.
+Trust me: it's awesome!
+
+The tab-completion feature is pretty sweet, too. Read on...
+
+*NOTE:* you do still need to install the real Docker applications; `dock-ops` is
+just a wrapper.
 
 ## Installation
 
@@ -48,14 +54,15 @@ A **good first step** is generating the configuration for your project:
 `dock setup`
 
 ...which allows you to define which docker-compose files to use (see the `setup`
-command below). Add a MODE flag to configure modes other than the default
+command below). Add a mode flag to configure modes other than the default
 *development* mode.
 
 ## Shell completion
 
 IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 `<TAB>` suggestions are awesome, so follow the directions in the
-`dock-ops-completion.bash` file included with this project.
+`dock-ops-completion.bash` file included with this project. Commands with
+additional completion options are noted below.
 
 ## Modes
 
@@ -111,6 +118,8 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 `docker-compose build`
 
+*Completions: services defined in Compose YAML file(s)*
+
 ### clean
 
 `docker rm $(docker ps -f status=exited -a -q); docker rmi $(docker images -f dangling=true -a -q); docker volume rm $(docker volume ls -f dangling=true -q)`
@@ -131,9 +140,11 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 `docker-compose logs`
 
+*Completions: currently running containers*
+
 ### ls
 
-List services defined in `docker-compose` YAML file(s).
+List services defined in Compose YAML file(s).
 
 ### ps
 
@@ -159,6 +170,8 @@ List services defined in `docker-compose` YAML file(s).
 
 `docker-compose run --rm`
 
+*Completions: services defined in Compose YAML file(s)*
+
 ### scp
 
 `docker-machine scp`
@@ -179,8 +192,10 @@ To set up for "deploy" mode, for instance, do `dock -m deploy setup`.
 
 `docker stop $(docker ps -q -f name=_____)`
 
-Note that this allows you to stop containers by _name_ (instead of by container
+Note that this allows you to stop containers by *name* (instead of by container
 ID, which is how `docker stop` works).
+
+*Completions: currently running containers*
 
 ### tag
 
@@ -189,3 +204,5 @@ ID, which is how `docker stop` works).
 ### up
 
 `docker-compose up`
+
+*Completions: services defined in Compose YAML file(s)*
