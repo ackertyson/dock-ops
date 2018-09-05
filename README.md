@@ -166,7 +166,7 @@ List services defined in Compose YAML file(s).
 
 `docker rmi`
 
-*Completions: existing image names*
+*Completions: existing image repository names*
 
 ### run
 

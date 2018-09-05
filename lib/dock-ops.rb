@@ -77,8 +77,12 @@ class DockOps
     sys "docker rmi #{as_args args}"
   end
 
-  def run(name, *args)
+  def run(argv)
+    name, *args = argv
     sys "#{compose} run --rm #{service name} #{as_args args}"
+  rescue => e
+    puts e
+    puts e.backtrace
   end
 
   def scp(remote)
@@ -303,16 +307,14 @@ class DockOps
   def service(name) # parse docker-compose*.yaml files for NAME service
     candidates = []
     get_setup.each do |yaml|
-      put yaml
       get_services(yaml).each do |item|
         candidates.push(item) unless candidates.include? item
       end
     end
-    puts 'service', candidates
     match, *rest = candidates.select do |candidate|
       /#{Regexp.escape(name)}/ =~ candidate
     end
-    bail("more than one matching service for '#{name}'") if rest
+    bail("more than one matching service for '#{name}'") if rest and rest.length > 0
     return match
   end
 
