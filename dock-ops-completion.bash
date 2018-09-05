@@ -4,7 +4,10 @@
 # . ~/dock-ops-completion.bash
 
 skip_flags() {
-  case "$2" in
+  if [[ "$1" = dock ]]; then
+    shift
+  fi
+  case "$1" in
     -m|-nc|-nd|-nm|--compose|--docker|--machine)
       shift; shift
       skip_flags "$@"
@@ -14,7 +17,7 @@ skip_flags() {
       skip_flags "$@"
       ;;
     *)
-      echo "$2"
+      echo "$1"
       ;;
   esac
 }
