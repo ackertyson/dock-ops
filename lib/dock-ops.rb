@@ -80,9 +80,6 @@ class DockOps
   def run(argv)
     name, *args = argv
     sys "#{compose} run --rm #{service name} #{as_args args}"
-  rescue => e
-    puts e
-    puts e.backtrace
   end
 
   def scp(remote)
@@ -312,7 +309,7 @@ class DockOps
       end
     end
     match, *rest = candidates.select do |candidate|
-      /#{Regexp.escape(name)}/ =~ candidate
+      /^#{Regexp.escape(name)}$/ =~ candidate
     end
     bail("more than one matching service for '#{name}'") if rest and rest.length > 0
     return match
