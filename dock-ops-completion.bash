@@ -28,39 +28,21 @@ __dock() {
     done
 
     opts="build clean config down images logs ls ps push pull rls rmi run scp setup ssh stop tag up" # Basic commands to complete
-    machines=`docker-machine ls --format "{{.Name}}"`
-    running=`docker ps --format "{{.Names}}"` # names of running containers
-    services=`dock services` # service names from YAML file(s)
 
     # Complete the arguments to specified commands...
     case "${cmd}" in
-        build)
-            local names="$services"
+        build|run|up)
+            local names=`dock services`
             COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
             return 0
             ;;
-        logs)
-            local names="$running"
-            COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
-            return 0
-            ;;
-        run)
-            local names="$services"
-            COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
-            return 0
-            ;;
-        stop)
-            local names="$running"
-            COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
-            return 0
-            ;;
-        up)
-            local names="$services"
+        logs|stop)
+            local names=`docker ps --format "{{.Names}}"`
             COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
             return 0
             ;;
         use)
-            local names="$machines"
+            local names=`docker-machine ls --format "{{.Name}}"`
             COMPREPLY=( $(compgen -W "${names}" -- ${cur}) )
             return 0
             ;;
