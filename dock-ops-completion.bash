@@ -7,13 +7,11 @@ skip_flags() {
   case "$2" in
     -m|-nc|-nd|-nm|--compose|--docker|--machine)
       shift; shift
-      cmd=$(skip_flags "$@")
-      echo "$cmd"
+      skip_flags "$@"
       ;;
     -p|--production)
       shift
-      cmd=$(skip_flags "$@")
-      echo "$cmd"
+      skip_flags "$@"
       ;;
     *)
       echo "$2"
@@ -22,14 +20,14 @@ skip_flags() {
 }
 
 __dock() {
-    local cur prev CMD
+    local cur prev base
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    CMD=$(skip_flags "${COMP_WORDS[@]}")
+    base=$(skip_flags "${COMP_WORDS[@]}")
 
     # Complete the arguments to specified commands...
-    case "${CMD}" in
+    case "${base}" in
         build|run|up)
             local services=`dock services`
             COMPREPLY=( $(compgen -W "${services}" -- ${cur}) )
