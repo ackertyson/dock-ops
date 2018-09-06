@@ -115,7 +115,7 @@ class DockOps
     ]
     update_setup setup_ui yamls, get_setup()
   rescue => e
-    puts e
+    STDERR.puts e
   end
 
   def ssh(remote)
@@ -145,8 +145,8 @@ class DockOps
   rescue ArgumentError
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue BadArgsError => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
@@ -154,11 +154,11 @@ class DockOps
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
-    puts e
+    STDERR.puts e
     bail 'Oops!'
   rescue => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   end
 
   private ### internal methods #############
@@ -267,11 +267,11 @@ class DockOps
     project_setup_dir = File.join setup_dir, pwd
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
     @cnfg[@mode.to_sym] = Psych.load yaml
-  rescue Errno::ENOENT => e
-    puts "No existing setup; using default (do 'dock setup' to define for this project/mode)"
+  rescue Errno::ENOENT
+    STDERR.puts "No existing setup; using default (do 'dock setup' to define for this project/mode)"
   rescue => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   end
 
   def numbered(arr, highlight=nil) # prepend numeric cardinal to each (string) element of ARR
@@ -279,7 +279,7 @@ class DockOps
     with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
     arr.map.with_index(&with_color)
   rescue => e
-    puts e
+    STDERR.puts e
   end
 
   def parse_args(argv)
@@ -350,8 +350,8 @@ class DockOps
     end
     return do_save, current
   rescue => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   end
 
   def sys(cmd, capture=:false) # exec shell command
@@ -370,8 +370,8 @@ class DockOps
     @cnfg[@mode] = yamls
     write_setup()
   rescue => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   end
 
   def with_working_dir(args)
@@ -397,8 +397,8 @@ class DockOps
     IO.write project_setup_file, Psych.dump(get_setup)
     puts "\nSaved to file #{project_setup_file}"
   rescue => e
-    puts e
-    puts e.backtrace
+    STDERR.puts e
+    STDERR.puts e.backtrace
   end
 
 end
