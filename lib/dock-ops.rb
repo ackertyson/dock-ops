@@ -121,7 +121,7 @@ class DockOps < DockOpsCore
       "- [#{bling.call 'C'}]ancel (exit without saving changes)",
       "- [#{bling.call 'ENTER'}] or e[#{bling.call 'X'}]it (save changes)",
       '',
-      "In #{@mode.upcase} mode, Docker Compose commands should use:"
+      "In #{get_mode.upcase} mode, Docker Compose commands should use:"
     ]
     update_setup setup_ui yamls, get_setup()
   rescue => e

@@ -96,6 +96,10 @@ class DockOpsCore
     Dir.glob('*.y{a,}ml').sort
   end
 
+  def get_mode
+    @mode
+  end
+
   def get_mode_color
     colors = {
       :development => :aqua,
