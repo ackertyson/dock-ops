@@ -47,7 +47,7 @@ explicitly specified (see MODES below). The general format is:
 FLAGS influence the behavior of `dock-ops` and ARGS are passed to the
 corresponding Docker COMMAND. For example:
 
-- `dock up -d my-service` (run UP command in *development* mode), or
+- `dock up -d my-service` (invoke `up` command in *development* mode), or
 - `dock -p up -d my-service` (do the same in *production* mode)
 
 A **good first step** is generating the configuration for your project:
@@ -65,8 +65,8 @@ IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 `dock-ops-completion.bash` file included with this project. Commands with
 parameter completion options are noted below.
 
-Because arguments for `push` and `rmi` include colons (for image tags), and
-because bash normally considers `:` a word boundary, completions for these
+Because arguments for `push`, `rmi` and `tag` include colons (for image tags),
+and because bash normally considers `:` a word boundary, completions for these
 commands unfortunately won't work right unless you have the `bash-completion`
 package installed on your OS. For Mac, this is (usually) as easy as `brew update
 && brew install bash-completion`.
