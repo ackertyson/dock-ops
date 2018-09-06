@@ -55,7 +55,7 @@ class DockOps
     delegate :compose, 'logs', args
   end
 
-  def ls
+  def ls(args=nil)
     find_yamls.each do |filename|
       servicenames = get_services filename
       if servicenames and servicenames.length > 0
@@ -157,11 +157,11 @@ class DockOps
       return delegate(handler, command, args)
     end
     self.send cmd.to_sym, opts
-  rescue ArgumentError
-    bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue BadArgsError => e
     STDERR.puts e
     STDERR.puts e.backtrace
+  rescue ArgumentError
+    bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoMethodError
@@ -298,7 +298,8 @@ class DockOps
     STDERR.puts e
   end
 
-  def parse_args(argv)
+  def parse_args(argv=[])
+    raise BadArgsError unless argv.length > 0
     flags = {
       :mode => ['-m', '-p', '--production'],
       :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
@@ -310,7 +311,7 @@ class DockOps
       when '-p', '--production'
         @mode = :production
       when '-m'
-        @mode = argv.shift
+        @mode = argv.shift.to_sym
       else
         @mode = :development
       end
