@@ -268,7 +268,7 @@ class DockOps
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
     @cnfg[@mode.to_sym] = Psych.load yaml
   rescue Errno::ENOENT
-    STDERR.puts "No existing setup; using default (do 'dock setup' to define for this project/mode)"
+    # no existing setup file for this project/mode
   rescue => e
     STDERR.puts e
     STDERR.puts e.backtrace
