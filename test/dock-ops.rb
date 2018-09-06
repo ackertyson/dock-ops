@@ -17,44 +17,6 @@ describe DockOps do
     @dock.instance_variable_set :@cnfg, config
   end
 
-  describe 'as_args' do
-    it 'handles string input' do
-      @dock.send(:as_args, 'my-arg').must_equal 'my-arg'
-    end
-
-    it 'handles single array input' do
-      @dock.send(:as_args, ['my-arg']).must_equal 'my-arg'
-    end
-
-    it 'handles multi array input' do
-      @dock.send(:as_args, ['my-arg', 'other']).must_equal 'my-arg other'
-    end
-
-    it 'excludes empty array elements' do
-      @dock.send(:as_args, ['my-arg', nil, 'other']).must_equal 'my-arg other'
-    end
-  end
-
-  describe 'compose' do
-    it 'returns docker-compose command for single yaml' do
-      @dock.send(:compose).must_equal 'docker-compose -f my.yaml'
-    end
-
-    it 'returns docker-compose command for multiple yamls' do
-      config = {
-        :test => ['first', 'second']
-      }
-      @dock.instance_variable_set :@cnfg, config
-      @dock.send(:compose).must_equal 'docker-compose -f first -f second'
-    end
-
-    it 'returns docker-compose command for no yamls' do
-      config = {}
-      @dock.instance_variable_set :@cnfg, config
-      @dock.send(:compose).must_equal 'docker-compose '
-    end
-  end
-
   describe 'build' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
@@ -240,6 +202,5 @@ describe DockOps do
       end
     end
   end
-
 
 end

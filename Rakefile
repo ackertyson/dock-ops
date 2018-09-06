@@ -1,4 +1,6 @@
 require 'rake/clean'
+require 'rake/testtask'
+
 CLEAN.include('dock-ops*.gem')
 
 task default: %w[build]
@@ -15,8 +17,13 @@ end
 
 task :test do
   puts 'Running tests...'
-  ruby "test/*.rb"
-  puts "\n"
+  Rake::TestTask.new do |t|
+    t.libs = ["lib"]
+    t.warning = true
+    t.verbose = true
+    t.test_files = FileList['test/*.rb']
+    puts "\n"
+  end
 end
 
 task :dist => ['test', 'build'] do
