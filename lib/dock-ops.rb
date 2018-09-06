@@ -11,11 +11,11 @@ class DockOps
     @term = Term.new
   end
 
-  def build(service)
-    sys "#{compose} build #{as_args service}"
+  def build(args)
+    delegate :compose, 'build', args
   end
 
-  def clean
+  def clean(args=nil)
     containers = sys "docker ps -f status=exited -a -q", :true
     images = sys "docker images -f dangling=true -a -q", :true
     volumes = sys "docker volume ls -f dangling=true -q", :true
@@ -34,24 +34,25 @@ class DockOps
     end
   end
 
-  def commands
+  def commands(args=nil)
     puts get_commands.join ' '
   end
 
-  def config
-    sys "#{compose} config"
+  def config(args=[])
+    delegate :compose, 'config', args
   end
 
-  def down
-    sys "#{compose} down --remove-orphans"
+  def down(args=[])
+    args.unshift '--remove-orphans'
+    delegate :compose, 'down', args
   end
 
-  def images(repo=nil)
-    sys "docker images #{as_args repo}"
+  def images(args=[])
+    delegate :docker, 'images', args
   end
 
-  def logs(service)
-    sys "#{compose} logs #{as_args service}"
+  def logs(args)
+    delegate :compose, 'logs', args
   end
 
   def ls
@@ -66,36 +67,37 @@ class DockOps
     end
   end
 
-  def ps
-    sys "docker ps"
+  def ps(args=[])
+    delegate :docker, 'ps', args
   end
 
   def pull(args)
-    sys "docker pull #{as_args args}"
+    delegate :docker, 'pull', args
   end
 
   def push(args)
-    sys "docker push #{as_args args}"
+    delegate :docker, 'push', args
   end
 
-  def rls
-    sys "docker-machine ls"
+  def rls(args=[])
+    delegate :machine, 'ls', args
   end
 
   def rmi(args)
-    sys "docker rmi #{as_args args}"
+    delegate :docker, 'rmi', args
   end
 
-  def run(argv)
+  def run(argv=[])
     name, *args = argv
-    sys "#{compose} run --rm #{get_service name} #{as_args args}"
+    args.unshift '--rm', get_service(name)
+    delegate :compose, 'run', args
   end
 
-  def scp(remote)
-    sys "docker-machine scp #{as_args remote}"
+  def scp(args)
+    delegate :machine, 'scp', args
   end
 
-  def services
+  def services(args=nil)
     has_services = -> arg { get_services arg }
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     candidates = []
@@ -105,7 +107,7 @@ class DockOps
     puts as_args candidates.uniq
   end
 
-  def setup
+  def setup(args=nil)
     has_services = -> arg { get_services arg }
     with_color = lambda { |color, text| @term.color text, color }
     bling = with_color.curry.call get_mode_color
@@ -127,29 +129,33 @@ class DockOps
     STDERR.puts e
   end
 
-  def ssh(remote)
-    sys "docker-machine ssh #{as_args remote}"
+  def ssh(args)
+    delegate :machine, 'ssh', args
   end
 
-  def stop(name)
+  def stop(argv)
+    name, *args = argv
     raise BadArgsError unless name and name.length > 0
-    sys "docker stop #{as_args container(as_args name)}"
+    args.unshift container(name)
+    delegate :docker, 'stop', args
   end
 
   def tag(args)
-    sys "docker tag #{as_args args}"
+    delegate :docker, 'tag', args
   end
 
-  def up(args)
-    sys "#{compose} up #{as_args args}"
+  def up(args=[])
+    delegate :compose, 'up', args
   end
 
   def work(argv) # MAIN (entry point)
     cmd, *opts = parse_args argv
     load_setup()
-    return with_working_dir(opts) if cmd == :with_dir
-    return delegate(opts) if cmd == :native
-    return self.send(cmd.to_sym) unless opts.length > 0
+    return with_working_dir(opts) if cmd == :working_dir
+    if cmd == :native
+      handler, command, *args = opts
+      return delegate(handler, command, args)
+    end
     self.send cmd.to_sym, opts
   rescue ArgumentError
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
@@ -200,6 +206,7 @@ class DockOps
   end
 
   def container(name) # find running container NAME
+    raise BadArgsError unless name and name.length > 0
     sys "docker ps -q -f name=#{name}", :true
   end
 
@@ -210,15 +217,14 @@ class DockOps
     }
   end
 
-  def delegate(args) # pass args through to Docker
-    flag, *argv = args
-    case flag
+  def delegate(target, cmd, args) # pass args through to Docker
+    case target
     when :compose
-      sys "#{compose} #{as_args argv}"
+      sys "#{compose} #{cmd} #{as_args args}"
     when :docker
-      sys "docker #{as_args argv}"
+      sys "docker #{cmd} #{as_args args}"
     when :machine
-      sys "docker-machine #{as_args argv}"
+      sys "docker-machine #{cmd} #{as_args args}"
     else
       raise BadArgsError
     end
@@ -238,6 +244,7 @@ class DockOps
   end
 
   def get_service(name) # parse docker-compose*.yaml files for NAME service
+    raise BadArgsError unless name and name.length > 0
     candidates = []
     get_setup.each do |yaml|
       get_services(yaml).each do |item|
@@ -295,7 +302,7 @@ class DockOps
     flags = {
       :mode => ['-m', '-p', '--production'],
       :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
-      :with_dir => ['-w']
+      :working_dir => ['-w']
     }
     if flags[:mode].include?(argv[0])
       flag = argv.shift
@@ -324,9 +331,9 @@ class DockOps
       argv.unshift :native
     end
 
-    if flags[:with_dir].include?(argv[0]) # flag for working dir
+    if flags[:working_dir].include?(argv[0]) # flag for working dir
       flag = argv.shift
-      argv.unshift :with_dir
+      argv.unshift :working_dir
     end
 
     return argv
@@ -386,7 +393,6 @@ class DockOps
   def with_working_dir(args)
     path, cmd, *opts = args
     Dir.chdir(path) do
-      return self.send(cmd.to_sym) unless opts.length > 0
       self.send cmd.to_sym, opts
     end
   end

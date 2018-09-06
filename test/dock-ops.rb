@@ -69,7 +69,7 @@ describe DockOps do
   describe 'config' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
-      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml config'])
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml config '])
       @dock.stub(:sys, mock_sys) do
         @dock.config
         mock_sys.verify
@@ -113,7 +113,7 @@ describe DockOps do
   describe 'ps' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
-      mock_sys.expect(:call, nil, ['docker ps'])
+      mock_sys.expect(:call, nil, ['docker ps '])
       @dock.stub(:sys, mock_sys) do
         @dock.ps
         mock_sys.verify
@@ -146,7 +146,7 @@ describe DockOps do
   describe 'rls' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
-      mock_sys.expect(:call, nil, ['docker-machine ls'])
+      mock_sys.expect(:call, nil, ['docker-machine ls '])
       @dock.stub(:sys, mock_sys) do
         @dock.rls
         mock_sys.verify
@@ -168,7 +168,7 @@ describe DockOps do
   describe 'run' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
-      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml run --rm this '])
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml run --rm this'])
       mock_get_service = MiniTest::Mock.new
       mock_get_service.expect(:call, 'this', ['this'])
       @dock.stub(:get_service, mock_get_service) do
