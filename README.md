@@ -14,9 +14,6 @@ Trust me: it's awesome!
 
 The tab-completion feature is pretty sweet, too. Read on...
 
-*NOTE: you do still need to install the real Docker applications; `dock-ops` is
-just a wrapper.*
-
 ## Installation
 
 1. `git clone https://github.com/ackertyson/dock-ops.git`
@@ -26,6 +23,9 @@ just a wrapper.*
 3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec`)
 
 4. `rake install` (or, if you don't have Rake, `sudo gem install -l dock-ops`)
+
+*NOTE: you do still need to install the real Docker applications; `dock-ops` is
+just a wrapper.*
 
 ## Testing
 
@@ -157,6 +157,8 @@ List services defined in Compose YAML file(s).
 ### push
 
 `docker push`
+
+*Completions: existing image repository names*
 
 ### rls
 

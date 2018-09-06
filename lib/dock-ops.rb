@@ -79,7 +79,7 @@ class DockOps
 
   def run(argv)
     name, *args = argv
-    sys "#{compose} run --rm #{service name} #{as_args args}"
+    sys "#{compose} run --rm #{get_service name} #{as_args args}"
   end
 
   def scp(remote)
@@ -138,6 +138,7 @@ class DockOps
   def work(argv) # MAIN (entry point)
     cmd, *opts = parse_args argv
     load_setup()
+    return with_working_dir(opts) if cmd == :with_dir
     return delegate(opts) if cmd == :native
     return self.send(cmd.to_sym) unless opts.length > 0
     self.send cmd.to_sym, opts
@@ -227,6 +228,26 @@ class DockOps
     return colors[@mode] ? colors[@mode] : colors[:other]
   end
 
+  def get_service(name) # parse docker-compose*.yaml files for NAME service
+    candidates = []
+    get_setup.each do |yaml|
+      get_services(yaml).each do |item|
+        candidates.push(item) unless candidates.include? item
+      end
+    end
+    match, *rest = candidates.select do |candidate|
+      /^#{Regexp.escape(name)}$/ =~ candidate
+    end
+    return match
+  end
+
+  def get_services(path) # return names of all services in docker-compose*.yaml files
+    yaml = Psych.load_file path
+    yaml['services'].keys
+  rescue NoMethodError
+    return # probably not a docker-compose file!
+  end
+
   def get_setup
     raise NoModeError unless @mode
     mode = @mode.to_sym
@@ -264,7 +285,8 @@ class DockOps
   def parse_args(argv)
     flags = {
       :mode => ['-m', '-p', '--production'],
-      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine']
+      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
+      :with_dir => ['-w']
     }
     if flags[:mode].include?(argv[0])
       flag = argv.shift
@@ -293,42 +315,17 @@ class DockOps
       argv.unshift :native
     end
 
+    if flags[:with_dir].include?(argv[0]) # flag for working dir
+      flag = argv.shift
+      argv.unshift :with_dir
+    end
+
     return argv
   end
 
   def quote(str) # single-quote strings which contain a space
     return str unless str.include?(' ')
     return "'#{str}'"
-  end
-
-  def service(name) # parse docker-compose*.yaml files for NAME service
-    candidates = []
-    get_setup.each do |yaml|
-      get_services(yaml).each do |item|
-        candidates.push(item) unless candidates.include? item
-      end
-    end
-    match, *rest = candidates.select do |candidate|
-      /^#{Regexp.escape(name)}$/ =~ candidate
-    end
-    bail("more than one matching service for '#{name}'") if rest and rest.length > 0
-    return match
-  end
-
-  def get_services(path) # return names of all services in docker-compose*.yaml files
-    yaml = Psych.load_file path
-    # does_extend = :false
-    # yaml['services'].each_pair do |name, config|
-    #   config.each_pair do |k, v|
-    #     if k == 'extends'
-    #       does_extend = :true
-    #       puts File.exist? File.absolute_path(v['file'])
-    #     end
-    #   end
-    # end
-    yaml['services'].keys
-  rescue NoMethodError
-    return # probably not a docker-compose file!
   end
 
   def setup_ui(yamls, current)
@@ -375,6 +372,14 @@ class DockOps
   rescue => e
     puts e
     puts e.backtrace
+  end
+
+  def with_working_dir(args)
+    path, cmd, *opts = args
+    Dir.chdir(path) do
+      return self.send(cmd.to_sym) unless opts.length > 0
+      self.send cmd.to_sym, opts
+    end
   end
 
   def write_setup

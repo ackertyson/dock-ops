@@ -8,7 +8,7 @@ skip_flags() {
     shift
   fi
   case "$1" in
-    -m|-nc|-nd|-nm|--compose|--docker|--machine)
+    -m|-nc|-nd|-nm|-w|--compose|--docker|--machine|--working-dir)
       shift; shift
       skip_flags "$@"
       ;;
@@ -29,6 +29,16 @@ __dock() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     base=$(skip_flags "${COMP_WORDS[@]}")
 
+    # case "${prev}" in
+    #     -w|--working-dir)
+    #         local services=`dock services`
+    #         COMPREPLY=( $(compgen -o nospace -o dirnames -- ${cur}) )
+    #         return 0
+    #         ;;
+    #     *)
+    #     ;;
+    # esac
+
     # Complete the arguments to specified commands...
     case "${base}" in
         build|run|up)
@@ -41,8 +51,8 @@ __dock() {
             COMPREPLY=( $(compgen -W "${containers}" -- ${cur}) )
             return 0
             ;;
-        rmi)
-            local images=`docker images --format "{{.Repository}}"`
+        push|rmi)
+            local images=`docker images --format "{{.Repository}}:{{.Tag}}"`
             COMPREPLY=( $(compgen -W "${images}" -- ${cur}) )
             return 0
             ;;
