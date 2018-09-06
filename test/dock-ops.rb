@@ -36,15 +36,8 @@ describe DockOps do
   end
 
   describe 'compose' do
-    before do
-      config = {
-        :test => ['my-yaml']
-      }
-      @dock.instance_variable_set :@cnfg, config
-    end
-
     it 'returns docker-compose command for single yaml' do
-      @dock.send(:compose).must_equal 'docker-compose -f my-yaml'
+      @dock.send(:compose).must_equal 'docker-compose -f my.yaml'
     end
 
     it 'returns docker-compose command for multiple yamls' do
