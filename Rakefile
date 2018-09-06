@@ -1,3 +1,6 @@
+require 'rake/clean'
+CLEAN.include('dock-ops*.gem')
+
 task default: %w[build]
 
 task :build do
@@ -19,5 +22,5 @@ end
 task :dist => ['test', 'build'] do
 end
 
-task :dev => ['dist', 'install'] do
+task :dev => ['dist', 'install', 'clean'] do
 end
