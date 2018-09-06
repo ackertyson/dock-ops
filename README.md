@@ -4,8 +4,8 @@ This is an eminently useful CLI utility for nerds who do a lot of Docker
 development, particularly using Docker Compose. It includes shorthand for many
 common development and deployment commands.
 
-Tab completion is available for base commands and for parameters of many of
-those commands. See SHELL COMPLETION and COMMAND EQUIVALENTS sections below.
+Tab completion is available for base commands and for parameters of many
+commands. See SHELL COMPLETION and COMMAND EQUIVALENTS sections below.
 
 But it's not merely about succinctness! The coolest feature is arguably that you
 can configure how `docker-compose` commands are formulated on a per-project
@@ -104,12 +104,12 @@ For example, to call `docker-machine regenerate-certs my-app`, do:
 
 ## Deployed Docker machines
 
-If you're the type of person who finds themselves deploying Docker Compose apps
-to remote hosts provisioned via `docker-machine create`, I recommend following
-the directions found in the `dock-ops-wrapper.sh` script included with this
-project. You can then do `dock use MACHINENAME` to connect to a remote instance,
-run Docker commands on the remote just the same as you would run them locally,
-and then `dock unuse` when you're done.
+If you routinely find yourself deploying Docker Compose apps to remote hosts
+provisioned via `docker-machine create`, I recommend checking out the
+`dock-ops-wrapper.bash` script included with this project. You can then do `dock
+use MACHINENAME` to connect to a remote instance, run Docker commands on the
+remote just the same as you would run them locally, and then `dock unuse` when
+you're done.
 
 If you have no idea what I'm talking about but have a Docker Compose app which
 you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
@@ -165,7 +165,7 @@ List services defined in Compose YAML file(s).
 
 `docker push`
 
-*Completions: existing image repository names*
+*Completions: local image repository names*
 
 ### rls
 
@@ -175,7 +175,7 @@ List services defined in Compose YAML file(s).
 
 `docker rmi`
 
-*Completions: existing image repository names*
+*Completions: local image repository names*
 
 ### run
 
@@ -212,7 +212,7 @@ ID, which is how `docker stop` works).
 
 `docker tag`
 
-*Completions: existing image repository names*
+*Completions: local image repository names*
 
 ### up
 
