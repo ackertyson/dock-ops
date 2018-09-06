@@ -64,6 +64,12 @@ IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 `dock-ops-completion.bash` file included with this project. Commands with
 parameter completion options are noted below.
 
+Because arguments for `push` and `rmi` include colons (for image tags), and
+because bash normally considers `:` a word boundary, completions for these
+commands unfortunately won't work right unless you have the `bash-completion`
+package installed on your OS. For Mac, this is (usually) as easy as `brew update
+&& brew install bash-completion`.
+
 ## Modes
 
 Commands which invoke Docker Compose can be set up by "mode"

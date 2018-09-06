@@ -52,8 +52,12 @@ __dock() {
             return 0
             ;;
         push|rmi)
+            # requires more hand-holding because of the ':' in completion words
+            # (also require bash-completion package)
             local images=`docker images --format "{{.Repository}}:{{.Tag}}"`
+            _get_comp_words_by_ref -n : cur
             COMPREPLY=( $(compgen -W "${images}" -- ${cur}) )
+            __ltrim_colon_completions ${cur}
             return 0
             ;;
         use)
