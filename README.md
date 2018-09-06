@@ -212,6 +212,8 @@ ID, which is how `docker stop` works).
 
 `docker tag`
 
+*Completions: existing image repository names*
+
 ### up
 
 `docker-compose up`

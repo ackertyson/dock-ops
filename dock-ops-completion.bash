@@ -51,7 +51,7 @@ __dock() {
             COMPREPLY=( $(compgen -W "${containers}" -- ${cur}) )
             return 0
             ;;
-        push|rmi)
+        push|rmi|tag)
             # requires more hand-holding because of the ':' in completion words
             # (also require bash-completion package)
             local images=`docker images --format "{{.Repository}}:{{.Tag}}"`
