@@ -4,6 +4,9 @@ This is an eminently useful CLI utility for nerds who do a lot of Docker
 development, particularly using Docker Compose. It includes shorthand for many
 common development and deployment commands.
 
+Tab completion is available for base commands and for parameters of many of
+those commands. See SHELL COMPLETION and COMMAND EQUIVALENTS sections below.
+
 But it's not merely about succinctness! The coolest feature is arguably that you
 can configure how `docker-compose` commands are formulated on a per-project
 basis (*and* per-mode, i.e., development/production/etc.), specifying which YAML
@@ -11,8 +14,6 @@ files should be used for each; see the `setup` command below. You might not get
 how awesome this is until you're managing several different projects which all
 have different conventions with respect to compose file naming and extending.
 Trust me: it's awesome!
-
-The tab-completion feature is pretty sweet, too. Read on...
 
 ## Installation
 
