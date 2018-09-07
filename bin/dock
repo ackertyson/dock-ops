@@ -2,4 +2,4 @@
 require 'dock-ops'
 
 dock = DockOps.new
-dock.work ARGV
+dock.main ARGV

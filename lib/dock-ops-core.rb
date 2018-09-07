@@ -10,7 +10,7 @@ class DockOpsCore
     @term = Term.new
   end
 
-  def work(argv) # MAIN (entry point)
+  def main(argv)
     cmd, *opts = parse_args argv
     load_setup()
     return with_working_dir(opts) if cmd == :working_dir
