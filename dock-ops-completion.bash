@@ -97,16 +97,16 @@ __dock() {
 
     # Complete the arguments to specified commands...
     case "${base}" in
-        build|run|up)
+        build|logs|run|up)
             __services "$cur"
-            return 0
-            ;;
-        logs|stop)
-            __containers "$cur"
             return 0
             ;;
         push|rmi|tag)
             __images "$cur"
+            return 0
+            ;;
+        stop)
+            __containers "$cur"
             return 0
             ;;
         use)
