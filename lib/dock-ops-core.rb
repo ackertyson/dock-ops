@@ -53,7 +53,7 @@ class DockOpsCore
   def compose(yamls=nil)
     input = yamls ? yamls : get_setup()
     flag = -> arg { "-f #{arg}" }
-    return "docker-compose #{input.map(&flag).join(' ')}".chomp
+    return "docker-compose #{input.map(&flag).join(' ')}"
   end
 
   def confirm_create_setup_store
@@ -107,20 +107,6 @@ class DockOpsCore
       :other => :green
     }
     return colors[@mode] ? colors[@mode] : colors[:other]
-  end
-
-  def get_service(name) # parse docker-compose*.yaml files for NAME service
-    raise BadArgsError unless name and name.length > 0
-    candidates = []
-    get_setup.each do |yaml|
-      get_services(yaml).each do |item|
-        candidates.push(item) unless candidates.include? item
-      end
-    end
-    match, *rest = candidates.select do |candidate|
-      /^#{Regexp.escape(name)}$/ =~ candidate
-    end
-    return match
   end
 
   def get_services(path) # return names of all services in docker-compose*.yaml files
@@ -262,6 +248,11 @@ class DockOpsCore
     output = %x[#{cmd} 2>&1]
     return raise(RunFailedError, output) if $?.exitstatus > 0
     output.strip.lines.map { |line| line.strip }
+  end
+
+  def to_array(value)
+    return value if value.kind_of? Array
+    [value]
   end
 
   def update_setup(args)

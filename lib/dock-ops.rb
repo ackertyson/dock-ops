@@ -10,7 +10,7 @@ class DockOps < DockOpsCore
     super
   end
 
-  def build(args)
+  def build(args=nil)
     delegate :compose, 'build', args
   end
 
@@ -41,15 +41,14 @@ class DockOps < DockOpsCore
   end
 
   def down(args=[])
-    args.unshift '--remove-orphans'
-    delegate :compose, 'down', args
+    delegate :compose, 'down', to_array(args).unshift('--remove-orphans')
   end
 
   def images(args=[])
     delegate :docker, 'images', args
   end
 
-  def logs(args)
+  def logs(args=[])
     delegate :compose, 'logs', args
   end
 
@@ -69,11 +68,11 @@ class DockOps < DockOpsCore
     delegate :docker, 'ps', args
   end
 
-  def pull(args)
+  def pull(args=[])
     delegate :docker, 'pull', args
   end
 
-  def push(args)
+  def push(args=[])
     delegate :docker, 'push', args
   end
 
@@ -81,17 +80,15 @@ class DockOps < DockOpsCore
     delegate :machine, 'ls', args
   end
 
-  def rmi(args)
+  def rmi(args=[])
     delegate :docker, 'rmi', args
   end
 
-  def run(argv=[])
-    name, *args = argv
-    args.unshift '--rm', get_service(name)
-    delegate :compose, 'run', args
+  def run(args=[])
+    delegate :compose, 'run', to_array(args).unshift('--rm')
   end
 
-  def scp(args)
+  def scp(args=[])
     delegate :machine, 'scp', args
   end
 
@@ -127,18 +124,18 @@ class DockOps < DockOpsCore
     STDERR.puts e
   end
 
-  def ssh(args)
+  def ssh(args=[])
     delegate :machine, 'ssh', args
   end
 
-  def stop(argv)
+  def stop(argv=[])
     name, *args = argv
-    raise BadArgsError unless name and name.length > 0
+    raise(BadArgsError, 'Which service do you want to stop?') unless name and name.length > 0
     args.unshift container(name)
     delegate :docker, 'stop', args
   end
 
-  def tag(args)
+  def tag(args=[])
     delegate :docker, 'tag', args
   end
 

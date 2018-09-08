@@ -28,6 +28,17 @@ describe DockOps do
     end
   end
 
+  describe 'build' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml build '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.build
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'config' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
@@ -72,6 +83,17 @@ describe DockOps do
     end
   end
 
+  describe 'logs' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml logs '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.logs
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'ps' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
@@ -94,12 +116,34 @@ describe DockOps do
     end
   end
 
+  describe 'pull' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker pull '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.pull
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'push' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker push repo/this:0.0.1'])
       @dock.stub(:sys, mock_sys) do
         @dock.push 'repo/this:0.0.1'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'push' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker push '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.push
         mock_sys.verify
       end
     end
@@ -127,18 +171,35 @@ describe DockOps do
     end
   end
 
+  describe 'rmi' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker rmi '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.rmi
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'run' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker-compose -f my.yaml run --rm this'])
-      mock_get_service = MiniTest::Mock.new
-      mock_get_service.expect(:call, 'this', ['this'])
-      @dock.stub(:get_service, mock_get_service) do
-        @dock.stub(:sys, mock_sys) do
-          @dock.run 'this'
-          mock_get_service.verify
-          mock_sys.verify
-        end
+      @dock.stub(:sys, mock_sys) do
+        @dock.run 'this'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'run' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml run --rm'])
+      @dock.stub(:sys, mock_sys) do
+        @dock.run
+        mock_sys.verify
       end
     end
   end
@@ -154,12 +215,34 @@ describe DockOps do
     end
   end
 
+  describe 'scp' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-machine scp '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.scp
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'ssh' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker-machine ssh this'])
       @dock.stub(:sys, mock_sys) do
         @dock.ssh 'this'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'ssh' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-machine ssh '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.ssh
         mock_sys.verify
       end
     end
@@ -181,6 +264,14 @@ describe DockOps do
     end
   end
 
+  describe 'stop' do
+    it 'throws on empty input' do
+      assert_raises BadArgsError do
+        @dock.stop
+      end
+    end
+  end
+
   describe 'tag' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
@@ -192,12 +283,34 @@ describe DockOps do
     end
   end
 
+  describe 'tag' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker tag '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.tag
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'up' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker-compose -f my.yaml up this'])
       @dock.stub(:sys, mock_sys) do
         @dock.up 'this'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'up' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml up '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.up
         mock_sys.verify
       end
     end

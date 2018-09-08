@@ -139,7 +139,7 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 ### down
 
-`docker-compose down`
+`docker-compose down --remove-orphans`
 
 ### images
 
