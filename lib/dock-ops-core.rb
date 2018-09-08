@@ -92,8 +92,10 @@ class DockOpsCore
     end
   end
 
-  def find_yamls
-    Dir.glob('*.y{a,}ml').sort
+  def find_yamls(mode=nil)
+    show_all = '*.y{a,}ml'
+    pattern = mode ? (@cnfg[mode.to_sym()] ? @cnfg[mode.to_sym()] : show_all) : show_all
+    Dir.glob(pattern).sort
   end
 
   def get_mode
@@ -171,7 +173,7 @@ class DockOpsCore
   end
 
   def parse_args(argv=[])
-    raise BadArgsError unless argv.length > 0
+    raise BadArgsError unless to_array(argv).length > 0
     flags = {
       :mode => ['-m', '-p', '--production'],
       :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],

@@ -3,47 +3,6 @@
 #
 # . ~/dock-ops-completion.bash
 
-skip_flags() {
-  if [[ "$1" = dock ]]; then
-    shift
-  fi
-  case "$1" in
-    -m|-nc|-nd|-nm|-w|--compose|--docker|--machine|--working-dir)
-      shift; shift
-      skip_flags "$@"
-      ;;
-    -p|--production)
-      shift
-      skip_flags "$@"
-      ;;
-    *)
-      echo "$1"
-      ;;
-  esac
-}
-
-__gitcomp () { # guess where I stole this from?
-    local cur_="${3-$cur}"
-
-    case "$cur_" in
-    --*=)
-        ;;
-    *)
-        local c i=0 IFS=$' \t\n'
-        for c in $1; do
-            c="$c${4-}"
-            if [[ $c == "$cur_"* ]]; then
-                case $c in
-                --*=*|*.) ;;
-                *) c="$c " ;;
-                esac
-                COMPREPLY[i++]="${2-}$c"
-            fi
-        done
-        ;;
-    esac
-}
-
 __commands() {
   local cur="$1"
   local commands=`dock commands`
@@ -78,18 +37,63 @@ __machines() {
   COMPREPLY=( $(compgen -W "$machines" -- $cur) )
 }
 
+__mode() {
+  while [ -n "$1" ]
+  do
+    case "$1" in
+      -m)
+        echo "$2"
+        return 0
+        ;;
+      -p|--production)
+        echo "production"
+        return 0
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  echo "development"
+  return 0
+}
+
 __services() {
-  local cur="$1"
-  local services=`dock services`
+  # So this gets a little twisty; to get sensible SERVICE completions, we need
+  # to parse the MODE out of the command and send it back to DOCK so we only get
+  # services available to that mode...
+  local cur="$1" mode="$2"
+  local services=`dock services $mode`
   COMPREPLY=( $(compgen -W "$services" -- $cur) )
 }
 
-__dock() {
-    local cur prev base
+__skip_flags() {
+  if [[ "$1" = dock ]]; then
+    shift
+  fi
+  case "$1" in
+    -m|-nc|-nd|-nm|-w|--compose|--docker|--machine|--working-dir)
+      shift; shift
+      __skip_flags "$@"
+      ;;
+    -p|--production)
+      shift
+      __skip_flags "$@"
+      ;;
+    *)
+      echo "$1"
+      ;;
+  esac
+}
+
+__main() {
+    local cur prev base mode
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    base=$(skip_flags "${COMP_WORDS[@]}")
+    mode=$(__mode ${COMP_WORDS[@]})
+    base=$(__skip_flags "${COMP_WORDS[@]}")
 
     # case "${prev}" in
     #     -w|--working-dir)
@@ -103,7 +107,7 @@ __dock() {
     # Complete the arguments to specified commands...
     case "${base}" in
         build|logs|run|up)
-            __services "$cur"
+            __services "$cur" "$mode"
             return 0
             ;;
         images)
@@ -129,4 +133,5 @@ __dock() {
     __commands "$cur"
     return 0
 }
-complete -F __dock dock
+
+complete -F __main dock

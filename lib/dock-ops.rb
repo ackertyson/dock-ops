@@ -92,9 +92,10 @@ class DockOps < DockOpsCore
     delegate :machine, 'scp', args
   end
 
-  def services(args=nil)
+  def services(args=[])
+    mode = to_array(args).unshift or get_mode
     has_services = -> arg { get_services arg }
-    yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
+    yamls = find_yamls(mode).select(&has_services) # only include YAMLs with defined services
     candidates = []
     yamls.each do |yaml|
       candidates.concat get_services yaml
