@@ -138,7 +138,27 @@ class DockOpsCore
   end
 
   def get_commands
-    return ['build', 'clean', 'config', 'down', 'images', 'logs', 'ls', 'ps', 'push', 'pull', 'rls', 'rmi', 'run', 'scp', 'setup', 'ssh', 'stop', 'tag', 'up']
+    return [
+      'build',
+      'clean',
+      'config',
+      'down',
+      'images',
+      'logs',
+      'ls',
+      'ps',
+      'push',
+      'pull',
+      'rls',
+      'rmi',
+      'run',
+      'scp',
+      'setup',
+      'ssh',
+      'stop',
+      'tag',
+      'up'
+    ]
   end
 
   def load_setup
