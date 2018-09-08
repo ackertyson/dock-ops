@@ -56,7 +56,7 @@ __containers() {
   COMPREPLY=( $(compgen -W "$containers" -- $cur) )
 }
 
-__images() {
+__images_tagged() {
   # requires more hand-holding because of the ':' in completion words
   # (also requires bash-completion package)
   local cur="$1"
@@ -64,6 +64,12 @@ __images() {
   _get_comp_words_by_ref -n : cur
   COMPREPLY=( $(compgen -W "$images" -- $cur) )
   __ltrim_colon_completions $cur
+}
+
+__images() {
+  local cur="$1"
+  local images=`docker images --format "{{.Repository}}"`
+  COMPREPLY=( $(compgen -W "$images" -- $cur) )
 }
 
 __machines() {
@@ -87,7 +93,6 @@ __dock() {
 
     # case "${prev}" in
     #     -w|--working-dir)
-    #         local services=`dock services`
     #         COMPREPLY=( $(compgen -o nospace -o dirnames -- ${cur}) )
     #         return 0
     #         ;;
@@ -101,8 +106,12 @@ __dock() {
             __services "$cur"
             return 0
             ;;
-        push|rmi|tag)
+        images)
             __images "$cur"
+            return 0
+            ;;
+        push|rmi|tag)
+            __images_tagged "$cur"
             return 0
             ;;
         stop)
