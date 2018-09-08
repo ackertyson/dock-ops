@@ -47,13 +47,13 @@ __gitcomp () { # guess where I stole this from?
 __commands() {
   local cur="$1"
   local commands=`dock commands`
-  COMPREPLY=( $(compgen -W "$commands" $cur) )
+  COMPREPLY=( $(compgen -W "$commands" -- $cur) )
 }
 
 __containers() {
   local cur="$1"
   local containers=`docker ps --format "{{.Names}}"`
-  COMPREPLY=( $(compgen -W "$containers" $cur) )
+  COMPREPLY=( $(compgen -W "$containers" -- $cur) )
 }
 
 __images() {
@@ -62,20 +62,20 @@ __images() {
   local cur="$1"
   local images=`docker images --format "{{.Repository}}:{{.Tag}}"`
   _get_comp_words_by_ref -n : cur
-  COMPREPLY=( $(compgen -W "$images" $cur) )
+  COMPREPLY=( $(compgen -W "$images" -- $cur) )
   __ltrim_colon_completions $cur
 }
 
 __machines() {
   local cur="$1"
   local machines=`docker-machine ls --format "{{.Name}}"`
-  COMPREPLY=( $(compgen -W "$machines" $cur) )
+  COMPREPLY=( $(compgen -W "$machines" -- $cur) )
 }
 
 __services() {
   local cur="$1"
   local services=`dock services`
-  COMPREPLY=( $(compgen -W "$services" $cur) )
+  COMPREPLY=( $(compgen -W "$services" -- $cur) )
 }
 
 __dock() {
