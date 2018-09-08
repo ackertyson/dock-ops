@@ -18,18 +18,17 @@ class DockOps < DockOpsCore
     containers = sys "docker ps -f status=exited -a -q", :true
     images = sys "docker images -f dangling=true -a -q", :true
     volumes = sys "docker volume ls -f dangling=true -q", :true
-    # don't DockOps.sys() these because we don't care about "failure"...
     if containers and containers.length > 0
       puts 'Containers...'
-      system("docker rm #{as_args containers}")
+      delegate :docker, 'rm', containers
     end
     if images and images.length > 0
       puts "\nImages..."
-      system("docker rmi -f #{as_args images}")
+      delegate :docker, 'rmi', ['-f', *images]
     end
     if volumes and volumes.length > 0
       puts "\nVolumes..."
-      system("docker volume rm #{as_args volumes}")
+      delegate :docker, 'volume', ['rm', *volumes]
     end
   end
 
