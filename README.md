@@ -147,7 +147,7 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 `docker-compose logs`
 
-*Completions: currently running containers*
+*Completions: services defined in Compose YAML file(s)*
 
 ### ls
 
