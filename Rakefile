@@ -3,7 +3,7 @@ require 'rake/testtask'
 
 CLEAN.include('dock-ops*.gem')
 
-task default: %w[build]
+task default: %w[install]
 
 task :build do
   puts 'Building gem...'
@@ -13,6 +13,22 @@ end
 task :install => ['build'] do
   puts "\nInstalling (requires sudo access)..."
   sh %{ sudo gem install -f -l dock-ops }
+end
+
+task :completion do
+  puts "\nCopying completion script..."
+  sh %{ cp ./dock-ops-completion.bash ~/ }
+  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is 'dot'):"
+  puts '    . ~/dock-ops-completion.bash'
+  puts "  And then do 'source ~/.bash_profile' to reload that file in any open bash shells"
+end
+
+task :wrapper do
+  puts "\nCopying wrapper script..."
+  sh %{ cp ./dock-ops-wrapper.bash ~/ }
+  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is 'dot'):"
+  puts '    . ~/dock-ops-wrapper.bash'
+  puts "  And then do 'source ~/.bash_profile' to reload that file in any open bash shells"
 end
 
 task :test do
@@ -29,5 +45,8 @@ end
 task :dist => ['test', 'build'] do
 end
 
-task :dev => ['dist', 'install', 'clean'] do
+task :dev => ['dist', 'install', 'completion', 'clean'] do
+end
+
+task :install_completion => ['install', 'completion'] do
 end

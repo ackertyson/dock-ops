@@ -21,9 +21,11 @@ Trust me: it's awesome!
 
 2. `cd dock-ops/`
 
-3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec`)
+3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec && sudo gem install -l dock-ops`)
 
-4. `rake install` (or, if you don't have Rake, `sudo gem install -l dock-ops`)
+If you want to install the completion script at the same time, replace step 3 with:
+
+`rake install_completion`
 
 *NOTE: you do still need to install the real Docker applications; `dock-ops` is
 just a wrapper.*
