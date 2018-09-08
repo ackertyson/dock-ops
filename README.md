@@ -143,6 +143,8 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 `docker images`
 
+*Completions: local image repository names*
+
 ### logs
 
 `docker-compose logs`
@@ -165,7 +167,7 @@ List services defined in Compose YAML file(s).
 
 `docker push`
 
-*Completions: local image repository names*
+*Completions: local image repository names (with tags)*
 
 ### rls
 
@@ -175,7 +177,7 @@ List services defined in Compose YAML file(s).
 
 `docker rmi`
 
-*Completions: local image repository names*
+*Completions: local image repository names (with tags)*
 
 ### run
 
@@ -186,6 +188,8 @@ List services defined in Compose YAML file(s).
 ### scp
 
 `docker-machine scp`
+
+*Completions: provisioned machine names*
 
 ### setup
 
@@ -198,6 +202,8 @@ To set up for *deploy* mode, for instance, do `dock -m deploy setup`.
 ### ssh
 
 `docker-machine ssh`
+
+*Completions: provisioned machine names*
 
 ### stop
 
@@ -212,7 +218,7 @@ ID, which is how `docker stop` works).
 
 `docker tag`
 
-*Completions: local image repository names*
+*Completions: local image repository names (with tags)*
 
 ### up
 

@@ -118,7 +118,7 @@ __dock() {
             __containers "$cur"
             return 0
             ;;
-        use)
+        scp|ssh|use)
             __machines "$cur"
             return 0
             ;;
