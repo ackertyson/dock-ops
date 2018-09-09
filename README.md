@@ -104,6 +104,15 @@ For example, to call `docker-machine regenerate-certs my-app`, do:
 - `dock -nm regenerate-certs my-app`, or
 - `dock --machine regenerate-certs my-app`
 
+Note that this is a simple flag which it doesn't take a parameter. To run the
+above command with a mode flag, the following are equivalent:
+
+- `dock -p -nm regenerate-certs my-app`, or
+- `dock -nm -p regenerate-certs my-app`
+
+In both cases `regenerate-certs my-app` is the COMMAND portion of the
+`dock-ops` call, not a parameter to the `-nm` FLAG.
+
 ## Deployed Docker machines
 
 If you routinely find yourself deploying Docker Compose apps to remote hosts

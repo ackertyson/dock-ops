@@ -55,4 +55,70 @@ describe DockOpsCore do
     end
   end
 
+  describe 'parse_args' do
+    it 'throws on empty input' do
+      assert_raises BadArgsError do
+        @core.send(:parse_args)
+      end
+    end
+
+    it 'handles simple command' do
+      @core.send(:parse_args, ['up']).must_equal ['up']
+    end
+
+    it 'handles command with args' do
+      @core.send(:parse_args, ['up', '-d']).must_equal ['up', '-d']
+    end
+
+    it 'defaults to development mode with no flags' do
+      @core.send(:parse_args, ['up', '-d']).must_equal ['up', '-d']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'sets mode with -p flag' do
+      @core.send(:parse_args, ['-p', 'up', '-d']).must_equal ['up', '-d']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'sets arbitrary mode with -m flag' do
+      @core.send(:parse_args, ['-m', 'mine', 'up', '-d']).must_equal ['up', '-d']
+      assert_equal @core.instance_variable_get(:@mode), :mine
+    end
+
+    it 'sets production mode with -m flag' do
+      @core.send(:parse_args, ['-m', 'production', 'up', '-d']).must_equal ['up', '-d']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'delegates to compose with -nc flag' do
+      @core.send(:parse_args, ['-nc', 'passthru']).must_equal [:compose, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'delegates to docker with -nd flag' do
+      @core.send(:parse_args, ['-nd', 'passthru']).must_equal [:docker, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'delegates to machine with -nm flag' do
+      @core.send(:parse_args, ['-nm', 'passthru']).must_equal [:machine, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'delegates and sets mode' do
+      @core.send(:parse_args, ['-p', '-nm', 'passthru']).must_equal [:machine, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'delegates and sets mode in other order' do
+      @core.send(:parse_args, ['-nm', '-p', 'passthru']).must_equal [:machine, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'delegates and sets arbitrary mode' do
+      @core.send(:parse_args, ['-nm', '-m', 'mine', 'passthru']).must_equal [:machine, 'passthru']
+      assert_equal @core.instance_variable_get(:@mode), :mine
+    end
+  end
+
 end

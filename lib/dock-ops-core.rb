@@ -14,7 +14,7 @@ class DockOpsCore
     raise BadArgsError unless argv and argv.length > 0
     cmd, *opts = parse_args argv
     load_setup()
-    return with_completion(as_args opts) if cmd == :completion
+    return with_completion(opts) if cmd == :completion
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
       handler, command, *args = opts
@@ -43,7 +43,7 @@ class DockOpsCore
   private ### internal methods #############
 
   def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
-    arr = [arr] unless arr.kind_of? Array
+    arr = [arr] unless arr.kind_of?(Array)
     with_quotes = -> arg { quote arg }
     arr.compact.map(&with_quotes).join(' ')
   end
@@ -56,7 +56,7 @@ class DockOpsCore
     `docker ps --format "{{.Names}}"`
   end
 
-  def completion_images()
+  def completion_images
     `docker images --format "{{.Repository}}"`
   end
 
@@ -64,7 +64,7 @@ class DockOpsCore
     `docker images --format "{{.Repository}}:{{.Tag}}"`
   end
 
-  def completion_machines()
+  def completion_machines
     `docker-machine ls --format "{{.Name}}"`
   end
 
@@ -183,7 +183,7 @@ class DockOpsCore
   end
 
   def numbered(arr, highlight=nil) # prepend numeric cardinal to each (string) element of ARR
-    arr = [arr] unless arr.kind_of? Array
+    arr = [arr] unless arr.kind_of?(Array)
     with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
     arr.map.with_index(&with_color)
   rescue => e
@@ -210,16 +210,15 @@ class DockOpsCore
         argv.shift
         @mode = argv.shift.to_sym
       when '-nc', '--compose'
-        for_native = :compose
         argv.shift
+        for_native = :compose
       when '-nd', '--docker'
         argv.shift
         for_native = :docker
       when '-nm', '--machine'
         argv.shift
         for_native = :machine
-      when
-        '-w', '--working_dir'
+      when '-w', '--working_dir'
         argv.shift
         working_dir = argv.shift
       else # no more flags; everything else is CMD [ARGS...]
@@ -272,7 +271,7 @@ class DockOpsCore
   end
 
   def to_array(value)
-    return value if value.kind_of? Array
+    return value if value.kind_of?(Array)
     [value]
   end
 
@@ -289,9 +288,9 @@ class DockOpsCore
     STDERR.puts e.backtrace
   end
 
-  def with_completion(argv=nil)
-    cmd, *args = argv.split(' ')
-    case cmd.strip
+  def with_completion(argv=[])
+    cmd = argv.shift.strip
+    case cmd
     when 'build', 'logs', 'run', 'up'
       puts services.join(' ')
     when 'images'
@@ -305,9 +304,6 @@ class DockOpsCore
     else
       puts commands
     end
-  rescue => e
-    puts e
-    puts e.backtrace
   end
 
   def with_working_dir(args=[])

@@ -18,7 +18,7 @@ end
 task :completion do
   puts "\nCopying completion script..."
   sh %{ cp ./dock-ops-completion.bash ~/ }
-  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is 'dot'):"
+  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is a 'dot'):"
   puts '    . ~/dock-ops-completion.bash'
   puts "  And then do 'source ~/.bash_profile' to reload that file in any open bash shells"
 end
@@ -26,7 +26,7 @@ end
 task :wrapper do
   puts "\nCopying wrapper script..."
   sh %{ cp ./dock-ops-wrapper.bash ~/ }
-  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is 'dot'):"
+  puts "  ***NOTE: you may need to add this line to your ~/.bash_profile (first character is a 'dot'):"
   puts '    . ~/dock-ops-wrapper.bash'
   puts "  And then do 'source ~/.bash_profile' to reload that file in any open bash shells"
 end
