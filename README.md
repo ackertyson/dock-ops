@@ -67,7 +67,7 @@ command below). Add a mode flag to configure modes other than the default
 IKR! As if you're not saving enough keystrokes over vanilla Docker already! But
 `<TAB>` suggestions are awesome, so follow the directions in the
 `dock-ops-completion.bash` file included with this project. Commands with
-parameter completion options are noted below.
+parameter completions are noted in the COMMAND EQUIVALENTS section below.
 
 Because arguments for `push`, `rmi` and `tag` include colons (for image tags),
 and because bash normally considers `:` a word boundary, completions for these
@@ -106,14 +106,14 @@ For example, to call `docker-machine regenerate-certs my-app`, do:
 - `dock -nm regenerate-certs my-app`, or
 - `dock --machine regenerate-certs my-app`
 
-Note that this is a simple flag which it doesn't take a parameter. To run the
-above command with a mode flag, the following are equivalent:
+Note that this is a simple flag which doesn't take a parameter. To run the above
+command with a mode flag, the following are equivalent:
 
 - `dock -p -nm regenerate-certs my-app`, or
 - `dock -nm -p regenerate-certs my-app`
 
-In both cases `regenerate-certs my-app` is the COMMAND portion of the
-`dock-ops` call, not a parameter to the `-nm` FLAG.
+In both cases `regenerate-certs` is the COMMAND portion of the `dock-ops` call,
+not a parameter to the `-nm` FLAG.
 
 ## Deployed Docker machines
 
@@ -121,8 +121,8 @@ If you routinely find yourself deploying Docker Compose apps to remote hosts
 provisioned via `docker-machine create`, I recommend checking out the
 `dock-ops-wrapper.bash` script included with this project. You can then do `dock
 use MACHINENAME` to connect to a remote instance, run Docker commands on the
-remote just the same as you would run them locally, and then `dock unuse` when
-you're done.
+remote just the same as you would run them locally, and then `dock unuse` to
+return to your local environment.
 
 If you have no idea what I'm talking about but have a Docker Compose app which
 you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
