@@ -24,6 +24,7 @@ __main() {
   cur="${COMP_WORDS[COMP_CWORD]}"
   words="${COMP_WORDS[@]:1}" # exclude leading "dock" in every command
   candidates=$(dock complete $words) # let DOCK-OPS command parser do the work
+  # http://tldp.org/LDP/abs/html/testconstructs.html#DBLBRACKETS for try/catch when no bash-completion package?
   __handle_colons "$candidates" "$cur"
   return 0
 }

@@ -68,6 +68,10 @@ class DockOpsCore
     `docker-machine ls --format "{{.Name}}"`
   end
 
+  def completion_services
+    services()
+  end
+
   def compose(yamls=nil)
     input = yamls ? yamls : get_setup()
     flag = -> arg { "-f #{arg}" }
@@ -292,7 +296,7 @@ class DockOpsCore
     cmd = argv.shift.strip
     case cmd
     when 'build', 'logs', 'run', 'up'
-      puts services.join(' ')
+      puts completion_services.join(' ')
     when 'images'
       puts completion_images.split("\n").join(' ')
     when 'push', 'rmi', 'tag'

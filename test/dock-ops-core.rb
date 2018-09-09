@@ -121,4 +121,114 @@ describe DockOpsCore do
     end
   end
 
+  describe 'with_completion' do
+    it 'STOP invokes container completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_containers, mock) do
+        @core.send(:with_completion, ['stop'])
+        mock.verify
+      end
+    end
+
+    it 'IMAGES invokes image completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_images, mock) do
+        @core.send(:with_completion, ['images'])
+        mock.verify
+      end
+    end
+
+    it 'PUSH invokes tagged image completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_images_tagged, mock) do
+        @core.send(:with_completion, ['push'])
+        mock.verify
+      end
+    end
+
+    it 'RMI invokes tagged image completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_images_tagged, mock) do
+        @core.send(:with_completion, ['rmi'])
+        mock.verify
+      end
+    end
+
+    it 'TAG invokes tagged image completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_images_tagged, mock) do
+        @core.send(:with_completion, ['tag'])
+        mock.verify
+      end
+    end
+
+    it 'SCP invokes machine completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_machines, mock) do
+        @core.send(:with_completion, ['scp'])
+        mock.verify
+      end
+    end
+
+    it 'SSH invokes machine completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_machines, mock) do
+        @core.send(:with_completion, ['ssh'])
+        mock.verify
+      end
+    end
+
+    it 'USE invokes machine completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, "words")
+      @core.stub(:completion_machines, mock) do
+        @core.send(:with_completion, ['use'])
+        mock.verify
+      end
+    end
+
+    it 'BUILD invokes service completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, ["words"])
+      @core.stub(:completion_services, mock) do
+        @core.send(:with_completion, ['build'])
+        mock.verify
+      end
+    end
+
+    it 'LOGS invokes service completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, ["words"])
+      @core.stub(:completion_services, mock) do
+        @core.send(:with_completion, ['logs'])
+        mock.verify
+      end
+    end
+
+    it 'RUN invokes service completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, ["words"])
+      @core.stub(:completion_services, mock) do
+        @core.send(:with_completion, ['run'])
+        mock.verify
+      end
+    end
+
+    it 'UP invokes service completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, ["words"])
+      @core.stub(:completion_services, mock) do
+        @core.send(:with_completion, ['up'])
+        mock.verify
+      end
+    end
+  end
+
 end

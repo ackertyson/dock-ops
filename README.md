@@ -21,11 +21,13 @@ Trust me: it's awesome!
 
 2. `cd dock-ops/`
 
-3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec && sudo gem install -l dock-ops`)
+3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec && sudo gem
+    install -l dock-ops`)
 
 If you want to install the completion script at the same time, replace step 3 with:
 
-`rake install_completion`
+3. `rake install_completion` (or, if you don't have Rake, see the instructions in
+    the `dock-ops-completion.bash` file included with this project)
 
 *NOTE: you do still need to install the real Docker applications; `dock-ops` is
 just a wrapper.*
@@ -140,7 +142,11 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 ### clean
 
-`docker rm $(docker ps -f status=exited -a -q); docker rmi $(docker images -f dangling=true -a -q); docker volume rm $(docker volume ls -f dangling=true -q)`
+```
+docker rm $(docker ps -f status=exited -a -q);
+docker rmi $(docker images -f dangling=true -a -q);
+docker volume rm $(docker volume ls -f dangling=true -q)
+```
 
 ### config
 
