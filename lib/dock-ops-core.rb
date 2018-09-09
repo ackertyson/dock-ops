@@ -11,8 +11,10 @@ class DockOpsCore
   end
 
   def main(argv)
+    raise BadArgsError unless argv and argv.length > 0
     cmd, *opts = parse_args argv
     load_setup()
+    return with_completion(as_args opts) if cmd == :completion
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
       handler, command, *args = opts
@@ -48,6 +50,22 @@ class DockOpsCore
 
   def bail(msg)
     abort "DOCK-OPS: #{msg}"
+  end
+
+  def completion_containers
+    `docker ps --format "{{.Names}}"`
+  end
+
+  def completion_images()
+    `docker images --format "{{.Repository}}"`
+  end
+
+  def completion_images_tagged
+    `docker images --format "{{.Repository}}:{{.Tag}}"`
+  end
+
+  def completion_machines()
+    `docker-machine ls --format "{{.Name}}"`
   end
 
   def compose(yamls=nil)
@@ -173,45 +191,46 @@ class DockOpsCore
   end
 
   def parse_args(argv=[])
-    raise BadArgsError unless to_array(argv).length > 0
-    flags = {
-      :mode => ['-m', '-p', '--production'],
-      :native => ['-nc', '--compose', '-nd', '--docker', '-nm', '--machine'],
-      :working_dir => ['-w']
-    }
-    if flags[:mode].include?(argv[0])
-      flag = argv.shift
-      case flag
+    raise BadArgsError unless argv.kind_of?(Array) and argv.length > 0
+    args = nil
+    for_completion = false
+    if argv[0] == 'complete' # request for shell completion options
+      argv.shift
+      for_completion = true
+    end
+    for_native = nil
+    working_dir = nil
+    @mode = :development
+    while argv.length > 0
+      case argv[0]
       when '-p', '--production'
+        argv.shift
         @mode = :production
       when '-m'
+        argv.shift
         @mode = argv.shift.to_sym
-      else
-        @mode = :development
-      end
-    else
-      @mode = :development
-    end
-
-    if flags[:native].include?(argv[0]) # flag for delegate handling
-      flag = argv.shift
-      case flag
       when '-nc', '--compose'
-        argv.unshift :compose
+        for_native = :compose
+        argv.shift
       when '-nd', '--docker'
-        argv.unshift :docker
+        argv.shift
+        for_native = :docker
       when '-nm', '--machine'
-        argv.unshift :machine
+        argv.shift
+        for_native = :machine
+      when
+        '-w', '--working_dir'
+        argv.shift
+        working_dir = argv.shift
+      else # no more flags; everything else is CMD [ARGS...]
+        args = argv.shift argv.length
       end
-      argv.unshift :native
     end
-
-    if flags[:working_dir].include?(argv[0]) # flag for working dir
-      flag = argv.shift
-      argv.unshift :working_dir
-    end
-
-    return argv
+    raise BadArgsError unless args
+    args.unshift for_native if for_native
+    # argv.unshift working_dir if working_dir
+    args.unshift :completion if for_completion
+    return args
   end
 
   def quote(str) # single-quote strings which contain a space
@@ -270,7 +289,28 @@ class DockOpsCore
     STDERR.puts e.backtrace
   end
 
-  def with_working_dir(args)
+  def with_completion(argv=nil)
+    cmd, *args = argv.split(' ')
+    case cmd.strip
+    when 'build', 'logs', 'run', 'up'
+      puts services.join(' ')
+    when 'images'
+      puts completion_images.split("\n").join(' ')
+    when 'push', 'rmi', 'tag'
+      puts completion_images_tagged.split("\n").join(' ')
+    when 'stop'
+      puts completion_containers.split("\n").join(' ')
+    when 'scp', 'ssh', 'use'
+      puts completion_machines.split("\n").join(' ')
+    else
+      puts commands
+    end
+  rescue => e
+    puts e
+    puts e.backtrace
+  end
+
+  def with_working_dir(args=[])
     path, cmd, *opts = args
     Dir.chdir(path) do
       self.send cmd.to_sym, opts
