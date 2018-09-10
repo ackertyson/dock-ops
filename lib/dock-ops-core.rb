@@ -52,6 +52,10 @@ class DockOpsCore
     abort "DOCK-OPS: #{msg}"
   end
 
+  def completion_commands
+    get_commands()
+  end
+
   def completion_containers
     `docker ps --format "{{.Names}}"`
   end
@@ -69,7 +73,13 @@ class DockOpsCore
   end
 
   def completion_services
-    services()
+    has_services = -> arg { get_services arg }
+    yamls = find_yamls(get_mode).select(&has_services) # only include YAMLs with defined services
+    candidates = []
+    yamls.each do |yaml|
+      candidates.concat get_services yaml
+    end
+    return candidates.uniq
   end
 
   def compose(yamls=nil)
@@ -196,7 +206,7 @@ class DockOpsCore
 
   def parse_args(argv=[])
     raise BadArgsError unless argv.kind_of?(Array) and argv.length > 0
-    args = nil
+    args = []
     for_completion = false
     if argv[0] == 'complete' # request for shell completion options
       argv.shift
@@ -287,13 +297,10 @@ class DockOpsCore
     end
     @cnfg[@mode] = yamls
     write_setup()
-  rescue => e
-    STDERR.puts e
-    STDERR.puts e.backtrace
   end
 
   def with_completion(argv=[])
-    cmd = argv.shift.strip
+    cmd = argv.shift
     case cmd
     when 'build', 'logs', 'run', 'up'
       puts completion_services.join(' ')
@@ -306,7 +313,7 @@ class DockOpsCore
     when 'scp', 'ssh', 'use'
       puts completion_machines.split("\n").join(' ')
     else
-      puts commands
+      puts completion_commands.join(' ')
     end
   end
 
@@ -331,9 +338,6 @@ class DockOpsCore
     project_setup_file = File.join(project_setup_dir, "#{@mode}.yaml")
     IO.write project_setup_file, Psych.dump(get_setup)
     puts "\nSaved to file #{project_setup_file}"
-  rescue => e
-    STDERR.puts e
-    STDERR.puts e.backtrace
   end
 
 end

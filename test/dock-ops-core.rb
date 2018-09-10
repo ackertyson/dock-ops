@@ -229,6 +229,15 @@ describe DockOpsCore do
         mock.verify
       end
     end
+
+    it 'otherwise invokes command completions' do
+      mock = MiniTest::Mock.new
+      mock.expect(:call, ["words"])
+      @core.stub(:completion_commands, mock) do
+        @core.send(:with_completion, [''])
+        mock.verify
+      end
+    end
   end
 
 end

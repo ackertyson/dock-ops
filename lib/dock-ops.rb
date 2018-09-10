@@ -32,10 +32,6 @@ class DockOps < DockOpsCore
     end
   end
 
-  def commands(args=nil)
-    puts get_commands.join ' '
-  end
-
   def config(args=[])
     delegate :compose, 'config', args
   end
@@ -92,16 +88,6 @@ class DockOps < DockOpsCore
     delegate :machine, 'scp', args
   end
 
-  def services(args=nil)
-    has_services = -> arg { get_services arg }
-    yamls = find_yamls(get_mode).select(&has_services) # only include YAMLs with defined services
-    candidates = []
-    yamls.each do |yaml|
-      candidates.concat get_services yaml
-    end
-    return candidates.uniq
-  end
-
   def setup(args=nil)
     has_services = -> arg { get_services arg }
     with_color = lambda { |color, text| @term.color text, color }
@@ -120,8 +106,6 @@ class DockOps < DockOpsCore
       "In #{get_mode.upcase} mode, Docker Compose commands should use:"
     ]
     update_setup setup_ui yamls, get_setup()
-  rescue => e
-    STDERR.puts e
   end
 
   def ssh(args=[])
