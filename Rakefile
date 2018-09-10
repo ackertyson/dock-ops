@@ -47,6 +47,3 @@ end
 
 task :dev => ['dist', 'install', 'completion', 'clean'] do
 end
-
-task :install_completion => ['install', 'completion'] do
-end
