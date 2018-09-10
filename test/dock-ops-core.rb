@@ -142,8 +142,8 @@ describe DockOpsCore do
 
     it 'PUSH invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
-      @core.stub(:completion_images_tagged, mock) do
+      mock.expect(:call, "words", [:true])
+      @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['push'])
         mock.verify
       end
@@ -151,8 +151,8 @@ describe DockOpsCore do
 
     it 'RMI invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
-      @core.stub(:completion_images_tagged, mock) do
+      mock.expect(:call, "words", [:true])
+      @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['rmi'])
         mock.verify
       end
@@ -160,8 +160,8 @@ describe DockOpsCore do
 
     it 'TAG invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
-      @core.stub(:completion_images_tagged, mock) do
+      mock.expect(:call, "words", [:true])
+      @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['tag'])
         mock.verify
       end

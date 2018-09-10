@@ -11,7 +11,6 @@ class DockOpsCore
   end
 
   def main(argv)
-    raise BadArgsError unless argv and argv.length > 0
     cmd, *opts = parse_args argv
     load_setup()
     return with_completion(opts) if cmd == :completion
@@ -20,7 +19,12 @@ class DockOpsCore
       handler, command, *args = opts
       return delegate(handler, command, args)
     end
-    self.send cmd.to_sym, opts
+    begin
+      self.send cmd.to_sym, opts
+    rescue NoMethodError => e
+      puts e
+      bail "'#{cmd}' is not a choice: #{get_commands.join ', '}"
+    end
   rescue BadArgsError => e
     STDERR.puts e
     STDERR.puts e.backtrace
@@ -28,13 +32,10 @@ class DockOpsCore
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
-  rescue NoMethodError
-    bail "'#{cmd}' is not a choice: #{get_commands.join ', '}"
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
     STDERR.puts e
-    bail 'Oops!'
   rescue => e
     STDERR.puts e
     STDERR.puts e.backtrace
@@ -60,12 +61,9 @@ class DockOpsCore
     `docker ps --format "{{.Names}}"`
   end
 
-  def completion_images
-    `docker images --format "{{.Repository}}"`
-  end
-
-  def completion_images_tagged
-    `docker images --format "{{.Repository}}:{{.Tag}}"`
+  def completion_images(with_tags=:false)
+    format = with_tags == :true ? '{{.Repository}}:{{.Tag}}' : '{{.Repository}}'
+    `docker images --format "#{format}"`
   end
 
   def completion_machines
@@ -147,7 +145,7 @@ class DockOpsCore
     yaml = Psych.load_file path
     yaml['services'].keys
   rescue NoMethodError
-    return # probably not a docker-compose file!
+    # probably not a docker-compose file!
   end
 
   def get_setup
@@ -307,7 +305,7 @@ class DockOpsCore
     when 'images'
       puts completion_images.split("\n").join(' ')
     when 'push', 'rmi', 'tag'
-      puts completion_images_tagged.split("\n").join(' ')
+      puts completion_images(:true).split("\n").join(' ')
     when 'stop'
       puts completion_containers.split("\n").join(' ')
     when 'scp', 'ssh', 'use'
