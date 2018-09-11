@@ -30,6 +30,9 @@ replace step 3 with:
 3. `rake install completion` (or, if you don't have Rake, see the instructions in
     the `dock-ops-completion.bash` file included with this project)
 
+To get completion to work in existing shell sessions, you have to do `source
+~/.bash_profile` after installing the completion script.
+
 *NOTE: you still need to install the real Docker applications; `dock-ops` is just a wrapper.*
 
 ## Testing

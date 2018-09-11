@@ -101,7 +101,7 @@ class DockOps < DockOpsCore
       "- [#{bling.call 1}, #{bling.call 2}, ..., #{bling.call 'N'}] Add YAML file",
       "- [#{bling.call 'BACKSPACE'}] Remove YAML file",
       "- [#{bling.call 'C'}]ancel (exit without saving changes)",
-      "- [#{bling.call 'ENTER'}] or e[#{bling.call 'X'}]it (save changes)",
+      "- [#{bling.call 'ENTER'}] (exit and save changes)",
       '',
       "In #{get_mode.upcase} mode, Docker Compose commands should use:"
     ]

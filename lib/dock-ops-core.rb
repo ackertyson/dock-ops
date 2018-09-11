@@ -261,7 +261,7 @@ class DockOpsCore
         current.push(yaml) if yaml and !current.include?(yaml)
       when "\177" # backspace
         current.pop()
-      when 'x', 'X', "\r" # enter
+      when "\r" # enter
         do_save = :true
         break
       when 'c', 'C'
