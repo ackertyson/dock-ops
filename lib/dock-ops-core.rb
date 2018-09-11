@@ -13,7 +13,7 @@ class DockOpsCore
   def main(argv)
     cmd, *opts = parse_args argv
     load_setup()
-    return with_completion(opts) if cmd == :completion
+    return puts(with_completion opts) if cmd == :completion
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
       handler, command, *args = opts
@@ -299,19 +299,19 @@ class DockOpsCore
 
   def with_completion(argv=[])
     cmd = argv.shift
-    case cmd
+    return case cmd
     when 'build', 'logs', 'run', 'up'
-      puts completion_services.join(' ')
+      completion_services.join(' ')
     when 'images'
-      puts completion_images.split("\n").join(' ')
+      completion_images
     when 'push', 'rmi', 'tag'
-      puts completion_images(:true).split("\n").join(' ')
+      completion_images(:true)
     when 'stop'
-      puts completion_containers.split("\n").join(' ')
+      completion_containers
     when 'scp', 'ssh', 'use'
-      puts completion_machines.split("\n").join(' ')
+      completion_machines
     else
-      puts completion_commands.join(' ')
+      completion_commands.join(' ')
     end
   end
 
