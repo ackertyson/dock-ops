@@ -15,6 +15,10 @@ how awesome this is until you're managing several different projects which all
 have different conventions with respect to compose file naming and extending.
 Trust me: it's awesome!
 
+Another nice feature is the ability to create custom aliases. You know those
+long `docker-compose run` commands that you're always hoping are still in your
+bash history? Now there's a better way: see the CUSTOM ALIASES section below.
+
 ## Installation
 
 1. `git clone https://github.com/ackertyson/dock-ops.git`
@@ -118,6 +122,29 @@ command with a mode flag, the following are equivalent:
 In both cases `regenerate-certs` is the COMMAND portion of the `dock-ops` call,
 not a parameter to the `-nm` FLAG.
 
+## Custom aliases
+
+To create a shorthand alias for a frequently-used command, you can do:
+
+`dock -a NAME COMMAND`
+
+...where `COMMAND` is the `dock-ops` command you would otherwise enter. E.g., if
+you have a MongoDB instance running on a `mongodb` service with a long
+connection string which you can never remember, you can do:
+
+`dock -a mongo run mongodb bash -c 'mongo mongodb://mongodb/my-mongo-host'`
+
+...and thenceforth you can simply enter:
+
+`dock mongo`
+
+You can even tab-complete on alias names! And if you forget what aliases you
+have defined, you can do:
+
+`dock aliases`
+
+...to see all of them for the current project+mode.
+
 ## Deployed Docker machines
 
 If you routinely find yourself deploying Docker Compose apps to remote hosts
@@ -136,6 +163,11 @@ You'll probably also want to check out [docker-machine-prompt](https://github.co
 ## Command equivalents
 
 Last but not least, here's what all the `dock-ops` commands actually do...
+
+### aliases
+
+List all defined aliases for this project+mode (see CUSTOM ALIASES section
+above).
 
 ### build
 

@@ -12,7 +12,11 @@ describe DockOps do
     @dock = DockOps.new
     @dock.instance_variable_set :@mode, 'test'
     config = {
-      :test => ['my.yaml']
+      :test => {
+        'version' => 1,
+        'compose_files' => ['my.yaml'],
+        'aliases' => {}
+      }
     }
     @dock.instance_variable_set :@cnfg, config
   end

@@ -12,7 +12,11 @@ describe DockOpsCore do
     @core = DockOpsCore.new
     @core.instance_variable_set :@mode, 'test'
     config = {
-      :test => ['my.yaml']
+      :test => {
+        'version' => 1,
+        'compose_files' => ['my.yaml'],
+        'aliases' => {}
+      }
     }
     @core.instance_variable_set :@cnfg, config
   end
@@ -42,7 +46,11 @@ describe DockOpsCore do
 
     it 'returns docker-compose command for multiple yamls' do
       config = {
-        :test => ['first', 'second']
+        :test => {
+          'version' => 1,
+          'compose_files' => ['first', 'second'],
+          'aliases' => {}
+        }
       }
       @core.instance_variable_set :@cnfg, config
       @core.send(:compose).must_equal 'docker-compose -f first -f second'
@@ -52,6 +60,27 @@ describe DockOpsCore do
       config = {}
       @core.instance_variable_set :@cnfg, config
       @core.send(:compose).must_equal 'docker-compose '
+    end
+  end
+
+  describe 'normalize' do
+    it 'converts version 0' do
+      input = ['one', 'two']
+      version1 = {
+        'version' => 1,
+        'compose_files' => ['one', 'two'],
+        'aliases' => {}
+      }
+      @core.send(:normalize, input).must_equal version1
+    end
+
+    it 'pass-thru version 1' do
+      input = {
+        'version' => 1,
+        'compose_files' => ['one', 'two'],
+        'aliases' => {}
+      }
+      @core.send(:normalize, input).must_equal input
     end
   end
 

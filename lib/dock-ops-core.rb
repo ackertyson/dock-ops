@@ -6,7 +6,8 @@ class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
 class DockOpsCore
-  def initialize
+  def initialize(config_version=1)
+    @config_version = config_version
     @term = Term.new
   end
 
@@ -14,16 +15,24 @@ class DockOpsCore
     cmd, *opts = parse_args argv
     load_setup()
     return puts(with_completion opts) if cmd == :completion
+    if cmd == :alias
+      name, *args = opts
+      return create_alias(name, args)
+    end
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
       handler, command, *args = opts
       return delegate(handler, command, args)
     end
-    begin
+
+    if get_commands().include? cmd
       self.send cmd.to_sym, opts
-    rescue NoMethodError => e
-      puts e
-      bail "'#{cmd}' is not a choice: #{get_commands.join ', '}"
+    elsif get_alias(cmd)
+      require 'csv'
+      # preserve single-quoted shell arguments (double-quoted args are going to puke here)...
+      return main CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
+    else
+      bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
     end
   rescue BadArgsError => e
     STDERR.puts e
@@ -54,7 +63,8 @@ class DockOpsCore
   end
 
   def completion_commands
-    get_commands()
+    commands = get_commands()
+    commands.concat get_aliases().keys
   end
 
   def completion_containers
@@ -81,7 +91,7 @@ class DockOpsCore
   end
 
   def compose(yamls=nil)
-    input = yamls ? yamls : get_setup()
+    input = yamls ? yamls : get_setup()['compose_files']
     flag = -> arg { "-f #{arg}" }
     return "docker-compose #{input.map(&flag).join(' ')}"
   end
@@ -102,10 +112,23 @@ class DockOpsCore
     sys "docker ps -q -f name=#{name}", :true
   end
 
+  def create_alias(name, args)
+    @cnfg[@mode]['aliases'][name] = as_args args
+    write_setup()
+  end
+
   def default_setup
     return {
-      :development => ['docker-compose.development.yaml'],
-      :production => ['docker-compose.yaml']
+      :development => {
+        'version' => 1,
+        'compose_files' => ['docker-compose.development.yaml'],
+        'aliases' => {}
+      },
+      :production => {
+        'version' => 1,
+        'compose_files' => ['docker-compose.yaml'],
+        'aliases' => {}
+      }
     }
   end
 
@@ -124,7 +147,7 @@ class DockOpsCore
 
   def find_yamls(mode=nil)
     show_all = '*.y{a,}ml'
-    pattern = mode ? (@cnfg[mode.to_sym()] ? @cnfg[mode.to_sym()] : show_all) : show_all
+    pattern = mode ? (@cnfg[mode.to_sym()] ? @cnfg[mode.to_sym()]['compose_files'] : show_all) : show_all
     Dir.glob(pattern).sort
   end
 
@@ -150,13 +173,27 @@ class DockOpsCore
 
   def get_setup
     raise NoModeError unless @mode
+    default = {
+      'version' => @config_version,
+      'compose_files' => [],
+      'aliases' => {}
+    }
     mode = @mode.to_sym
-    @cnfg[mode] = [] unless @cnfg.has_key? mode
+    @cnfg[mode] = default unless @cnfg.has_key? mode
     @cnfg[mode]
+  end
+
+  def get_alias(name)
+    @cnfg[@mode]['aliases'][name]
+  end
+
+  def get_aliases
+    @cnfg[@mode]['aliases']
   end
 
   def get_commands
     return [
+      'aliases',
       'build',
       'clean',
       'config',
@@ -186,12 +223,27 @@ class DockOpsCore
     setup_dir = File.join home, '.dock-ops'
     project_setup_dir = File.join setup_dir, pwd
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
-    @cnfg[@mode.to_sym] = Psych.load yaml
+    @cnfg[@mode.to_sym] = normalize Psych.load yaml
   rescue Errno::ENOENT
     # no existing setup file for this project/mode
   rescue => e
     STDERR.puts e
     STDERR.puts e.backtrace
+  end
+
+  def normalize(cnfg)
+    if cnfg.kind_of?(Array) # version 0
+      return {
+        'version' => @config_version,
+        'compose_files' => cnfg,
+        'aliases' => {}
+      }
+    end
+
+    return case cnfg['version']
+    when 1
+      cnfg
+    end
   end
 
   def numbered(arr, highlight=nil) # prepend numeric cardinal to each (string) element of ARR
@@ -210,11 +262,15 @@ class DockOpsCore
       argv.shift
       for_completion = true
     end
+    for_alias = nil
     for_native = nil
     working_dir = nil
     @mode = :development
     while argv.length > 0
       case argv[0]
+      when '-a', '--alias'
+        argv.shift
+        for_alias = argv.shift
       when '-p', '--production'
         argv.shift
         @mode = :production
@@ -240,6 +296,7 @@ class DockOpsCore
     raise BadArgsError unless args
     args.unshift for_native if for_native
     # argv.unshift working_dir if working_dir
+    args.unshift :alias, for_alias if for_alias
     args.unshift :completion if for_completion
     return args
   end
@@ -293,7 +350,7 @@ class DockOpsCore
       puts "\nNo changes saved."
       return
     end
-    @cnfg[@mode] = yamls
+    @cnfg[@mode]['compose_files'] = yamls
     write_setup()
   end
 

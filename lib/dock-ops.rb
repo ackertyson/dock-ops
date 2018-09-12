@@ -6,8 +6,16 @@ class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
 class DockOps < DockOpsCore
-  def initialize
-    super
+  def initialize(config_version=1)
+    super config_version
+  end
+
+  def aliases(args=nil)
+    get_aliases().each_pair do |name, cmd|
+      puts(sprintf "%s => %s", name, cmd)
+    end
+  rescue => e
+    puts e
   end
 
   def build(args=nil)
@@ -106,7 +114,7 @@ class DockOps < DockOpsCore
       '',
       "In #{get_mode.upcase} mode, Docker Compose commands should use:"
     ]
-    update_setup setup_ui yamls, get_setup()
+    update_setup setup_ui yamls, get_setup()['compose_files']
   end
 
   def ssh(args=[])
