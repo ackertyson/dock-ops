@@ -93,6 +93,7 @@ class DockOps < DockOpsCore
     with_color = lambda { |color, text| @term.color text, color }
     bling = with_color.curry.call get_mode_color
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
+    return bail 'No YAML files found' unless yamls.length > 0
     @term.show [
       'Available YAML files:',
       numbered(yamls, bling),
