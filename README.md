@@ -166,7 +166,7 @@ Last but not least, here's what all the `dock-ops` commands actually do...
 
 ### aliases
 
-List all defined aliases for this project+mode (see CUSTOM ALIASES section
+List all defined aliases for current project+mode (see CUSTOM ALIASES section
 above).
 
 ### build
