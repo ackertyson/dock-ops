@@ -124,7 +124,7 @@ not a parameter to the `-nm` FLAG.
 
 ## Custom aliases
 
-To create a shorthand alias for a frequently-used command, you can do:
+To create a shorthand alias for a frequently used command, you can do:
 
 `dock -a NAME COMMAND`
 
@@ -163,6 +163,9 @@ You'll probably also want to check out [docker-machine-prompt](https://github.co
 ## Command equivalents
 
 Last but not least, here's what all the `dock-ops` commands actually do...
+
+*Note: though the name of this package is `dock-ops`, the actual CLI command is
+simply `dock`.*
 
 ### aliases
 

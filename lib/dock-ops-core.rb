@@ -30,7 +30,8 @@ class DockOpsCore
     elsif get_alias(cmd)
       require 'csv'
       # preserve single-quoted shell arguments (double-quoted args are going to puke here)...
-      return main CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
+      cmd, *opts = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
+      self.send cmd.to_sym, opts
     else
       bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
     end
