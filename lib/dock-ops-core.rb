@@ -2,6 +2,7 @@ require 'fileutils'
 require 'term'
 
 class BadArgsError < StandardError; end
+class CmdExistsError < StandardError; end
 class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
@@ -35,6 +36,8 @@ class DockOpsCore
     else
       bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
     end
+  rescue CmdExistsError => e
+    bail e
   rescue BadArgsError => e
     STDERR.puts e
     STDERR.puts e.backtrace
@@ -114,6 +117,9 @@ class DockOpsCore
   end
 
   def create_alias(name, args)
+    if get_commands.include? name
+      raise CmdExistsError, "'#{name}' is a built-in command and can't be used as an alias name."
+    end
     @cnfg[@mode]['aliases'][name] = as_args args
     write_setup()
   end
