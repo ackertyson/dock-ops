@@ -18,7 +18,8 @@ class DockOpsCore
     return puts(with_completion opts) if cmd == :completion
     if cmd == :alias
       name, *args = opts
-      return create_alias(name, args)
+      # hard-code MODE so it is preserved in recursive main() call
+      return create_alias(name, args.unshift('-m', @mode.to_s))
     end
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
@@ -31,16 +32,16 @@ class DockOpsCore
     elsif get_alias(cmd)
       require 'csv'
       # preserve single-quoted shell arguments (double-quoted args are going to puke here)...
-      cmd, *opts = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
-      self.send cmd.to_sym, opts
+      args = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
+      return main args
     else
       bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
     end
   rescue CmdExistsError => e
     bail e
   rescue BadArgsError => e
-    STDERR.puts e
     STDERR.puts e.backtrace
+    bail e
   rescue ArgumentError
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
   rescue Interrupt # user hit Ctrl-c
@@ -48,10 +49,10 @@ class DockOpsCore
   rescue NoModeError
     bail "You somehow tried to work with a MODE which doesn't exist."
   rescue RunFailedError => e
-    STDERR.puts e
+    bail e
   rescue => e
-    STDERR.puts e
     STDERR.puts e.backtrace
+    bail e
   end
 
   private ### internal methods #############
@@ -120,7 +121,7 @@ class DockOpsCore
     if get_commands.include? name
       raise CmdExistsError, "'#{name}' is a built-in command and can't be used as an alias name."
     end
-    @cnfg[@mode]['aliases'][name] = as_args args
+    @cnfg[@mode]['aliases'][name.to_sym] = as_args args
     write_setup()
   end
 
@@ -158,6 +159,39 @@ class DockOpsCore
     Dir.glob(pattern).sort
   end
 
+  def get_alias(name)
+    @cnfg[@mode]['aliases'][name.to_sym]
+  end
+
+  def get_aliases
+    @cnfg[@mode]['aliases']
+  end
+
+  def get_commands
+    return [
+      'aliases',
+      'build',
+      'clean',
+      'config',
+      'down',
+      'images',
+      'logs',
+      'ls',
+      'ps',
+      'push',
+      'pull',
+      'rls',
+      'rmi',
+      'run',
+      'scp',
+      'setup',
+      'ssh',
+      'stop',
+      'tag',
+      'up'
+    ]
+  end
+
   def get_mode
     @mode
   end
@@ -190,39 +224,6 @@ class DockOpsCore
     @cnfg[mode]
   end
 
-  def get_alias(name)
-    @cnfg[@mode]['aliases'][name]
-  end
-
-  def get_aliases
-    @cnfg[@mode]['aliases']
-  end
-
-  def get_commands
-    return [
-      'aliases',
-      'build',
-      'clean',
-      'config',
-      'down',
-      'images',
-      'logs',
-      'ls',
-      'ps',
-      'push',
-      'pull',
-      'rls',
-      'rmi',
-      'run',
-      'scp',
-      'setup',
-      'ssh',
-      'stop',
-      'tag',
-      'up'
-    ]
-  end
-
   def load_setup
     @cnfg = default_setup()
     home = Dir.home
@@ -233,9 +234,6 @@ class DockOpsCore
     @cnfg[@mode.to_sym] = normalize Psych.load yaml
   rescue Errno::ENOENT
     # no existing setup file for this project/mode
-  rescue => e
-    STDERR.puts e
-    STDERR.puts e.backtrace
   end
 
   def normalize(cnfg)
@@ -257,8 +255,6 @@ class DockOpsCore
     arr = [arr] unless arr.kind_of?(Array)
     with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
     arr.map.with_index(&with_color)
-  rescue => e
-    STDERR.puts e
   end
 
   def parse_args(argv=[])
@@ -278,12 +274,12 @@ class DockOpsCore
       when '-a', '--alias'
         argv.shift
         for_alias = argv.shift
-      when '-p', '--production'
-        argv.shift
-        @mode = :production
       when '-m'
         argv.shift
         @mode = argv.shift.to_sym
+      when '-p', '--production'
+        argv.shift
+        @mode = :production
       when '-nc', '--compose'
         argv.shift
         for_native = :compose
@@ -293,9 +289,9 @@ class DockOpsCore
       when '-nm', '--machine'
         argv.shift
         for_native = :machine
-      when '-w', '--working_dir'
-        argv.shift
-        working_dir = argv.shift
+      # when '-w', '--working-dir'
+      #   argv.shift
+      #   working_dir = argv.shift
       else # no more flags; everything else is CMD [ARGS...]
         args = argv.shift argv.length
       end
@@ -334,9 +330,6 @@ class DockOpsCore
       end
     end
     return do_save, current
-  rescue => e
-    STDERR.puts e
-    STDERR.puts e.backtrace
   end
 
   def sys(cmd, capture=:false) # exec shell command
