@@ -21,21 +21,36 @@ bash history? Now there's a better way: see the CUSTOM ALIASES section below.
 
 ## Installation
 
+### With Rake
+
 1. `git clone https://github.com/ackertyson/dock-ops.git`
 
 2. `cd dock-ops/`
 
-3. `rake` (or, if you don't have Rake, `gem build dock-ops.gemspec && sudo gem
-    install -l dock-ops`)
+3. `rake install completion`
 
-If you want to install the completion script at the same time (and you should!),
-replace step 3 with:
+4. Add a line to your `~/.bash_profile` (yes, it starts with a "dot"): `. ~/dock-ops-completion.bash`
 
-3. `rake install completion` (or, if you don't have Rake, see the instructions in
-    the `dock-ops-completion.bash` file included with this project)
+### Without Rake
+
+1. `git clone https://github.com/ackertyson/dock-ops.git`
+
+2. `cd dock-ops/`
+
+3. `gem build dock-ops.gemspec && sudo gem install -l dock-ops`
+
+4. See the instructions in the `dock-ops-completion.bash` file included with
+    this project
+
+### With or without Rake
 
 To get completion to work in existing shell sessions, you have to do `source
 ~/.bash_profile` after installing the completion script.
+
+If for some reason you don't want to use completion, replace steps 3 and 4 with:
+
+3. `rake install` (or, if you don't have Rake, `gem build dock-ops.gemspec &&
+    sudo gem install -l dock-ops`)
 
 *NOTE: you still need to install the real Docker applications; `dock-ops` is just a wrapper.*
 
@@ -98,6 +113,29 @@ do:
 - `dock -p COMMAND`, or
 - `dock --production COMMAND`
 
+## Custom aliases
+
+To create a shorthand alias for a frequently used command, you can do:
+
+`dock -a NAME COMMAND`
+
+...where `COMMAND` is the `dock-ops` command you would otherwise enter. E.g., if
+you have a MongoDB instance running on a `mongodb` service with a long
+connection string which you can never remember, you can do:
+
+`dock -a mongo run mongodb bash -c 'mongo mongodb://mongodb/my-mongo-host'`
+
+...and thenceforth you can simply enter:
+
+`dock mongo`
+
+You can even tab-complete on alias names! And if you forget what aliases you
+have defined, you can do:
+
+`dock aliases`
+
+...to see all of them for the current project+mode.
+
 ## Native pass-thru
 
 Want to use a `docker`/`docker-compose`/`docker-machine` command that isn't
@@ -121,29 +159,6 @@ command with a mode flag, the following are equivalent:
 
 In both cases `regenerate-certs` is the COMMAND portion of the `dock-ops` call,
 not a parameter to the `-nm` FLAG.
-
-## Custom aliases
-
-To create a shorthand alias for a frequently used command, you can do:
-
-`dock -a NAME COMMAND`
-
-...where `COMMAND` is the `dock-ops` command you would otherwise enter. E.g., if
-you have a MongoDB instance running on a `mongodb` service with a long
-connection string which you can never remember, you can do:
-
-`dock -a mongo run mongodb bash -c 'mongo mongodb://mongodb/my-mongo-host'`
-
-...and thenceforth you can simply enter:
-
-`dock mongo`
-
-You can even tab-complete on alias names! And if you forget what aliases you
-have defined, you can do:
-
-`dock aliases`
-
-...to see all of them for the current project+mode.
 
 ## Deployed Docker machines
 
