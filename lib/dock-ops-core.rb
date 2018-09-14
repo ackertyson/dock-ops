@@ -18,8 +18,7 @@ class DockOpsCore
     return puts(with_completion opts) if cmd == :completion
     if cmd == :alias
       name, *args = opts
-      # hard-code MODE so it is preserved in recursive main() call
-      return create_alias(name, args.unshift('-m', @mode.to_s))
+      return create_alias name, args
     end
     return with_working_dir(opts) if cmd == :working_dir
     if cmd == :native
@@ -33,7 +32,7 @@ class DockOpsCore
       require 'csv'
       # preserve single-quoted shell arguments (double-quoted args are going to puke here)...
       args = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
-      return main args
+      return main args.unshift('-m', @mode.to_s)
     else
       bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
     end
@@ -121,7 +120,7 @@ class DockOpsCore
     if get_commands.include? name
       raise CmdExistsError, "'#{name}' is a built-in command and can't be used as an alias name."
     end
-    @cnfg[@mode]['aliases'][name.to_sym] = as_args args
+    @cnfg[@mode]['aliases'][name] = as_args args
     write_setup()
   end
 
@@ -160,7 +159,7 @@ class DockOpsCore
   end
 
   def get_alias(name)
-    @cnfg[@mode]['aliases'][name.to_sym]
+    @cnfg[@mode]['aliases'][name]
   end
 
   def get_aliases
