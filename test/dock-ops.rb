@@ -10,7 +10,7 @@ Minitest::Reporters.use!(
 describe DockOps do
   before do
     @dock = DockOps.new
-    @dock.instance_variable_set :@mode, 'test'
+    @dock.instance_variable_set :@mode, :test
     config = {
       :test => {
         'version' => 1,

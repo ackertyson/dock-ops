@@ -7,6 +7,6 @@ spec = Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/ackertyson/dock-ops'
   spec.files = ['lib/dock-ops-core.rb', 'lib/dock-ops.rb', 'lib/term.rb']
   spec.executables = ['dock']
-  spec.version = '0.2.17'
+  spec.version = '0.2.18'
   spec.license = 'MIT'
 end

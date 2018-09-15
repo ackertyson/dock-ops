@@ -12,7 +12,7 @@ class DockOps < DockOpsCore
 
   def aliases(args=nil)
     get_aliases().each_pair do |name, cmd|
-      puts(sprintf "%s => %s", name, cmd)
+      puts(sprintf "%s => %s", bling(name), cmd)
     end
   rescue => e
     puts e
@@ -98,19 +98,17 @@ class DockOps < DockOpsCore
 
   def setup(args=nil)
     has_services = -> arg { get_services arg }
-    with_color = lambda { |color, text| @term.color text, color }
-    bling = with_color.curry.call get_mode_color
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     return bail 'No YAML files found' unless yamls.length > 0
     @term.show [
       'Available YAML files:',
-      numbered(yamls, bling),
+      numbered(yamls),
       '',
       'Commands:',
-      "- [#{bling.call 1}, #{bling.call 2}, ..., #{bling.call 'N'}] Add YAML file",
-      "- [#{bling.call 'BACKSPACE'}] Remove YAML file",
-      "- [#{bling.call 'C'}]ancel (exit without saving changes)",
-      "- [#{bling.call 'ENTER'}] (exit and save changes)",
+      "- [#{bling 1}, #{bling 2}, ..., #{bling 'N'}] Add YAML file",
+      "- [#{bling 'BACKSPACE'}] Remove YAML file",
+      "- [#{bling 'C'}]ancel (exit without saving changes)",
+      "- [#{bling 'ENTER'}] (exit and save changes)",
       '',
       "In #{get_mode.upcase} mode, Docker Compose commands should use:"
     ]

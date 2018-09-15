@@ -10,7 +10,7 @@ Minitest::Reporters.use!(
 describe DockOpsCore do
   before do
     @core = DockOpsCore.new
-    @core.instance_variable_set :@mode, 'test'
+    @core.instance_variable_set :@mode, :test
     config = {
       :test => {
         'version' => 1,
@@ -117,6 +117,21 @@ describe DockOpsCore do
     it 'sets production mode with -m flag' do
       @core.send(:parse_args, ['-m', 'production', 'up', '-d']).must_equal ['up', '-d']
       assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'handles -a (alias) flag' do
+      @core.send(:parse_args, ['-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'handles -a (alias) flag with -p' do
+      @core.send(:parse_args, ['-p', '-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'handles -a (alias) flag with -m' do
+      @core.send(:parse_args, ['-m', 'yours', '-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      assert_equal @core.instance_variable_get(:@mode), :yours
     end
 
     it 'delegates to compose with -nc flag' do

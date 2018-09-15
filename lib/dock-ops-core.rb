@@ -8,6 +8,8 @@ class RunFailedError < StandardError; end
 
 class DockOpsCore
   def initialize(config_version=1)
+    @cnfg = Hash.new
+    @config_dir = '.dock-ops'
     @config_version = config_version
     @term = Term.new
   end
@@ -66,6 +68,10 @@ class DockOpsCore
     abort "DOCK-OPS: #{msg}"
   end
 
+  def bling(text)
+    @term.color text, get_mode_color
+  end
+
   def completion_commands
     commands = get_commands()
     commands.concat get_aliases().keys
@@ -101,7 +107,7 @@ class DockOpsCore
   end
 
   def confirm_create_setup_store
-    @term.show 'No ~/.dock-ops directory found; okay to create? (y/N)'
+    @term.show "\nNo '#{File.join Dir.home, @config_dir}' directory found; okay to create? (y/N)"
     c = @term.readc
     case c
     when 'y'
@@ -125,18 +131,19 @@ class DockOpsCore
   end
 
   def default_setup
-    return {
-      :development => {
-        'version' => 1,
-        'compose_files' => ['docker-compose.development.yaml'],
-        'aliases' => {}
-      },
-      :production => {
-        'version' => 1,
-        'compose_files' => ['docker-compose.yaml'],
-        'aliases' => {}
-      }
+    base = {
+      'version' => @config_version,
+      'aliases' => {}
     }
+    base['compose_files'] = case @mode
+      when :development
+        ['docker-compose.development.yaml']
+      when :production
+        ['docker-compose.yaml']
+      else
+        []
+      end
+    return base
   end
 
   def delegate(target, cmd, args) # pass args through to Docker
@@ -154,16 +161,16 @@ class DockOpsCore
 
   def find_yamls(mode=nil)
     show_all = '*.y{a,}ml'
-    pattern = mode ? (@cnfg[mode.to_sym()] ? @cnfg[mode.to_sym()]['compose_files'] : show_all) : show_all
+    pattern = mode ? (@cnfg[mode] ? @cnfg[mode]['compose_files'] : show_all) : show_all
     Dir.glob(pattern).sort
   end
 
   def get_alias(name)
-    @cnfg[@mode]['aliases'][name]
+    get_aliases()[name]
   end
 
   def get_aliases
-    @cnfg[@mode]['aliases']
+    get_setup()['aliases']
   end
 
   def get_commands
@@ -212,47 +219,36 @@ class DockOpsCore
   end
 
   def get_setup
-    raise NoModeError unless @mode
-    default = {
-      'version' => @config_version,
-      'compose_files' => [],
-      'aliases' => {}
-    }
-    mode = @mode.to_sym
-    @cnfg[mode] = default unless @cnfg.has_key? mode
-    @cnfg[mode]
+    @cnfg.has_key?(@mode) ? @cnfg[@mode] : default_setup
   end
 
   def load_setup
-    @cnfg = default_setup()
+    @cnfg[@mode] = default_setup
     home = Dir.home
     pwd = Dir.pwd
-    setup_dir = File.join home, '.dock-ops'
+    setup_dir = File.join home, @config_dir
     project_setup_dir = File.join setup_dir, pwd
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
-    @cnfg[@mode.to_sym] = normalize Psych.load yaml
+    @cnfg[@mode] = normalize Psych.load yaml
   rescue Errno::ENOENT
     # no existing setup file for this project/mode
   end
 
   def normalize(cnfg)
     if cnfg.kind_of?(Array) # version 0
-      return {
-        'version' => @config_version,
-        'compose_files' => cnfg,
-        'aliases' => {}
-      }
+      return default_setup().merge({ 'compose_files' => cnfg })
     end
-
     return case cnfg['version']
     when 1
       cnfg
+    else
+      bail "What, you're making up config file versions now?"
     end
   end
 
-  def numbered(arr, highlight=nil) # prepend numeric cardinal to each (string) element of ARR
+  def numbered(arr) # prepend numeric cardinal to each (string) element of ARR
     arr = [arr] unless arr.kind_of?(Array)
-    with_color = lambda { |arg, i| "#{highlight ? "#{highlight.call(i + 1)}" : i + 1}. #{arg}" }
+    with_color = lambda { |text, i| "#{bling(i + 1)}. #{text}" }
     arr.map.with_index(&with_color)
   end
 
@@ -339,6 +335,7 @@ class DockOpsCore
   end
 
   def to_array(value)
+    return [] unless value
     return value if value.kind_of?(Array)
     [value]
   end
@@ -379,13 +376,13 @@ class DockOpsCore
   end
 
   def write_setup
-    home = Dir.home
-    pwd = Dir.pwd
-    setup_dir = File.join home, '.dock-ops'
-    project_setup_dir = File.join setup_dir, pwd
+    setup_dir = File.join Dir.home, @config_dir
+    project_setup_dir = File.join setup_dir, Dir.pwd
     unless Dir.exist? setup_dir
-      proceed = confirm_create_setup_store()
-      return if proceed == :false
+      if confirm_create_setup_store() == :false
+        puts 'Aborting setup (no changes saved).'
+        return
+      end
       FileUtils.mkpath setup_dir
     end
     FileUtils.mkpath project_setup_dir unless Dir.exist? project_setup_dir
