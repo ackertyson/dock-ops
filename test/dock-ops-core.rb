@@ -135,32 +135,32 @@ describe DockOpsCore do
     end
 
     it 'delegates to compose with -nc flag' do
-      @core.send(:parse_args, ['-nc', 'passthru']).must_equal [:compose, 'passthru']
+      @core.send(:parse_args, ['-nc', 'passthru']).must_equal [:native, :compose, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :development
     end
 
     it 'delegates to docker with -nd flag' do
-      @core.send(:parse_args, ['-nd', 'passthru']).must_equal [:docker, 'passthru']
+      @core.send(:parse_args, ['-nd', 'passthru']).must_equal [:native, :docker, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :development
     end
 
     it 'delegates to machine with -nm flag' do
-      @core.send(:parse_args, ['-nm', 'passthru']).must_equal [:machine, 'passthru']
+      @core.send(:parse_args, ['-nm', 'passthru']).must_equal [:native, :machine, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :development
     end
 
     it 'delegates and sets mode' do
-      @core.send(:parse_args, ['-p', '-nm', 'passthru']).must_equal [:machine, 'passthru']
+      @core.send(:parse_args, ['-p', '-nm', 'passthru']).must_equal [:native, :machine, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :production
     end
 
     it 'delegates and sets mode in other order' do
-      @core.send(:parse_args, ['-nm', '-p', 'passthru']).must_equal [:machine, 'passthru']
+      @core.send(:parse_args, ['-nm', '-p', 'passthru']).must_equal [:native, :machine, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :production
     end
 
     it 'delegates and sets arbitrary mode' do
-      @core.send(:parse_args, ['-nm', '-m', 'mine', 'passthru']).must_equal [:machine, 'passthru']
+      @core.send(:parse_args, ['-nm', '-m', 'mine', 'passthru']).must_equal [:native, :machine, 'passthru']
       assert_equal @core.instance_variable_get(:@mode), :mine
     end
   end

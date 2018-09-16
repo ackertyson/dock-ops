@@ -28,7 +28,7 @@ class DockOpsCore
       return delegate(handler, command, args)
     end
 
-    if get_commands().include? cmd
+    if get_commands.include? cmd
       self.send cmd.to_sym, opts
     elsif get_alias(cmd)
       require 'csv'
@@ -59,6 +59,7 @@ class DockOpsCore
   private ### internal methods #############
 
   def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
+    return '' unless arr
     arr = [arr] unless arr.kind_of?(Array)
     with_quotes = -> arg { quote arg }
     arr.compact.map(&with_quotes).join(' ')
@@ -74,7 +75,7 @@ class DockOpsCore
 
   def completion_commands
     commands = get_commands()
-    commands.concat get_aliases().keys
+    commands.concat get_aliases.keys
   end
 
   def completion_containers
@@ -102,7 +103,7 @@ class DockOpsCore
 
   def compose(yamls=nil)
     input = yamls ? yamls : get_setup()['compose_files']
-    flag = -> arg { "-f #{arg}" }
+    flag = -> filename { "-f #{filename}" }
     return "docker-compose #{input.map(&flag).join(' ')}"
   end
 
@@ -180,6 +181,7 @@ class DockOpsCore
       'clean',
       'config',
       'down',
+      'exec',
       'images',
       'logs',
       'ls',
@@ -223,11 +225,9 @@ class DockOpsCore
   end
 
   def load_setup
-    @cnfg[@mode] = default_setup
-    home = Dir.home
-    pwd = Dir.pwd
-    setup_dir = File.join home, @config_dir
-    project_setup_dir = File.join setup_dir, pwd
+    @cnfg[@mode] = default_setup # set default in case file IO fails
+    setup_dir = File.join Dir.home, @config_dir
+    project_setup_dir = File.join setup_dir, Dir.pwd
     yaml = IO.read File.join(project_setup_dir, "#{@mode}.yaml")
     @cnfg[@mode] = normalize Psych.load yaml
   rescue Errno::ENOENT
@@ -236,7 +236,7 @@ class DockOpsCore
 
   def normalize(cnfg)
     if cnfg.kind_of?(Array) # version 0
-      return default_setup().merge({ 'compose_files' => cnfg })
+      return default_setup.merge({ 'compose_files' => cnfg })
     end
     return case cnfg['version']
     when 1
@@ -292,7 +292,7 @@ class DockOpsCore
       end
     end
     raise BadArgsError unless args
-    args.unshift for_native if for_native
+    args.unshift :native, for_native if for_native
     # argv.unshift working_dir if working_dir
     args.unshift :alias, for_alias if for_alias
     args.unshift :completion if for_completion
@@ -353,7 +353,7 @@ class DockOpsCore
   def with_completion(argv=[])
     cmd = argv.shift
     return case cmd
-    when 'build', 'logs', 'run', 'up'
+    when 'build', 'exec', 'logs', 'run', 'up'
       completion_services.join(' ')
     when 'images'
       completion_images
@@ -377,14 +377,14 @@ class DockOpsCore
 
   def write_setup
     setup_dir = File.join Dir.home, @config_dir
-    project_setup_dir = File.join setup_dir, Dir.pwd
     unless Dir.exist? setup_dir
       if confirm_create_setup_store() == :false
-        puts 'Aborting setup (no changes saved).'
+        puts "\nAborting setup (no changes saved)."
         return
       end
       FileUtils.mkpath setup_dir
     end
+    project_setup_dir = File.join setup_dir, Dir.pwd
     FileUtils.mkpath project_setup_dir unless Dir.exist? project_setup_dir
     project_setup_file = File.join(project_setup_dir, "#{@mode}.yaml")
     IO.write project_setup_file, Psych.dump(get_setup)

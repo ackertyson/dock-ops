@@ -48,6 +48,10 @@ class DockOps < DockOpsCore
     delegate :compose, 'down', to_array(args).unshift('--remove-orphans')
   end
 
+  def exec(args=[])
+    delegate :compose, 'exec', args
+  end
+
   def images(args=[])
     delegate :docker, 'images', args
   end
