@@ -187,6 +187,15 @@ simply `dock`.*
 List all defined aliases for current project+mode (see CUSTOM ALIASES section
 above).
 
+### attach
+
+`docker attach --sig-proxy=false`
+
+Note that the `sig-proxy` option means you can use `Ctrl-C` to detach without
+stopping the container.
+
+*Completions: currently running containers*
+
 ### build
 
 `docker-compose build`
@@ -208,6 +217,12 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 ### down
 
 `docker-compose down --remove-orphans`
+
+### exec
+
+`docker-compose exec`
+
+*Completions: services defined in Compose YAML file(s)*
 
 ### images
 
