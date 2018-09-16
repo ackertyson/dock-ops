@@ -18,6 +18,10 @@ class DockOps < DockOpsCore
     puts e
   end
 
+  def attach(args=[])
+    delegate :docker, 'attach', to_array(args).unshift('--sig-proxy=false')
+  end
+
   def build(args=nil)
     delegate :compose, 'build', args
   end

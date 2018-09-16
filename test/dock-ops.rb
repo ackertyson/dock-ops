@@ -21,6 +21,28 @@ describe DockOps do
     @dock.instance_variable_set :@cnfg, config
   end
 
+  describe 'attach' do
+    it 'invokes correct command' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker attach --sig-proxy=false this'])
+      @dock.stub(:sys, mock_sys) do
+        @dock.attach 'this'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'attach' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker attach --sig-proxy=false'])
+      @dock.stub(:sys, mock_sys) do
+        @dock.attach
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'build' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new

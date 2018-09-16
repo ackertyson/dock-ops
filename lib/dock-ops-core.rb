@@ -177,6 +177,7 @@ class DockOpsCore
   def get_commands
     return [
       'aliases',
+      'attach',
       'build',
       'clean',
       'config',
@@ -359,7 +360,7 @@ class DockOpsCore
       completion_images
     when 'push', 'rmi', 'tag'
       completion_images(:true)
-    when 'stop'
+    when 'attach', 'stop'
       completion_containers
     when 'scp', 'ssh', 'use'
       completion_machines
