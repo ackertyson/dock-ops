@@ -121,7 +121,7 @@ To create a shorthand alias for a frequently used command, you can do:
 you have a MongoDB instance running on a `mongodb` service with a long
 connection string which you can never remember, you can do:
 
-`dock -a mongo run mongodb bash -c 'mongo mongodb://mongodb/my-mongo-host'`
+`dock -a mongo run mongodb bash -c 'mongo mongodb://mongodb/my-mongo-db'`
 
 ...and thenceforth you can simply enter:
 
@@ -230,7 +230,7 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 
 ### logs
 
-`docker-compose logs`
+`docker-compose logs -f`
 
 *Completions: services defined in Compose YAML file(s)*
 

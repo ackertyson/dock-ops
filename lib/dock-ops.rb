@@ -60,7 +60,7 @@ class DockOps < DockOpsCore
   end
 
   def logs(args=[])
-    delegate :compose, 'logs', args
+    delegate :compose, 'logs', to_array(args).unshift('-f')
   end
 
   def ls(args=nil)
