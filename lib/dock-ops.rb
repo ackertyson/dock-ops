@@ -1,4 +1,3 @@
-require 'yaml'
 require 'dock-ops-core'
 
 class BadArgsError < StandardError; end
@@ -108,19 +107,7 @@ class DockOps < DockOpsCore
     has_services = -> arg { get_services arg }
     yamls = find_yamls.select(&has_services) # only include YAMLs with defined services
     return bail 'No YAML files found' unless yamls.length > 0
-    @term.show [
-      'Available YAML files:',
-      numbered(yamls),
-      '',
-      'Commands:',
-      "- [#{bling 1}, #{bling 2}, ..., #{bling 'N'}] Add YAML file",
-      "- [#{bling 'BACKSPACE'}] Remove YAML file",
-      "- [#{bling 'C'}]ancel (exit without saving changes)",
-      "- [#{bling 'ENTER'}] (exit and save changes)",
-      '',
-      "In #{get_mode.upcase} mode, Docker Compose commands should use:"
-    ]
-    update_setup setup_ui yamls, get_setup()['compose_files']
+    update_setup setup_ui yamls
   end
 
   def ssh(args=[])

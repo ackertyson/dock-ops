@@ -1,4 +1,4 @@
-require 'fileutils'
+require 'yaml'
 require 'term'
 
 class BadArgsError < StandardError; end
@@ -305,18 +305,20 @@ class DockOpsCore
     return "'#{str}'"
   end
 
-  def setup_ui(yamls, current)
+  def setup_ui(yamls)
+    show_ui yamls
+    selected = to_array get_setup()['compose_files']
     do_save = :false
     loop do
-      @term.content "% #{compose current}"
+      @term.content "% #{compose selected}"
       c = @term.readc
       c = c.to_i if /[1-9]/ =~ c
       case c
       when 1..9
         yaml = yamls[c - 1]
-        current.push(yaml) if yaml and !current.include?(yaml)
+        selected.push(yaml) if yaml and !selected.include?(yaml)
       when "\177" # backspace
-        current.pop()
+        selected.pop()
       when "\r" # enter
         do_save = :true
         break
@@ -325,7 +327,22 @@ class DockOpsCore
         break
       end
     end
-    return do_save, current
+    return do_save, selected
+  end
+
+  def show_ui(yamls)
+    @term.show [
+      'Available YAML files:',
+      numbered(yamls),
+      '',
+      'Commands:',
+      "- [#{bling 1}, #{bling 2}, ..., #{bling 'N'}] Add YAML file",
+      "- [#{bling 'BACKSPACE'}] Remove YAML file",
+      "- [#{bling 'C'}]ancel (exit without saving changes)",
+      "- [#{bling 'ENTER'}] (exit and save changes)",
+      '',
+      "In #{get_mode.upcase} mode, Docker Compose commands should use:"
+    ]
   end
 
   def sys(cmd, capture=:false) # exec shell command
@@ -377,6 +394,7 @@ class DockOpsCore
   end
 
   def write_setup
+    require 'fileutils'
     setup_dir = File.join Dir.home, @config_dir
     unless Dir.exist? setup_dir
       if confirm_create_setup_store() == :false

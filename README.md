@@ -58,9 +58,7 @@ If for some reason you don't want to use completion, replace steps 3 and 4 with:
 
 `rake test`
 
-(Requires `sudo gem install minitest-reporters`. And I'm not giving you the
-non-Rake version of this command. If you want to run tests, just install Rake
-already.)
+(Requires `sudo gem install minitest-reporters`.)
 
 ## Usage
 
@@ -191,7 +189,7 @@ above).
 
 `docker attach --sig-proxy=false`
 
-Note that the `sig-proxy` option means you can use `Ctrl-C` to detach without
+Note that the `sig-proxy` option means you can use `Ctrl-c` to detach without
 stopping the container.
 
 *Completions: currently running containers*

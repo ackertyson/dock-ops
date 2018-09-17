@@ -87,6 +87,28 @@ describe DockOps do
     end
   end
 
+  describe 'exec' do
+    it 'invokes correct command' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml exec this'])
+      @dock.stub(:sys, mock_sys) do
+        @dock.exec 'this'
+        mock_sys.verify
+      end
+    end
+  end
+
+  describe 'exec' do
+    it 'handles empty input' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker-compose -f my.yaml exec '])
+      @dock.stub(:sys, mock_sys) do
+        @dock.exec
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'images' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
