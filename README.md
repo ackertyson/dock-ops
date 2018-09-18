@@ -134,6 +134,13 @@ have defined, you can do:
 
 ...to see all of them for the current project+mode.
 
+Aliases can also override `dock-ops` built-in commands, so if you don't like one
+of the default commands, you can formulate your own version.
+
+If you want to delete an alias, use the `-d` flag:
+
+`dock -d previously-created-alias-name`
+
 ## Native pass-thru
 
 Want to use a `docker`/`docker-compose`/`docker-machine` command that isn't
