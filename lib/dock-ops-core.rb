@@ -2,7 +2,6 @@ require 'yaml'
 require 'term'
 
 class BadArgsError < StandardError; end
-class CmdExistsError < StandardError; end
 class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
@@ -17,29 +16,32 @@ class DockOpsCore
   def main(argv)
     cmd, *opts = parse_args argv
     load_setup()
-    return puts(with_completion opts) if cmd == :completion
-    if cmd == :alias
-      name, *args = opts
-      return create_alias name, args
-    end
-    return with_working_dir(opts) if cmd == :working_dir
-    if cmd == :native
-      handler, command, *args = opts
-      return delegate(handler, command, args)
+    case cmd
+      when :add_alias
+        name, *args = opts
+        return create_alias name, args
+      when :completion
+        return puts with_completion opts
+      when :delete_alias
+        name, *rest = opts
+        return delete_alias name
+      when :native
+        handler, command, *args = opts
+        return delegate(handler, command, args)
+      when :working_dir
+        return with_working_dir opts
     end
 
-    if get_commands.include? cmd
-      self.send cmd.to_sym, opts
-    elsif get_alias(cmd)
+    if get_alias(cmd)
       require 'csv'
       # preserve single-quoted shell arguments (double-quoted args are going to puke here)...
       args = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
       return main args.unshift('-m', @mode.to_s)
+    elsif get_commands.include? cmd
+      self.send cmd.to_sym, opts
     else
-      bail "'#{cmd}' is not a choice: #{completion_commands.join ', '}"
+      bail "'#{cmd}' is not a choice: #{completion_commands.uniq.sort.join ', '}"
     end
-  rescue CmdExistsError => e
-    bail e
   rescue BadArgsError => e
     STDERR.puts e.backtrace
     bail e
@@ -74,8 +76,7 @@ class DockOpsCore
   end
 
   def completion_commands
-    commands = get_commands()
-    commands.concat get_aliases.keys
+    get_commands.concat get_aliases.keys
   end
 
   def completion_containers
@@ -118,14 +119,26 @@ class DockOpsCore
     end
   end
 
+  def confirm_override_builtin(name)
+    @term.show "'#{name}' is a built-in command; do you want to override it? (y/N)"
+    c = @term.readc
+    case c
+    when 'y'
+      return :true
+    else
+      return :false
+    end
+  end
+
   def container(name) # find running container NAME
     raise BadArgsError unless name and name.length > 0
     sys "docker ps -q -f name=#{name}", :true
   end
 
   def create_alias(name, args)
-    if get_commands.include? name
-      raise CmdExistsError, "'#{name}' is a built-in command and can't be used as an alias name."
+    if get_commands.include?(name) and confirm_override_builtin(name) != :true
+      puts 'No changes saved.'
+      return
     end
     @cnfg[@mode]['aliases'][name] = as_args args
     write_setup()
@@ -158,6 +171,15 @@ class DockOpsCore
     else
       raise BadArgsError
     end
+  end
+
+  def delete_alias(name)
+    if @cnfg[@mode]['aliases'].delete name
+      write_setup()
+      puts "Removed alias '#{name}'"
+      return
+    end
+    bail "No such alias '#{name}'"
   end
 
   def find_yamls(mode=nil)
@@ -261,7 +283,8 @@ class DockOpsCore
       argv.shift
       for_completion = true
     end
-    for_alias = nil
+    add_alias = nil
+    delete_alias = nil
     for_native = nil
     working_dir = nil
     @mode = :development
@@ -269,7 +292,10 @@ class DockOpsCore
       case argv[0]
       when '-a', '--alias'
         argv.shift
-        for_alias = argv.shift
+        add_alias = argv.shift argv.length
+      when '-d', '--delete'
+        argv.shift
+        delete_alias = argv.shift
       when '-m'
         argv.shift
         @mode = argv.shift.to_sym
@@ -295,7 +321,8 @@ class DockOpsCore
     raise BadArgsError unless args
     args.unshift :native, for_native if for_native
     # argv.unshift working_dir if working_dir
-    args.unshift :alias, for_alias if for_alias
+    args.unshift :delete_alias, delete_alias if delete_alias
+    args.unshift :add_alias, *add_alias if add_alias
     args.unshift :completion if for_completion
     return args
   end
@@ -382,7 +409,7 @@ class DockOpsCore
     when 'scp', 'ssh', 'use'
       completion_machines
     else
-      completion_commands.join(' ')
+      completion_commands.sort.join(' ')
     end
   end
 

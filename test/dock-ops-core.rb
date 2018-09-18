@@ -120,17 +120,32 @@ describe DockOpsCore do
     end
 
     it 'handles -a (alias) flag' do
-      @core.send(:parse_args, ['-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      @core.send(:parse_args, ['-a', 'mine', 'cmd']).must_equal [:add_alias, 'mine', 'cmd']
       assert_equal @core.instance_variable_get(:@mode), :development
     end
 
     it 'handles -a (alias) flag with -p' do
-      @core.send(:parse_args, ['-p', '-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      @core.send(:parse_args, ['-p', '-a', 'mine', 'cmd']).must_equal [:add_alias, 'mine', 'cmd']
       assert_equal @core.instance_variable_get(:@mode), :production
     end
 
     it 'handles -a (alias) flag with -m' do
-      @core.send(:parse_args, ['-m', 'yours', '-a', 'mine', 'cmd']).must_equal [:alias, 'mine', 'cmd']
+      @core.send(:parse_args, ['-m', 'yours', '-a', 'mine', 'cmd']).must_equal [:add_alias, 'mine', 'cmd']
+      assert_equal @core.instance_variable_get(:@mode), :yours
+    end
+
+    it 'handles -d (delete alias) flag' do
+      @core.send(:parse_args, ['-d', 'mine']).must_equal [:delete_alias, 'mine']
+      assert_equal @core.instance_variable_get(:@mode), :development
+    end
+
+    it 'handles -d (delete alias) flag with -p' do
+      @core.send(:parse_args, ['-p', '-d', 'mine']).must_equal [:delete_alias, 'mine']
+      assert_equal @core.instance_variable_get(:@mode), :production
+    end
+
+    it 'handles -d (delete alias) flag with -m' do
+      @core.send(:parse_args, ['-m', 'yours', '-d', 'mine']).must_equal [:delete_alias, 'mine']
       assert_equal @core.instance_variable_get(:@mode), :yours
     end
 
