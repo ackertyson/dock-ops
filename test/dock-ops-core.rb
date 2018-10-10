@@ -1,6 +1,6 @@
-require_relative "../lib/dock-ops-core"
-require "minitest/autorun"
-require "minitest/reporters"
+require_relative '../lib/dock-ops-core'
+require 'minitest/autorun'
+require 'minitest/reporters'
 Minitest::Reporters.use!(
   Minitest::Reporters::SpecReporter.new,
   ENV,
@@ -12,7 +12,7 @@ describe DockOpsCore do
     @core = DockOpsCore.new
     @core.instance_variable_set :@mode, :test
     config = {
-      :test => {
+      test: {
         'version' => 1,
         'compose_files' => ['my.yaml'],
         'aliases' => {}
@@ -46,9 +46,9 @@ describe DockOpsCore do
 
     it 'returns docker-compose command for multiple yamls' do
       config = {
-        :test => {
+        test: {
           'version' => 1,
-          'compose_files' => ['first', 'second'],
+          'compose_files' => %w[first second],
           'aliases' => {}
         }
       }
@@ -63,12 +63,81 @@ describe DockOpsCore do
     end
   end
 
+  describe 'default_setup' do
+    it 'should handle dev mode' do
+      @core.instance_variable_set :@mode, :development
+      @core.send(:default_setup).must_equal({
+        'version' => 1,
+        'aliases' => {},
+        'compose_files' => ['docker-compose.development.yaml']
+      })
+    end
+
+    it 'should handle prod mode' do
+      @core.instance_variable_set :@mode, :production
+      @core.send(:default_setup).must_equal({
+        'version' => 1,
+        'aliases' => {},
+        'compose_files' => ['docker-compose.yaml']
+      })
+    end
+
+    it 'should handle dev mode' do
+      @core.instance_variable_set :@mode, :fake
+      @core.send(:default_setup).must_equal({
+        'version' => 1,
+        'aliases' => {},
+        'compose_files' => []
+      })
+    end
+  end
+
+  describe 'delete_alias' do
+    it 'should delete alias' do
+      config = {
+        test: {
+          'version' => 1,
+          'compose_files' => ['my.yaml'],
+          'aliases' => {
+            'mine' => 'my fake alias'
+          }
+        }
+      }
+      @core.instance_variable_set :@cnfg, config
+      @core.send :delete_alias, 'mine'
+      @core.instance_variable_get(:@cnfg)[:test].must_equal({
+        'version' => 1,
+        'aliases' => {},
+        'compose_files' => ['my.yaml']
+      })
+    end
+
+    it 'should handle nonexistent alias' do
+      config = {
+        test: {
+          'version' => 1,
+          'compose_files' => ['my.yaml'],
+          'aliases' => {
+            'mine' => 'my fake alias'
+          }
+        }
+      }
+      @core.instance_variable_set :@cnfg, config
+      mock = MiniTest::Mock.new
+      mock.expect(:call, nil, ["No such alias 'yours'"])
+      @core.stub(:bail, mock) do
+        @core.send :delete_alias, 'yours'
+        mock.verify
+      end
+    end
+  end
+
   describe 'normalize' do
     it 'converts version 0' do
-      input = ['one', 'two']
+      input = %w[one two]
       version1 = {
         'version' => 1,
-        'compose_files' => ['one', 'two'],
+        'compose_files' => %w[one two],
         'aliases' => {}
       }
       @core.send(:normalize, input).must_equal version1
@@ -77,7 +146,7 @@ describe DockOpsCore do
     it 'pass-thru version 1' do
       input = {
         'version' => 1,
-        'compose_files' => ['one', 'two'],
+        'compose_files' => %w[one two],
         'aliases' => {}
       }
       @core.send(:normalize, input).must_equal input
@@ -183,7 +252,7 @@ describe DockOpsCore do
   describe 'with_completion' do
     it 'STOP invokes container completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
+      mock.expect(:call, 'words')
       @core.stub(:completion_containers, mock) do
         @core.send(:with_completion, ['stop'])
         mock.verify
@@ -192,7 +261,7 @@ describe DockOpsCore do
 
     it 'IMAGES invokes image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
+      mock.expect(:call, 'words')
       @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['images'])
         mock.verify
@@ -201,7 +270,7 @@ describe DockOpsCore do
 
     it 'PUSH invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words", [:true])
+      mock.expect(:call, 'words', [true])
       @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['push'])
         mock.verify
@@ -210,7 +279,7 @@ describe DockOpsCore do
 
     it 'RMI invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words", [:true])
+      mock.expect(:call, 'words', [true])
       @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['rmi'])
         mock.verify
@@ -219,7 +288,7 @@ describe DockOpsCore do
 
     it 'TAG invokes tagged image completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words", [:true])
+      mock.expect(:call, 'words', [true])
       @core.stub(:completion_images, mock) do
         @core.send(:with_completion, ['tag'])
         mock.verify
@@ -228,7 +297,7 @@ describe DockOpsCore do
 
     it 'SCP invokes machine completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
+      mock.expect(:call, 'words')
       @core.stub(:completion_machines, mock) do
         @core.send(:with_completion, ['scp'])
         mock.verify
@@ -237,7 +306,7 @@ describe DockOpsCore do
 
     it 'SSH invokes machine completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
+      mock.expect(:call, 'words')
       @core.stub(:completion_machines, mock) do
         @core.send(:with_completion, ['ssh'])
         mock.verify
@@ -246,7 +315,7 @@ describe DockOpsCore do
 
     it 'USE invokes machine completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, "words")
+      mock.expect(:call, 'words')
       @core.stub(:completion_machines, mock) do
         @core.send(:with_completion, ['use'])
         mock.verify
@@ -255,7 +324,7 @@ describe DockOpsCore do
 
     it 'BUILD invokes service completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, ["words"])
+      mock.expect(:call, ['words'])
       @core.stub(:completion_services, mock) do
         @core.send(:with_completion, ['build'])
         mock.verify
@@ -264,7 +333,7 @@ describe DockOpsCore do
 
     it 'LOGS invokes service completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, ["words"])
+      mock.expect(:call, ['words'])
       @core.stub(:completion_services, mock) do
         @core.send(:with_completion, ['logs'])
         mock.verify
@@ -273,7 +342,7 @@ describe DockOpsCore do
 
     it 'RUN invokes service completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, ["words"])
+      mock.expect(:call, ['words'])
       @core.stub(:completion_services, mock) do
         @core.send(:with_completion, ['run'])
         mock.verify
@@ -282,7 +351,7 @@ describe DockOpsCore do
 
     it 'UP invokes service completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, ["words"])
+      mock.expect(:call, ['words'])
       @core.stub(:completion_services, mock) do
         @core.send(:with_completion, ['up'])
         mock.verify
@@ -291,12 +360,11 @@ describe DockOpsCore do
 
     it 'otherwise invokes command completions' do
       mock = MiniTest::Mock.new
-      mock.expect(:call, ["words"])
+      mock.expect(:call, ['words'])
       @core.stub(:completion_commands, mock) do
         @core.send(:with_completion, [''])
         mock.verify
       end
     end
   end
-
 end

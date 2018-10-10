@@ -5,9 +5,10 @@ class BadArgsError < StandardError; end
 class NoModeError < StandardError; end
 class RunFailedError < StandardError; end
 
+# helper and private methods for DockOps
 class DockOpsCore
-  def initialize(config_version=1)
-    @cnfg = Hash.new
+  def initialize(config_version = 1)
+    @cnfg = {}
     @config_dir = '.dock-ops'
     @config_version = config_version
     @term = Term.new
@@ -15,21 +16,20 @@ class DockOpsCore
 
   def main(argv)
     cmd, *opts = parse_args argv
-    load_setup()
+    load_setup
     case cmd
-      when :add_alias
-        name, *args = opts
-        return create_alias name, args
-      when :completion
-        return puts with_completion opts
-      when :delete_alias
-        name, *rest = opts
-        return delete_alias name
-      when :native
-        handler, command, *args = opts
-        return delegate(handler, command, args)
-      when :working_dir
-        return with_working_dir opts
+    when :add_alias
+      name, *args = opts
+      return create_alias name, args
+    when :completion
+      return puts with_completion opts
+    when :delete_alias
+      return delete_alias opts.shift
+    when :native
+      handler, command, *args = opts
+      return delegate(handler, command, args)
+    when :working_dir
+      return with_working_dir opts
     end
 
     if get_alias(cmd)
@@ -38,7 +38,7 @@ class DockOpsCore
       args = CSV.parse_line get_alias(cmd), { col_sep: ' ', quote_char: "'" }
       return main args.unshift('-m', @mode.to_s)
     elsif get_commands.include? cmd
-      self.send cmd.to_sym, opts
+      send cmd.to_sym, opts
     else
       bail "'#{cmd}' is not a choice: #{completion_commands.uniq.sort.join ', '}"
     end
@@ -46,7 +46,7 @@ class DockOpsCore
     STDERR.puts e.backtrace
     bail e
   rescue ArgumentError
-    bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker-equipped project?"
+    bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker Compose project?"
   rescue Interrupt # user hit Ctrl-c
     puts "\nQuitting..."
   rescue NoModeError
@@ -60,10 +60,12 @@ class DockOpsCore
 
   private ### internal methods #############
 
-  def as_args(arr) # convert array to space-delimited list (single-quoting elements as needed)
+  def as_args(arr)
+    # convert array to space-delimited list (single-quoting elements as needed)
     return '' unless arr
-    arr = [arr] unless arr.kind_of?(Array)
-    with_quotes = -> arg { quote arg }
+
+    arr = [arr] unless arr.is_a?(Array)
+    with_quotes = ->(arg) { quote arg }
     arr.compact.map(&with_quotes).join(' ')
   end
 
@@ -83,8 +85,8 @@ class DockOpsCore
     `docker ps --format "{{.Names}}"`
   end
 
-  def completion_images(with_tags=:false)
-    format = with_tags == :true ? '{{.Repository}}:{{.Tag}}' : '{{.Repository}}'
+  def completion_images(with_tags = false)
+    format = with_tags == true ? '{{.Repository}}:{{.Tag}}' : '{{.Repository}}'
     `docker images --format "#{format}"`
   end
 
@@ -93,19 +95,19 @@ class DockOpsCore
   end
 
   def completion_services
-    has_services = -> arg { get_services arg }
+    has_services = ->(arg) { get_services arg }
     yamls = find_yamls(get_mode).select(&has_services) # only include YAMLs with defined services
     candidates = []
     yamls.each do |yaml|
       candidates.concat get_services yaml
     end
-    return candidates.uniq
+    candidates.uniq
   end
 
-  def compose(yamls=nil)
-    input = yamls ? yamls : get_setup()['compose_files']
-    flag = -> filename { "-f #{filename}" }
-    return "docker-compose #{input.map(&flag).join(' ')}"
+  def compose(yamls = nil)
+    input = yamls || get_setup['compose_files']
+    flag = ->(filename) { "-f #{filename}" }
+    "docker-compose #{input.map(&flag).join(' ')}"
   end
 
   def confirm_create_setup_store
@@ -113,9 +115,9 @@ class DockOpsCore
     c = @term.readc
     case c
     when 'y'
-      return :true
+      return true
     else
-      return :false
+      return false
     end
   end
 
@@ -124,24 +126,26 @@ class DockOpsCore
     c = @term.readc
     case c
     when 'y'
-      return :true
+      return true
     else
-      return :false
+      return false
     end
   end
 
-  def container(name) # find running container NAME
-    raise BadArgsError unless name and name.length > 0
-    sys "docker ps -q -f name=#{name}", :true
+  def container(name)
+    # find running container NAME
+    raise BadArgsError unless name && !name.empty?
+
+    sys "docker ps -q -f name=#{name}", true
   end
 
   def create_alias(name, args)
-    if get_commands.include?(name) and confirm_override_builtin(name) != :true
+    if get_commands.include?(name) && confirm_override_builtin(name) != true
       puts 'No changes saved.'
       return
     end
     @cnfg[@mode]['aliases'][name] = as_args args
-    write_setup()
+    write_setup
   end
 
   def default_setup
@@ -156,11 +160,12 @@ class DockOpsCore
         ['docker-compose.yaml']
       else
         []
-      end
-    return base
+    end
+    base
   end
 
-  def delegate(target, cmd, args) # pass args through to Docker
+  def delegate(target, cmd, args)
+    # pass args through to Docker
     case target
     when :compose
       sys "#{compose} #{cmd} #{as_args args}"
@@ -175,51 +180,51 @@ class DockOpsCore
 
   def delete_alias(name)
     if @cnfg[@mode]['aliases'].delete name
-      write_setup()
+      write_setup
       puts "Removed alias '#{name}'"
       return
     end
     bail "No such alias '#{name}'"
   end
 
-  def find_yamls(mode=nil)
+  def find_yamls(mode = nil)
     show_all = '*.y{a,}ml'
     pattern = mode ? (@cnfg[mode] ? @cnfg[mode]['compose_files'] : show_all) : show_all
     Dir.glob(pattern).sort
   end
 
   def get_alias(name)
-    get_aliases()[name]
+    get_aliases[name]
   end
 
   def get_aliases
-    get_setup()['aliases']
+    get_setup['aliases']
   end
 
   def get_commands
-    return [
-      'aliases',
-      'attach',
-      'build',
-      'clean',
-      'config',
-      'down',
-      'exec',
-      'images',
-      'logs',
-      'ls',
-      'ps',
-      'push',
-      'pull',
-      'rls',
-      'rmi',
-      'run',
-      'scp',
-      'setup',
-      'ssh',
-      'stop',
-      'tag',
-      'up'
+    %w[
+      aliases
+      attach
+      build
+      clean
+      config
+      down
+      exec
+      images
+      logs
+      ls
+      ps
+      push
+      pull
+      rls
+      rmi
+      run
+      scp
+      setup
+      ssh
+      stop
+      tag
+      up
     ]
   end
 
@@ -229,14 +234,15 @@ class DockOpsCore
 
   def get_mode_color
     colors = {
-      :development => :aqua,
-      :production => :red,
-      :other => :green
+      development: :aqua,
+      production: :red,
+      other: :green
     }
-    return colors[@mode] ? colors[@mode] : colors[:other]
+    colors[@mode] || colors[:other]
   end
 
-  def get_services(path) # return names of all services in docker-compose*.yaml files
+  def get_services(path)
+    # return names of all services in docker-compose*.yaml files
     yaml = Psych.load_file path
     yaml['services'].keys
   rescue NoMethodError
@@ -244,7 +250,7 @@ class DockOpsCore
   end
 
   def get_setup
-    @cnfg.has_key?(@mode) ? @cnfg[@mode] : default_setup
+    @cnfg.key?(@mode) ? @cnfg[@mode] : default_setup
   end
 
   def load_setup
@@ -258,10 +264,9 @@ class DockOpsCore
   end
 
   def normalize(cnfg)
-    if cnfg.kind_of?(Array) # version 0
-      return default_setup.merge({ 'compose_files' => cnfg })
-    end
-    return case cnfg['version']
+    return default_setup.merge('compose_files' => cnfg) if cnfg.is_a?(Array) # version 0
+
+    case cnfg['version']
     when 1
       cnfg
     else
@@ -269,14 +274,16 @@ class DockOpsCore
     end
   end
 
-  def numbered(arr) # prepend numeric cardinal to each (string) element of ARR
-    arr = [arr] unless arr.kind_of?(Array)
+  def numbered(arr)
+    # prepend numeric cardinal to each (string) element of ARR
+    arr = [arr] unless arr.is_a?(Array)
     with_color = lambda { |text, i| "#{bling(i + 1)}. #{text}" }
     arr.map.with_index(&with_color)
   end
 
-  def parse_args(argv=[])
-    raise BadArgsError unless argv.kind_of?(Array) and argv.length > 0
+  def parse_args(argv = [])
+    raise BadArgsError unless argv.is_a?(Array) && !argv.empty?
+
     args = []
     for_completion = false
     if argv[0] == 'complete' # request for shell completion options
@@ -286,9 +293,9 @@ class DockOpsCore
     add_alias = nil
     delete_alias = nil
     for_native = nil
-    working_dir = nil
+    # working_dir = nil
     @mode = :development
-    while argv.length > 0
+    until argv.empty?
       case argv[0]
       when '-a', '--alias'
         argv.shift
@@ -319,23 +326,26 @@ class DockOpsCore
       end
     end
     raise BadArgsError unless args
+
     args.unshift :native, for_native if for_native
     # argv.unshift working_dir if working_dir
     args.unshift :delete_alias, delete_alias if delete_alias
     args.unshift :add_alias, *add_alias if add_alias
     args.unshift :completion if for_completion
-    return args
+    args
   end
 
-  def quote(str) # single-quote strings which contain a space
+  def quote(str)
+    # single-quote strings which contain a space
     return str unless str.include?(' ')
-    return "'#{str}'"
+
+    "'#{str}'"
   end
 
   def setup_ui(yamls)
     show_ui yamls
-    selected = to_array get_setup()['compose_files']
-    do_save = :false
+    selected = to_array get_setup['compose_files']
+    do_save = false
     loop do
       @term.content "% #{compose selected}"
       c = @term.readc
@@ -343,18 +353,18 @@ class DockOpsCore
       case c
       when 1..9
         yaml = yamls[c - 1]
-        selected.push(yaml) if yaml and !selected.include?(yaml)
+        selected.push(yaml) if yaml && !selected.include?(yaml)
       when "\177" # backspace
-        selected.pop()
+        selected.pop
       when "\r" # enter
-        do_save = :true
+        do_save = true
         break
       when 'c', 'C'
-        do_save = :false
+        do_save = false
         break
       end
     end
-    return do_save, selected
+    [do_save, selected]
   end
 
   def show_ui(yamls)
@@ -372,38 +382,42 @@ class DockOpsCore
     ]
   end
 
-  def sys(cmd, capture=:false) # exec shell command
-    return system(cmd) unless capture == :true
-    output = %x[#{cmd} 2>&1]
+  def sys(cmd, capture = false)
+    # exec shell command
+    return system(cmd) unless capture == true
+
+    output = `#{cmd} 2>&1`
     return raise(RunFailedError, output) if $?.exitstatus > 0
-    output.strip.lines.map { |line| line.strip }
+
+    output.strip.lines.map(&:strip)
   end
 
   def to_array(value)
     return [] unless value
-    return value if value.kind_of?(Array)
+    return value if value.is_a?(Array)
+
     [value]
   end
 
   def update_setup(args)
     should_save, yamls = args
-    if should_save == :false
+    if should_save == false
       puts "\nNo changes saved."
       return
     end
     @cnfg[@mode]['compose_files'] = yamls
-    write_setup()
+    write_setup
   end
 
-  def with_completion(argv=[])
+  def with_completion(argv = [])
     cmd = argv.shift
-    return case cmd
+    case cmd
     when 'build', 'exec', 'logs', 'run', 'up'
       completion_services.join(' ')
     when 'images'
       completion_images
     when 'push', 'rmi', 'tag'
-      completion_images(:true)
+      completion_images(true)
     when 'attach', 'stop'
       completion_containers
     when 'scp', 'ssh', 'use'
@@ -413,10 +427,10 @@ class DockOpsCore
     end
   end
 
-  def with_working_dir(args=[])
+  def with_working_dir(args = [])
     path, cmd, *opts = args
     Dir.chdir(path) do
-      self.send cmd.to_sym, opts
+      send cmd.to_sym, opts
     end
   end
 
@@ -424,7 +438,7 @@ class DockOpsCore
     require 'fileutils'
     setup_dir = File.join Dir.home, @config_dir
     unless Dir.exist? setup_dir
-      if confirm_create_setup_store() == :false
+      if confirm_create_setup_store == false
         puts "\nAborting setup (no changes saved)."
         return
       end
@@ -436,5 +450,4 @@ class DockOpsCore
     IO.write project_setup_file, Psych.dump(get_setup)
     puts "\nSaved to file #{project_setup_file}"
   end
-
 end
