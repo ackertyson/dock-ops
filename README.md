@@ -1,5 +1,7 @@
 # dock-ops
 
+*[2021-06-11] Docker Compose commands are now invoked via `docker compose` instead of the dedicated `docker-compose` command*
+
 This is an eminently useful CLI utility for nerds who do a lot of Docker
 development, particularly using Docker Compose. It includes shorthand for many
 common development and deployment commands.
