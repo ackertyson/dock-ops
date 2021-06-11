@@ -214,6 +214,7 @@ class DockOpsCore
       logs
       ls
       ps
+      psa
       push
       pull
       restart

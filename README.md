@@ -251,6 +251,10 @@ List services defined in Compose YAML file(s).
 
 `docker compose ps`
 
+### psa
+
+`docker ps`
+
 ### pull
 
 `docker pull`
