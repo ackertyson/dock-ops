@@ -1,5 +1,7 @@
 # dock-ops
 
+*[2021-06-11] Docker Compose commands are now invoked via `docker compose` instead of the dedicated `docker-compose` command*
+
 This is an eminently useful CLI utility for nerds who do a lot of Docker
 development, particularly using Docker Compose. It includes shorthand for many
 common development and deployment commands.
@@ -8,7 +10,7 @@ Tab completion is available for base commands and for parameters of many
 commands. See SHELL COMPLETION and COMMAND EQUIVALENTS sections below.
 
 But it's not merely about succinctness! The coolest feature is arguably that you
-can configure how `docker-compose` commands are formulated on a per-project
+can configure how `docker compose` commands are formulated on a per-project
 basis (*and* per-mode, i.e., development/production/etc.), specifying which YAML
 files should be used for each; see the `setup` command below. You might not get
 how awesome this is until you're managing several different projects which all
@@ -16,7 +18,7 @@ have different conventions with respect to compose file naming and extending.
 Trust me: it's awesome!
 
 Another nice feature is the ability to create custom aliases. You know those
-long `docker-compose run` commands that you're always hoping are still in your
+long `docker compose exec` commands that you're always hoping are still in your
 bash history? Now there's a better way: see the CUSTOM ALIASES section below.
 
 ## Installation
@@ -78,7 +80,7 @@ A **good first step** is generating the configuration for your project:
 
 `dock setup`
 
-...which allows you to define which docker-compose files to use (see the `setup`
+...which allows you to define which Docker Compose files to use (see the `setup`
 command below). Add a mode flag to configure modes other than the default
 *development* mode.
 
@@ -143,7 +145,7 @@ If you want to delete an alias, use the `-d` flag:
 
 ## Native pass-thru
 
-Want to use a `docker`/`docker-compose`/`docker-machine` command that isn't
+Want to use a `docker`/`docker compose`/`docker-machine` command that isn't
 implemented here? You can tell `dock-ops` to pass the command along to be
 handled natively:
 
@@ -203,7 +205,7 @@ stopping the container.
 
 ### build
 
-`docker-compose build`
+`docker compose build`
 
 *Completions: services defined in Compose YAML file(s)*
 
@@ -217,15 +219,15 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 
 ### config
 
-`docker-compose config`
+`docker compose config`
 
 ### down
 
-`docker-compose down --remove-orphans`
+`docker compose down --remove-orphans`
 
 ### exec
 
-`docker-compose exec`
+`docker compose exec`
 
 *Completions: services defined in Compose YAML file(s)*
 
@@ -237,7 +239,7 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 
 ### logs
 
-`docker-compose logs -f`
+`docker compose logs -f`
 
 *Completions: services defined in Compose YAML file(s)*
 
@@ -246,6 +248,10 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 List services defined in Compose YAML file(s).
 
 ### ps
+
+`docker compose ps`
+
+### psa
 
 `docker ps`
 
@@ -259,6 +265,12 @@ List services defined in Compose YAML file(s).
 
 *Completions: local image repository names (with tags)*
 
+### restart
+
+`docker compose restart`
+
+*Completions: services defined in Compose YAML file(s)*
+
 ### rls
 
 `docker-machine ls`
@@ -271,7 +283,7 @@ List services defined in Compose YAML file(s).
 
 ### run
 
-`docker-compose run --rm`
+`docker compose run --rm`
 
 *Completions: services defined in Compose YAML file(s)*
 
@@ -312,6 +324,6 @@ ID, which is how `docker stop` works).
 
 ### up
 
-`docker-compose up`
+`docker compose up`
 
 *Completions: services defined in Compose YAML file(s)*

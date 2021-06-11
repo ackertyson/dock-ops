@@ -107,7 +107,7 @@ class DockOpsCore
   def compose(yamls = nil)
     input = yamls || get_setup['compose_files']
     flag = ->(filename) { "-f #{filename}" }
-    "docker-compose #{input.map(&flag).join(' ')}"
+    "docker compose #{input.map(&flag).join(' ')}"
   end
 
   def confirm_create_setup_store
@@ -214,8 +214,10 @@ class DockOpsCore
       logs
       ls
       ps
+      psa
       push
       pull
+      restart
       rls
       rmi
       run
@@ -412,7 +414,7 @@ class DockOpsCore
   def with_completion(argv = [])
     cmd = argv.shift
     case cmd
-    when 'build', 'exec', 'logs', 'run', 'up'
+    when 'build', 'exec', 'logs', 'restart', 'run', 'up'
       completion_services.join(' ')
     when 'images'
       completion_images
