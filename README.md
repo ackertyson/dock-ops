@@ -18,7 +18,7 @@ have different conventions with respect to compose file naming and extending.
 Trust me: it's awesome!
 
 Another nice feature is the ability to create custom aliases. You know those
-long `docker compose run` commands that you're always hoping are still in your
+long `docker compose exec` commands that you're always hoping are still in your
 bash history? Now there's a better way: see the CUSTOM ALIASES section below.
 
 ## Installation
