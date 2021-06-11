@@ -40,11 +40,11 @@ describe DockOpsCore do
   end
 
   describe 'compose' do
-    it 'returns docker-compose command for single yaml' do
-      @core.send(:compose).must_equal 'docker-compose -f my.yaml'
+    it 'returns docker compose command for single yaml' do
+      @core.send(:compose).must_equal 'docker compose -f my.yaml'
     end
 
-    it 'returns docker-compose command for multiple yamls' do
+    it 'returns docker compose command for multiple yamls' do
       config = {
         test: {
           'version' => 1,
@@ -53,13 +53,13 @@ describe DockOpsCore do
         }
       }
       @core.instance_variable_set :@cnfg, config
-      @core.send(:compose).must_equal 'docker-compose -f first -f second'
+      @core.send(:compose).must_equal 'docker compose -f first -f second'
     end
 
-    it 'returns docker-compose command for no yamls' do
+    it 'returns docker compose command for no yamls' do
       config = {}
       @core.instance_variable_set :@cnfg, config
-      @core.send(:compose).must_equal 'docker-compose '
+      @core.send(:compose).must_equal 'docker compose '
     end
   end
 

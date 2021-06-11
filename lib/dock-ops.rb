@@ -75,6 +75,10 @@ class DockOps < DockOpsCore
   end
 
   def ps(args = [])
+    delegate :compose, 'ps', args
+  end
+
+  def psa(args = [])
     delegate :docker, 'ps', args
   end
 
@@ -84,6 +88,10 @@ class DockOps < DockOpsCore
 
   def push(args = [])
     delegate :docker, 'push', args
+  end
+
+  def restart(args = [])
+    delegate :compose, 'restart', args
   end
 
   def rls(args = [])
