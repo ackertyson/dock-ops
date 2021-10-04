@@ -1,6 +1,6 @@
 # dock-ops
 
-*[2021-06-11] Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
+***[2021-06-11]** Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
 for [Compose V1](https://docs.docker.com/compose/cli-command/) behavior.*
 
 This is an eminently useful CLI utility for nerds who do a lot of Docker
@@ -55,7 +55,7 @@ If for some reason you don't want to use completion, replace steps 3 and 4 with:
 3. `rake install` (or, if you don't have Rake, `gem build dock-ops.gemspec &&
     sudo gem install -l dock-ops`)
 
-*NOTE: you still need to install the real Docker applications; `dock-ops` is just a wrapper.*
+*NOTE: you still need to install the real Docker applications; DockOps is just a wrapper.*
 
 ## Testing
 
