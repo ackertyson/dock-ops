@@ -1,6 +1,7 @@
 # dock-ops
 
-*[2021-06-11] Docker Compose commands are now invoked via `docker compose` instead of the dedicated `docker-compose` command*
+*[2021-06-11] Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
+for [Compose V1](https://docs.docker.com/compose/cli-command/) behavior.*
 
 This is an eminently useful CLI utility for nerds who do a lot of Docker
 development, particularly using Docker Compose. It includes shorthand for many
