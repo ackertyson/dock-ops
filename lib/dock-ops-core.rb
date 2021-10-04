@@ -25,6 +25,11 @@ class DockOpsCore
       return puts with_completion opts
     when :delete_alias
       return delete_alias opts.shift
+    when :help
+      puts "Available commands: #{completion_commands.uniq.sort.join ', '}"
+      puts
+      puts "DockOps full docs: https://github.com/ackertyson/dock-ops#dock-ops"
+      return
     when :native
       handler, command, *args = opts
       return delegate(handler, command, args)
@@ -40,9 +45,9 @@ class DockOpsCore
     elsif get_commands.include? cmd
       send cmd.to_sym, opts
     else
-      bail "'#{cmd}' is not a choice: #{completion_commands.uniq.sort.join ', '}"
+      bail "'#{cmd}' is not a command; choices are: #{completion_commands.uniq.sort.join ', '}"
     end
-  rescue BadArgsError => e
+  rescue BadArgsError
     bail "Invalid command; choices are: #{completion_commands.uniq.sort.join ', '}"
   rescue ArgumentError
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker Compose project?"
@@ -299,6 +304,9 @@ class DockOpsCore
     @mode = :development
     until argv.empty?
       case argv[0]
+      when '-h', '--help', 'help'
+        argv.drop(argv.length)
+        argv.unshift :help
       when '-a', '--alias'
         argv.shift
         add_alias = argv.shift argv.length
