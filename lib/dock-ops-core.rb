@@ -43,8 +43,7 @@ class DockOpsCore
       bail "'#{cmd}' is not a choice: #{completion_commands.uniq.sort.join ', '}"
     end
   rescue BadArgsError => e
-    STDERR.puts e.backtrace
-    bail e
+    bail "Invalid command; choices are: #{completion_commands.uniq.sort.join ', '}"
   rescue ArgumentError
     bail "bad inputs: '#{as_args argv}'; this might be because you're not in a Docker Compose project?"
   rescue Interrupt # user hit Ctrl-c
@@ -70,7 +69,7 @@ class DockOpsCore
   end
 
   def bail(msg)
-    abort "DOCK-OPS: #{msg}"
+    abort "[DOCK-OPS] #{msg}"
   end
 
   def bling(text)
