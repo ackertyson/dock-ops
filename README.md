@@ -223,7 +223,10 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 
 ### cp
 
-`docker cp $(docker ps -q -f name=_____):source dest` (or vice versa if container is dest)
+`docker cp $(docker ps -q -f name=_____):source dest` (or container ID computed from dest name if container is dest)
+
+Note that this allows you to designate source/dest containers by *name* (instead of by container
+ID, which is how `docker cp` works).
 
 *Completions: currently running containers*
 

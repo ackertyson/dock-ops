@@ -26,7 +26,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker attach --sig-proxy=false this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.attach 'this'
+        @dock.attach ['this']
         mock_sys.verify
       end
     end
@@ -48,7 +48,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml build this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.build 'this'
+        @dock.build ['this']
         mock_sys.verify
       end
     end
@@ -76,6 +76,17 @@ describe DockOps do
     end
   end
 
+  describe 'cp' do
+    it 'invokes correct command' do
+      mock_sys = MiniTest::Mock.new
+      mock_sys.expect(:call, nil, ['docker cp this that'])
+      @dock.stub(:sys, mock_sys) do
+        @dock.cp ['this', 'that']
+        mock_sys.verify
+      end
+    end
+  end
+
   describe 'down' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
@@ -92,7 +103,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml exec this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.exec 'this'
+        @dock.exec ['this']
         mock_sys.verify
       end
     end
@@ -125,7 +136,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml logs -f this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.logs 'this'
+        @dock.logs ['this']
         mock_sys.verify
       end
     end
@@ -169,7 +180,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker pull this:0.0.1'])
       @dock.stub(:sys, mock_sys) do
-        @dock.pull 'this:0.0.1'
+        @dock.pull ['this:0.0.1']
         mock_sys.verify
       end
     end
@@ -191,7 +202,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker push repo/this:0.0.1'])
       @dock.stub(:sys, mock_sys) do
-        @dock.push 'repo/this:0.0.1'
+        @dock.push ['repo/this:0.0.1']
         mock_sys.verify
       end
     end
@@ -213,7 +224,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml restart this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.restart 'this'
+        @dock.restart ['this']
         mock_sys.verify
       end
     end
@@ -235,7 +246,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker rmi this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.rmi 'this'
+        @dock.rmi ['this']
         mock_sys.verify
       end
     end
@@ -257,7 +268,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml run --rm this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.run 'this'
+        @dock.run ['this']
         mock_sys.verify
       end
     end
@@ -279,7 +290,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker-machine scp this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.scp 'this'
+        @dock.scp ['this']
         mock_sys.verify
       end
     end
@@ -301,7 +312,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker-machine ssh this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.ssh 'this'
+        @dock.ssh ['this']
         mock_sys.verify
       end
     end
@@ -326,7 +337,7 @@ describe DockOps do
       mock_container.expect(:call, 'this', ['this'])
       @dock.stub(:container, mock_container) do
         @dock.stub(:sys, mock_sys) do
-          @dock.stop 'this'
+          @dock.stop ['this']
           mock_container.verify
           mock_sys.verify
         end
@@ -345,9 +356,9 @@ describe DockOps do
   describe 'tag' do
     it 'invokes correct command' do
       mock_sys = MiniTest::Mock.new
-      mock_sys.expect(:call, nil, ['docker tag this that'])
+      mock_sys.expect(:call, nil, ['docker tag this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.tag ['this', 'that']
+        @dock.tag ['this']
         mock_sys.verify
       end
     end
@@ -369,7 +380,7 @@ describe DockOps do
       mock_sys = MiniTest::Mock.new
       mock_sys.expect(:call, nil, ['docker compose -f my.yaml up this'])
       @dock.stub(:sys, mock_sys) do
-        @dock.up 'this'
+        @dock.up ['this']
         mock_sys.verify
       end
     end
