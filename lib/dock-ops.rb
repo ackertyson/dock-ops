@@ -46,6 +46,18 @@ class DockOps < DockOpsCore
     delegate :compose, 'config', args
   end
 
+  def cp(argv = [])
+    args = argv.map do |arg|
+      if arg.include? ':'
+        name, path = arg.split(':')
+        [container(name), path].join(':')
+      else
+        arg
+      end
+    end
+    delegate :docker, 'cp', args
+  end
+
   def down(args = [])
     delegate :compose, 'down', to_array(args).unshift('--remove-orphans')
   end

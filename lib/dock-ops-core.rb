@@ -208,6 +208,7 @@ class DockOpsCore
       build
       clean
       config
+      cp
       down
       exec
       images
@@ -420,7 +421,7 @@ class DockOpsCore
       completion_images
     when 'push', 'rmi', 'tag'
       completion_images(true)
-    when 'attach', 'stop'
+    when 'attach', 'cp', 'stop'
       completion_containers
     when 'scp', 'ssh', 'use'
       completion_machines

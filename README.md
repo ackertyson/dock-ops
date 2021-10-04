@@ -221,6 +221,12 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 
 `docker compose config`
 
+### cp
+
+`docker cp $(docker ps -q -f name=_____):source dest` (or vice versa if container is dest)
+
+*Completions: currently running containers*
+
 ### down
 
 `docker compose down --remove-orphans`
