@@ -71,7 +71,7 @@ explicitly specified (see MODES below). The general format is:
 
 `dock [FLAGS] COMMAND [ARGS]`
 
-FLAGS influence the behavior of `dock-ops` and ARGS are passed to the
+FLAGS influence the behavior of DockOps and ARGS are passed to the
 corresponding Docker COMMAND. For example:
 
 - `dock up -d my-service` (invoke `up` command in *development* mode), or
@@ -120,7 +120,7 @@ To create a shorthand alias for a frequently used command, you can do:
 
 `dock -a NAME COMMAND`
 
-...where `COMMAND` is the `dock-ops` command you would otherwise enter. E.g., if
+...where `COMMAND` is the DockOps command you would otherwise enter. E.g., if
 you have a MongoDB instance running on a `mongodb` service with a long
 connection string which you can never remember, you can do:
 
@@ -137,7 +137,7 @@ have defined, you can do:
 
 ...to see all of them for the current project+mode.
 
-Aliases can also override `dock-ops` built-ins, so if you don't like one of the
+Aliases can also override DockOps built-ins, so if you don't like one of the
 default commands, you can formulate your own version.
 
 If you want to delete an alias, use the `-d` flag:
@@ -147,7 +147,7 @@ If you want to delete an alias, use the `-d` flag:
 ## Native pass-thru
 
 Want to use a `docker`/`docker compose`/`docker-machine` command that isn't
-implemented here? You can tell `dock-ops` to pass the command along to be
+implemented here? You can tell DockOps to pass the command along to be
 handled natively:
 
 - `-nc` / `--compose`, or
@@ -165,7 +165,7 @@ command with a mode flag, the following are equivalent:
 - `dock -p -nm regenerate-certs my-app`, or
 - `dock -nm -p regenerate-certs my-app`
 
-In both cases `regenerate-certs` is the COMMAND portion of the `dock-ops` call,
+In both cases `regenerate-certs` is the COMMAND portion of the DockOps call,
 not a parameter to the `-nm` FLAG.
 
 ## Deployed Docker machines
@@ -185,7 +185,7 @@ You'll probably also want to check out [docker-machine-prompt](https://github.co
 
 ## Command equivalents
 
-Last but not least, here's what all the `dock-ops` commands actually do...
+Last but not least, here's what all the DockOps commands actually do...
 
 *Note: though the name of this package is `dock-ops`, the actual CLI command is
 simply `dock`.*
@@ -305,7 +305,7 @@ List services defined in Compose YAML file(s).
 
 ### setup
 
-Configure the Docker Compose command which `dock-ops` should use for current
+Configure the Docker Compose command which DockOps should use for current
 project.
 
 This command will configure the specified mode (see MODES section above).
