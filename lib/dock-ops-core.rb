@@ -440,7 +440,7 @@ class DockOpsCore
     when 'scp', 'ssh', 'use'
       completion_machines
     else
-      # empty return will cause shell to fall back on default completions
+      # empty return will invoke shell default completions
       return
     end
   end
