@@ -419,8 +419,15 @@ class DockOpsCore
     write_setup
   end
 
-  def with_completion(argv = [])
-    cmd = argv.shift
+  def with_completion(argv = "")
+    arg = argv.shift
+    has_trailing_space = /\s$/.match(arg) != nil
+    args = arg.split(' ')
+    return if args.length > 2
+    return if args.length == 2 && has_trailing_space
+    return completion_commands.sort.join(' ') if args.length < 2 && !has_trailing_space
+
+    cmd = args.shift
     case cmd
     when 'build', 'exec', 'logs', 'restart', 'run', 'up'
       completion_services.join(' ')
@@ -433,7 +440,8 @@ class DockOpsCore
     when 'scp', 'ssh', 'use'
       completion_machines
     else
-      completion_commands.sort.join(' ')
+      # empty return will cause shell to fall back on default completions
+      return
     end
   end
 

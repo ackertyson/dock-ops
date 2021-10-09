@@ -61,7 +61,7 @@ If for some reason you don't want to use completion, replace steps 3 and 4 with:
 
 `rake test`
 
-(Requires `sudo gem install minitest-reporters`.)
+(Requires `sudo gem install minitest-reporters`)
 
 ## Usage
 
@@ -188,7 +188,7 @@ You'll probably also want to check out [docker-machine-prompt](https://github.co
 Last but not least, here's what all the DockOps commands actually do...
 
 *Note: though the name of this package is `dock-ops`, the actual CLI command is
-simply `dock`.*
+simply `dock`*
 
 ### aliases
 
