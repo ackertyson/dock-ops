@@ -419,8 +419,8 @@ class DockOpsCore
     write_setup
   end
 
-  def with_completion(argv = "")
-    arg = argv.shift
+  def with_completion(argv = [])
+    arg = argv.shift # argv is like ["all my args as one string "]
     has_trailing_space = /\s$/.match(arg) != nil
     args = arg.split(' ')
     return if args.length > 2
