@@ -10,5 +10,5 @@ pub struct Attach {
 }
 
 pub fn attach(Attach { container }: &Attach) -> Result<()> {
-    docker(vec!["attach", "--sig-proxy=false", container])
+    docker(crate::vec_of_strings!["attach", "--sig-proxy=false", container])
 }

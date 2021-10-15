@@ -9,5 +9,5 @@ pub struct Restart {
 }
 
 pub fn restart(Restart { name }: &Restart) -> Result<()> {
-    compose(vec!["restart", name])
+    compose(crate::vec_of_strings!["restart", name])
 }

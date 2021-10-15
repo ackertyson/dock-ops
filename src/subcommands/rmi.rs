@@ -9,5 +9,5 @@ pub struct Rmi {
 }
 
 pub fn rmi(Rmi { name }: &Rmi) -> Result<()> {
-    docker(vec!["rmi", name])
+    docker(crate::vec_of_strings!["rmi", name])
 }

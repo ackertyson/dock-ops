@@ -10,5 +10,5 @@ pub struct Build {
 }
 
 pub fn build(Build { tag }: &Build) -> Result<()> {
-    docker(vec!["build", ".", "-t", tag])
+    docker(crate::vec_of_strings!["build", ".", "-t", tag])
 }

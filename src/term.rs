@@ -60,40 +60,37 @@ fn term(files: Vec<String>) -> Result<Vec<String>> { // https://stackoverflow.co
                 }
                 termion::event::Key::Backspace => {
                     selected_files.pop();
-                    write!(stdout, "\r{}% docker-compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                     stdout.lock().flush().unwrap();
                 }
                 termion::event::Key::Char('1') => {
-                    let filename = files[0].to_string();
-                    match selected_files.contains(&filename) {
-                        false => {
+                    match filename_to_add(&files,&selected_files, 0) {
+                        Some(filename) => {
                             selected_files.push(filename);
-                            write!(stdout, "\r{}% docker-compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                            write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                             stdout.lock().flush().unwrap();
-                        }
-                        true => (),
+                        },
+                        None => (),
                     }
                 }
                 termion::event::Key::Char('2') => {
-                    let filename = files[1].to_string();
-                    match selected_files.contains(&filename) {
-                        false => {
+                    match filename_to_add(&files, &selected_files, 1) {
+                        Some(filename) => {
                             selected_files.push(filename);
-                            write!(stdout, "\r{}% docker-compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                            write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                             stdout.lock().flush().unwrap();
                         }
-                        true => (),
+                        None => (),
                     }
                 }
                 termion::event::Key::Char('3') => {
-                    let filename = files[2].to_string();
-                    match selected_files.contains(&filename) {
-                        false => {
+                    match filename_to_add(&files,&selected_files, 2) {
+                        Some(filename) => {
                             selected_files.push(filename);
-                            write!(stdout, "\r{}% docker-compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                            write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                             stdout.lock().flush().unwrap();
                         }
-                        true => (),
+                        None => (),
                     }
                 }
                 _ => {}
@@ -104,4 +101,17 @@ fn term(files: Vec<String>) -> Result<Vec<String>> { // https://stackoverflow.co
 
     write!(stdout, "{}", termion::cursor::Show).unwrap(); // I mean... we have to restore the cursor manually? what??
     Ok(selected_files)
+}
+
+fn filename_to_add(available: &Vec<String>, selected: &Vec<String>, pos: usize) -> Option<String> {
+    match available.len().lt(&pos) {
+        true => None,
+        false => {
+            let filename = available[pos].to_string();
+            match selected.contains(&filename) {
+                true => None,
+                false => Some(filename)
+            }
+        }
+    }
 }

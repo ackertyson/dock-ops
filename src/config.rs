@@ -2,10 +2,12 @@ use std::path::{Component, PathBuf};
 use std::fs::create_dir_all;
 use std::env::current_dir;
 use std::collections::HashMap;
+
+use anyhow::Result;
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use anyhow::Result;
+
 use crate::fs::{read, write};
 
 #[derive(Serialize, Deserialize)]
@@ -25,7 +27,7 @@ pub fn get(filename: &String) -> Result<AppConfig> {
     Ok(raw) => Ok(serde_json::from_str(&raw)?),
     Err(err) => {
       println!("{:?}", err);
-      Ok(AppConfig { aliases: HashMap::new(), compose_files: vec![], version: 1 })
+      Ok(AppConfig { aliases: HashMap::new(), compose_files: crate::vec_of_strings![], version: 1 })
     },
   }
 }

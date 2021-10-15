@@ -2,6 +2,7 @@ use anyhow::Result;
 use structopt::StructOpt;
 
 use crate::subcommands::compose;
+use crate::util::concat;
 
 #[derive(StructOpt)]
 pub struct Exec {
@@ -18,9 +19,9 @@ pub enum ExecCmd {
 pub fn exec(Exec { cmd }: &Exec) -> Result<()> {
     match cmd {
         ExecCmd::Args(args) => {
-            let mut exec_args = vec!["exec"];
-            exec_args.append(&mut args.iter().map(AsRef::as_ref).collect());
-            compose(exec_args)
+            compose(concat(
+                crate::vec_of_strings!["exec"],
+                args.iter().map(String::to_owned).collect()))
         }
     }
 }

@@ -7,5 +7,5 @@ use crate::subcommands::compose;
 pub struct Down {}
 
 pub fn down() -> Result<()> {
-    compose(vec!["down", "--remove-orphans"])
+    compose(crate::vec_of_strings!["down", "--remove-orphans"])
 }

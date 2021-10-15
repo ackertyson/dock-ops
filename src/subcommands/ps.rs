@@ -7,5 +7,5 @@ use crate::subcommands::compose;
 pub struct Ps {}
 
 pub fn ps(_: &Ps) -> Result<()> {
-    compose(vec!["ps"])
+    compose(crate::vec_of_strings!["ps"])
 }
