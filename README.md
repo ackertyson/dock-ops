@@ -1,6 +1,6 @@
 # DockOps
 
-***[2021-10-14]** v0.4.0 The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. Et voila!*
+***[2021-10-14]** v0.4.0 The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. The "updated" [compose-v2](https://github.com/ackertyson/dock-ops/tree/compose-v2) branch of the Ruby version is still available. Et voila!*
 
 ***[2021-06-11]** v0.3.0 Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
 for [Compose V1](https://docs.docker.com/compose/cli-command/) behavior.*
