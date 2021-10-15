@@ -18,7 +18,7 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
         1 => { // command like: $ dock _
             let AppConfig { aliases, .. } = get(&String::from("development.json"))?;
             let builtins = vec![
-                "alias", "aliases", "build", "config", "down", "exec", "images", "logs", "ps", "psa", "rmi", "setup", "up"
+                "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs", "ps", "psa", "rmi", "setup", "up"
             ];
             let mut all = aliases.keys().map(AsRef::as_ref).collect::<Vec<_>>();
             all.append(&mut builtins.clone());

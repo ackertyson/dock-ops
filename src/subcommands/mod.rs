@@ -10,6 +10,7 @@ use crate::fs::read;
 
 pub mod alias;
 pub mod aliases;
+pub mod attach;
 pub mod build;
 pub mod complete;
 pub mod config;
@@ -28,6 +29,7 @@ pub mod all {
     // re-export flattened subcommands so consuming modules can use wildcard import
     pub use crate::subcommands::alias::*;
     pub use crate::subcommands::aliases::*;
+    pub use crate::subcommands::attach::*;
     pub use crate::subcommands::build::*;
     pub use crate::subcommands::complete::*;
     pub use crate::subcommands::config::*;

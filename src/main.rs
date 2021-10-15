@@ -15,6 +15,7 @@ fn main() -> Result<()> {
     match &input.cmd {
         Cmd::Alias(args) => alias(args),
         Cmd::Aliases(_) => aliases(),
+        Cmd::Attach(args) => attach(args),
         Cmd::Build(args) => build(args),
         Cmd::Complete(args) => complete(args),
         Cmd::Config(_) => config(),

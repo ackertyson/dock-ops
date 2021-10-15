@@ -1,19 +1,6 @@
 use structopt::{clap::AppSettings, StructOpt};
 
-use crate::subcommands::alias::Alias;
-use crate::subcommands::aliases::Aliases;
-use crate::subcommands::build::Build;
-use crate::subcommands::complete::Complete;
-use crate::subcommands::config::Config;
-use crate::subcommands::down::Down;
-use crate::subcommands::exec::Exec;
-use crate::subcommands::images::Images;
-use crate::subcommands::logs::Logs;
-use crate::subcommands::ps::Ps;
-use crate::subcommands::psa::Psa;
-use crate::subcommands::rmi::Rmi;
-use crate::subcommands::setup::Setup;
-use crate::subcommands::up::Up;
+use crate::subcommands::all::*;
 
 #[derive(StructOpt)]
 #[structopt(name = "DockOps")]
@@ -34,6 +21,8 @@ pub enum Cmd {
     Alias(Alias),
     #[structopt(about = "[DockOps] list command aliases")]
     Aliases(Aliases),
+    #[structopt(about = "docker attach --sig-proxy=false ...")]
+    Attach(Attach),
     #[structopt(about = "docker build . -t ...")]
     Build(Build),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
