@@ -41,6 +41,8 @@ pub enum Cmd {
     Ps(Ps),
     #[structopt(about = "docker ps")]
     Psa(Psa),
+    #[structopt(about = "docker compose restart ...")]
+    Restart(Restart),
     #[structopt(about = "docker rmi ...")]
     Rmi(Rmi),
     #[structopt(about = "[DockOps] update project configuration")]

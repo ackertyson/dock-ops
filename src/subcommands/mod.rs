@@ -21,6 +21,7 @@ pub mod invoke_alias;
 pub mod logs;
 pub mod ps;
 pub mod psa;
+pub mod restart;
 pub mod rmi;
 pub mod setup;
 pub mod up;
@@ -40,6 +41,7 @@ pub mod all {
     pub use crate::subcommands::logs::*;
     pub use crate::subcommands::ps::*;
     pub use crate::subcommands::psa::*;
+    pub use crate::subcommands::restart::*;
     pub use crate::subcommands::rmi::*;
     pub use crate::subcommands::setup::*;
     pub use crate::subcommands::up::*;

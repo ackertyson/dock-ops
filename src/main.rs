@@ -25,6 +25,7 @@ fn main() -> Result<()> {
         Cmd::Logs(args) => logs(args),
         Cmd::Ps(args) => ps(args),
         Cmd::Psa(_) => psa(),
+        Cmd::Restart(args) => restart(args),
         Cmd::Rmi(args) => rmi(args),
         Cmd::Setup(_) => setup(),
         Cmd::Up(args) => up(args),
