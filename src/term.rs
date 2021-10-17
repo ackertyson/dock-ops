@@ -1,8 +1,6 @@
 use std::io::Write;
-use std::io::{self, stdin, stdout, BufRead, BufReader, Read};
+use std::io::{self, stdin, BufRead, BufReader};
 use std::process::{Command, Stdio};
-use std::thread;
-use std::time;
 
 use anyhow::Result;
 use console::Style;
@@ -10,49 +8,6 @@ use termion;
 use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
-
-pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
-    let mut child = Command::new(command)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()
-        .expect("Command failed");
-
-    {
-        let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-        stdin.write_all("Hello, world!".as_bytes()).expect("Failed to write to stdin");
-    }
-
-    let stdout = stdout();
-    let mut stdout = stdout.lock().into_raw_mode().unwrap();
-    loop {
-        let mut buf = [0; 8];
-        let size = stdout.read(&mut buf[..])?;
-        stdout.write_all(&buf[..size]).unwrap();
-        thread::sleep(time::Duration::from_millis(50));
-    }
-
-    Ok(())
-}
-
-// use std::io::Write;
-// use std::process::{Command, Stdio};
-//
-// let mut child = Command::new("rev")
-//     .stdin(Stdio::piped())
-//     .stdout(Stdio::piped())
-//     .spawn()
-//     .expect("Failed to spawn child process");
-//
-// {
-//     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-//     stdin.write_all("Hello, world!".as_bytes()).expect("Failed to write to stdin");
-// }
-//
-// let output = child.wait_with_output().expect("Failed to read stdout");
-// assert_eq!(String::from_utf8_lossy(&output.stdout), "!dlrow ,olleH");
-
 
 pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     let bling = Style::new().cyan().bold();
@@ -69,7 +24,7 @@ pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     println!();
     println!("In {} mode, Docker Compose commands should use:", "DEVELOPMENT");
 
-    term(files)
+    select_files_ui(files)
 }
 
 pub fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
@@ -105,7 +60,20 @@ fn filelist(files: &Vec<String>) -> String {
     }
 }
 
-fn term(files: Vec<String>) -> Result<Vec<String>> { // https://stackoverflow.com/a/55881770
+fn filename_to_add(available: &Vec<String>, selected: &Vec<String>, pos: usize) -> Option<String> {
+    match available.len().le(&pos) {
+        true => None,
+        false => {
+            let filename = available[pos].to_string();
+            match selected.contains(&filename) {
+                true => None,
+                false => Some(filename)
+            }
+        }
+    }
+}
+
+fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
     // Set terminal to raw mode to allow reading stdin one key at a time
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let stdin = stdin();
@@ -164,17 +132,4 @@ fn term(files: Vec<String>) -> Result<Vec<String>> { // https://stackoverflow.co
 
     write!(stdout, "{}", termion::cursor::Show).unwrap(); // I mean... we have to restore the cursor manually? what??
     Ok(selected_files)
-}
-
-fn filename_to_add(available: &Vec<String>, selected: &Vec<String>, pos: usize) -> Option<String> {
-    match available.len().le(&pos) {
-        true => None,
-        false => {
-            let filename = available[pos].to_string();
-            match selected.contains(&filename) {
-                true => None,
-                false => Some(filename)
-            }
-        }
-    }
 }

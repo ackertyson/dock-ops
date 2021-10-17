@@ -5,7 +5,7 @@ use walkdir::WalkDir;
 
 use crate::config::{AppConfig, ComposeFile, get};
 use crate::fs::read;
-use crate::term::{interactive, sys_cmd, sys_cmd_output};
+use crate::term::{sys_cmd, sys_cmd_output};
 use crate::util::*;
 
 pub mod alias;
