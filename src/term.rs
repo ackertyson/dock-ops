@@ -1,5 +1,5 @@
-use std::io::Write;
-use std::io::{self, stdin, BufRead, BufReader};
+use std::io::{Read, Write};
+use std::io::{self, stdin, stdout, BufRead, BufReader};
 use std::process::{Command, Stdio};
 
 use anyhow::Result;
@@ -8,6 +8,47 @@ use termion;
 use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+
+pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
+    let mut stdout = stdout();
+    // let mut tty = termion::get_tty()?;
+
+    let child = Command::new(command)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stdin(Stdio::piped())
+        .spawn()?;
+
+    let mut buf = [0; 8];
+    let mut child_reader = BufReader::new(child.stdout.unwrap());
+
+    // write!(child.stdin.unwrap(), "{}", "\\dt").unwrap();
+    loop {
+        let n = child_reader.read(&mut buf[..])?;
+        if n == 0 {
+            break;
+        }
+
+        stdout.write(&buf[..n]).unwrap();
+        stdout.flush().unwrap();
+    }
+
+    Ok(())
+
+    // loop {
+    //     write!(stdout, "{}", termion::clear::CurrentLine).unwrap();
+    //
+    //     let b = stdin.events().next().unwrap()?;
+    //     match b {
+    //
+    //     }
+    //     write!(stdout, "\r{:?}", b);
+    //     if let Some(Ok(b'q')) = b {
+    //         break;
+    //     }
+    //     stdout.flush().unwrap();
+    // }
+}
 
 pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     let bling = Style::new().cyan().bold();
@@ -85,7 +126,7 @@ fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
     for c in stdin.events() {
         let evt = c.unwrap();
         match evt {
-            Event::Key(Key::Char('c')) => {
+            Event::Key(Key::Char('c')) | Event::Key(Key::Ctrl('c')) | Event::Key(Key::Esc) => {
                 selected_files.clear();
                 write!(stdout, "\r\n").unwrap();
                 break;
