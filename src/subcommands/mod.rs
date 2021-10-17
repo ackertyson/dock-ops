@@ -1,12 +1,11 @@
-use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
 
 use anyhow::Result;
 use walkdir::WalkDir;
 
 use crate::config::{AppConfig, ComposeFile, get};
 use crate::fs::read;
+use crate::term::{interactive, sys_cmd, sys_cmd_output};
 use crate::util::*;
 
 pub mod alias;
@@ -50,6 +49,12 @@ pub mod all {
     pub use crate::subcommands::up::*;
 }
 
+pub fn get_yaml(filename: &String) -> Result<ComposeFile> {
+    let raw = read(PathBuf::from(filename))?;
+    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
+    Ok(compose)
+}
+
 fn completion_containers() -> Result<Vec<u8>> {
     sys_cmd_output("docker", crate::vec_of_strings!["ps", "--format", "\"{{.Names}}\""])
 }
@@ -87,36 +92,8 @@ fn configured_yamls() -> Vec<String> {
 }
 
 fn docker(args: Vec<String>) -> Result<()> {
-    sys_cmd("docker", args)
-}
-
-pub fn get_yaml(filename: &String) -> Result<ComposeFile> {
-    let raw = read(PathBuf::from(filename))?;
-    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
-    Ok(compose)
-}
-
-fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
-    // https://rust-lang-nursery.github.io/rust-cookbook/os/external.html#continuously-process-child-process-outputs
-    let output = Command::new(command)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()?;
-
-    BufReader::new(output.stdout.expect("Could not pipe to stdout"))
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("{}", line));
-
+    sys_cmd("docker", args)?;
     Ok(())
-}
-
-fn sys_cmd_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
-    let output = Command::new(command)
-        .args(args)
-        .output()?;
-    Ok(output.stdout)
 }
 
 fn yaml_filenames() -> Result<Vec<String>> {
