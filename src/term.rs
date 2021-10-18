@@ -11,6 +11,7 @@ use termion::raw::IntoRawMode;
 
 pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
     let mut stdout = stdout();
+    let mut stdin = stdin();
     // let mut tty = termion::get_tty()?;
 
     let child = Command::new(command)
@@ -21,16 +22,30 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
 
     let mut buf = [0; 8];
     let mut child_reader = BufReader::new(child.stdout.unwrap());
+    let mut child_stdin = child.stdin.unwrap();
 
-    // write!(child.stdin.unwrap(), "{}", "\\dt").unwrap();
-    loop {
-        let n = child_reader.read(&mut buf[..])?;
-        if n == 0 {
-            break;
+    for c in stdin.events() {
+        let evt = c.unwrap();
+        match evt {
+            Event::Key(Key::Ctrl('d')) | Event::Key(Key::Ctrl('c')) => {
+                break;
+            },
+            Event::Key(Key::Char(char)) => {
+                // write!(child.stdin.unwrap(), "{}", "\\dt").unwrap();
+                child_stdin.write_all(char.to_string().as_bytes()).unwrap();
+
+                loop {
+                    let n = child_reader.read(&mut buf[..])?;
+                    if n == 0 {
+                        break;
+                    }
+
+                    stdout.write(&buf[..n]).unwrap();
+                    stdout.flush().unwrap();
+                }
+            },
+            _ => (),
         }
-
-        stdout.write(&buf[..n]).unwrap();
-        stdout.flush().unwrap();
     }
 
     Ok(())
