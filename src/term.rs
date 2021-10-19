@@ -16,6 +16,8 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
 
     let child = Command::new(command)
         .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
         .stderr(Stdio::inherit())
         .spawn()?;
 
@@ -49,7 +51,7 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
         }
 
         stdout.write(&buf[..n]).unwrap();
-        //stdout.flush().unwrap();
+        // stdout.flush().unwrap();
     }
 
     handle.join().unwrap();
