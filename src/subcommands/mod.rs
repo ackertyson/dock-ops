@@ -92,7 +92,7 @@ fn configured_yamls() -> Vec<String> {
 }
 
 fn docker(args: Vec<String>) -> Result<()> {
-    sys_cmd("docker", args)?;
+    interactive("docker", args)?;
     Ok(())
 }
 

@@ -1,6 +1,7 @@
 use std::io::{Read, Write};
 use std::io::{self, stdin, stdout, BufRead, BufReader};
 use std::process::{Command, Stdio};
+use std::thread;
 
 use anyhow::Result;
 use console::Style;
@@ -10,59 +11,49 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
 pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
+    let stdin = stdin();
     let mut stdout = stdout();
-    let mut stdin = stdin();
-    // let mut tty = termion::get_tty()?;
 
     let child = Command::new(command)
         .args(args)
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
+        .stderr(Stdio::inherit())
         .spawn()?;
 
     let mut buf = [0; 8];
-    let mut child_reader = BufReader::new(child.stdout.unwrap());
+    let mut child_stdout_buffer = BufReader::new(child.stdout.unwrap());
     let mut child_stdin = child.stdin.unwrap();
 
-    for c in stdin.events() {
-        let evt = c.unwrap();
-        match evt {
-            Event::Key(Key::Ctrl('d')) | Event::Key(Key::Ctrl('c')) => {
-                break;
-            },
-            Event::Key(Key::Char(char)) => {
-                // write!(child.stdin.unwrap(), "{}", "\\dt").unwrap();
-                child_stdin.write_all(char.to_string().as_bytes()).unwrap();
-
-                loop {
-                    let n = child_reader.read(&mut buf[..])?;
-                    if n == 0 {
-                        break;
+    let handle = thread::spawn(move || {
+        for c in stdin.events() {
+            let evt = c.unwrap();
+            match evt {
+                Event::Key(Key::Ctrl('d')) | Event::Key(Key::Ctrl('c')) => {
+                    break;
+                },
+                Event::Key(Key::Char(char)) => {
+                    // write!(child.stdin.unwrap(), "{}", "\\dt").unwrap();
+                    match child_stdin.write_all(char.to_string().as_bytes()) {
+                        Ok(_) => (),
+                        Err(e) => eprintln!("{:?}", e),
                     }
-
-                    stdout.write(&buf[..n]).unwrap();
-                    stdout.flush().unwrap();
-                }
-            },
-            _ => (),
+                },
+                _ => (),
+            }
         }
+    });
+
+    loop {
+        let n = child_stdout_buffer.read(&mut buf[..]).unwrap();
+        if n == 0 {
+            break;
+        }
+
+        stdout.write(&buf[..n]).unwrap();
+        //stdout.flush().unwrap();
     }
 
+    handle.join().unwrap();
     Ok(())
-
-    // loop {
-    //     write!(stdout, "{}", termion::clear::CurrentLine).unwrap();
-    //
-    //     let b = stdin.events().next().unwrap()?;
-    //     match b {
-    //
-    //     }
-    //     write!(stdout, "\r{:?}", b);
-    //     if let Some(Ok(b'q')) = b {
-    //         break;
-    //     }
-    //     stdout.flush().unwrap();
-    // }
 }
 
 pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
