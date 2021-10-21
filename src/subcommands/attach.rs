@@ -1,7 +1,7 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::docker;
+use crate::subcommands::docker_tty;
 
 #[derive(StructOpt)]
 pub struct Attach {
@@ -10,5 +10,5 @@ pub struct Attach {
 }
 
 pub fn attach(Attach { container }: &Attach) -> Result<()> {
-    docker(crate::vec_of_strings!["attach", "--sig-proxy=false", container])
+    docker_tty(crate::vec_of_strings!["attach", "--sig-proxy=false", container])
 }

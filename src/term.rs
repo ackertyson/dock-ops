@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use std::io::{Read, Write};
 use std::io::{self, stdin, stdout, BufRead, BufReader};
 use std::process::{Command, Stdio};
@@ -17,15 +16,23 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
     let mut stdout = stdout();
     let mut tty = termion::get_tty().unwrap().into_raw_mode()?;
 
-    tty.write_all(b"docker-compose -f docker-compose.development.yaml exec db bash").unwrap();
+    let child = Command::new(command)
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()?;
 
     let (tx, rx) = mpsc::channel();
+    let mut child_stdout_buffer = BufReader::new(child.stdout.unwrap());
+    let mut child_stdin = child.stdin.unwrap();
 
     let handle = thread::spawn(move || {
         for c in stdin.events() {
             let evt = c.unwrap();
             match evt {
                 Event::Key(Key::Ctrl('c')) => {
+                    tx.send('@').unwrap();
                     break;
                 },
                 Event::Key(Key::Char(char)) => {
@@ -37,21 +44,31 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
     });
 
     for received in rx {
-        match tty.write_all(received.to_string().as_bytes()) {
-            Ok(_) => (),
-            Err(e) => eprintln!("{:?}", e),
+        match received {
+            '@' => break,
+            _ => {
+                match child_stdin.write(received.to_string().as_bytes()) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("[RX] {:?}", e),
+                }
+                // match tty.write(received.to_string().as_bytes()) {
+                //     Ok(_) => (),
+                //     Err(e) => eprintln!("{:?}", e),
+                // }
+                // stdout.write(received).unwrap();
+            }
         }
-        // stdout.write(received).unwrap();
     }
 
     let mut buf = [0; 8];
     loop {
-        let n = tty.read(&mut buf[..]).unwrap();
+        let n = child_stdout_buffer.read(&mut buf[..]).unwrap();
+        // let n = tty.read(&mut buf[..]).unwrap();
         if n == 0 {
             break;
         }
 
-        stdout.write_all(&mut buf[..n]).unwrap();
+        stdout.write(&mut buf[..n]).unwrap();
         // stdout.flush().unwrap();
     }
 
