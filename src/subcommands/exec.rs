@@ -1,7 +1,7 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::compose_tty;
+use crate::subcommands::compose;
 use crate::util::concat;
 
 #[derive(StructOpt)]
@@ -19,7 +19,7 @@ pub enum ExecCmd {
 pub fn exec(Exec { cmd }: &Exec) -> Result<()> {
     match cmd {
         ExecCmd::Args(args) => {
-            compose_tty(concat(
+            compose(concat(
                 crate::vec_of_strings!["exec"],
                 args.iter().map(String::to_owned).collect()))
         }

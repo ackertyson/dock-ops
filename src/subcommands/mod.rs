@@ -5,7 +5,7 @@ use walkdir::WalkDir;
 
 use crate::config::{AppConfig, ComposeFile, get};
 use crate::fs::read;
-use crate::term::{interactive, sys_cmd, sys_cmd_output};
+use crate::term::{sys_cmd, sys_cmd_output};
 use crate::util::*;
 
 pub mod alias;
@@ -84,14 +84,6 @@ fn compose(args: Vec<String>) -> Result<()> {
             args)))
 }
 
-fn compose_tty(args: Vec<String>) -> Result<()> {
-    docker_tty(concat(
-        crate::vec_of_strings!["compose"],
-        concat(
-            configured_yamls().iter().map(|file| crate::vec_of_strings!["-f", file]).flatten().collect(),
-            args)))
-}
-
 fn configured_yamls() -> Vec<String> {
     match get(&String::from("development.json")) {
         Ok(AppConfig { compose_files, .. }) => compose_files,
@@ -101,11 +93,6 @@ fn configured_yamls() -> Vec<String> {
 
 fn docker(args: Vec<String>) -> Result<()> {
     sys_cmd("docker", args)?;
-    Ok(())
-}
-
-fn docker_tty(args: Vec<String>) -> Result<()> {
-    interactive("docker", args)?;
     Ok(())
 }
 

@@ -1,8 +1,6 @@
-use std::io::{Read, Write};
-use std::io::{self, stdin, stdout, BufRead, BufReader};
-use std::process::{Command, Stdio};
-use std::thread;
-use std::sync::mpsc;
+use std::io::Write;
+use std::io::{self, stdin};
+use std::process::Command;
 
 use anyhow::Result;
 use console::Style;
@@ -10,62 +8,6 @@ use termion;
 use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
-
-pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
-    let stdin = stdin();
-    let mut stdout = stdout().into_raw_mode()?;
-    let mut tty = termion::get_tty().unwrap().into_raw_mode()?;
-
-    Command::new(command)
-        .args(args)
-        .spawn()?;
-
-    let (tx, rx) = mpsc::channel();
-
-    let user_input = thread::spawn(move || {
-        for c in stdin.events() {
-            let evt = c.unwrap();
-            println!("[thread for {:?}]", evt);
-            match evt {
-                Event::Key(Key::Ctrl('c')) => break,
-                Event::Key(Key::Char(char)) => {
-                    println!("[TX {:?}]", char);
-                    tx.send(char).unwrap();
-                },
-                _ => (),
-            }
-        }
-    });
-
-    // let mut buf = [0; 512];
-    loop {
-    //     let n = tty.read(&mut buf[..]).unwrap();
-    //     println!("[tty loop read {:?}]", n);
-    //     if n == 0 {
-    //         break;
-    //     }
-    //
-    //     stdout.write(&mut buf[..n]).unwrap();
-        // stdout.flush().unwrap();
-
-        match rx.recv() {
-            Ok(received) => {
-                println!("[rx write {:?}]", received);
-                match tty.write(received.to_string().as_bytes()) {
-                    Ok(_) => (),
-                    Err(e) => eprintln!("[RX] {:?}", e),
-                }
-            },
-            Err(e) => {
-                eprintln!("[RX] {:?}", e);
-                break;
-            },
-        }
-    }
-
-    // user_input.join().unwrap();
-    Ok(())
-}
 
 pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     let bling = Style::new().cyan().bold();
@@ -86,17 +28,11 @@ pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
 }
 
 pub fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
-    // https://rust-lang-nursery.github.io/rust-cookbook/os/external.html#continuously-process-child-process-outputs
-    let output = Command::new(command)
+    Command::new(command)
         .args(args)
-        .stdout(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()?;
-
-    BufReader::new(output.stdout.expect("Could not pipe to stdout"))
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("{}", line));
+        .spawn()
+        .unwrap()
+        .wait()?;
 
     Ok(())
 }
@@ -104,8 +40,8 @@ pub fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
 pub fn sys_cmd_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
     let output = Command::new(command)
         .args(args)
-        .stdout(Stdio::piped())
         .output()?;
+
     Ok(output.stdout)
 }
 
