@@ -1,9 +1,8 @@
 use std::io::{Read, Write};
 use std::io::{self, stdin, stdout, BufRead, BufReader};
 use std::process::{Command, Stdio};
-use std::{thread, time};
+use std::thread;
 use std::sync::mpsc;
-use std::sync::mpsc::Receiver;
 
 use anyhow::Result;
 use console::Style;
@@ -14,7 +13,7 @@ use termion::raw::IntoRawMode;
 
 pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
     let stdin = stdin();
-    let mut stdout = stdout();
+    let mut stdout = stdout().into_raw_mode()?;
     let mut tty = termion::get_tty().unwrap().into_raw_mode()?;
 
     Command::new(command)
@@ -38,14 +37,16 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
         }
     });
 
-    let mut buf = [0; 8];
+    // let mut buf = [0; 512];
     loop {
-        let n = tty.read(&mut buf[..]).unwrap();
-        println!("[tty loop read {:?}]", n);
-        if n > 0 {
-            stdout.write(&mut buf[..n]).unwrap();
-            stdout.flush().unwrap();
-        }
+    //     let n = tty.read(&mut buf[..]).unwrap();
+    //     println!("[tty loop read {:?}]", n);
+    //     if n == 0 {
+    //         break;
+    //     }
+    //
+    //     stdout.write(&mut buf[..n]).unwrap();
+        // stdout.flush().unwrap();
 
         match rx.recv() {
             Ok(received) => {
@@ -62,7 +63,7 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
         }
     }
 
-    user_input.join().unwrap();
+    // user_input.join().unwrap();
     Ok(())
 }
 
