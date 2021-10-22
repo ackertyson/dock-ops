@@ -1,8 +1,9 @@
 use std::io::{Read, Write};
 use std::io::{self, stdin, stdout, BufRead, BufReader};
 use std::process::{Command, Stdio};
-use std::thread;
+use std::{thread, time};
 use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
 
 use anyhow::Result;
 use console::Style;
@@ -16,26 +17,20 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
     let mut stdout = stdout();
     let mut tty = termion::get_tty().unwrap().into_raw_mode()?;
 
-    let child = Command::new(command)
+    Command::new(command)
         .args(args)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::inherit())
         .spawn()?;
 
     let (tx, rx) = mpsc::channel();
-    let mut child_stdout_buffer = BufReader::new(child.stdout.unwrap());
-    let mut child_stdin = child.stdin.unwrap();
 
-    let handle = thread::spawn(move || {
+    let user_input = thread::spawn(move || {
         for c in stdin.events() {
             let evt = c.unwrap();
+            println!("[thread for {:?}]", evt);
             match evt {
-                Event::Key(Key::Ctrl('c')) => {
-                    tx.send('@').unwrap();
-                    break;
-                },
+                Event::Key(Key::Ctrl('c')) => break,
                 Event::Key(Key::Char(char)) => {
+                    println!("[TX {:?}]", char);
                     tx.send(char).unwrap();
                 },
                 _ => (),
@@ -43,36 +38,31 @@ pub fn interactive(command: &str, args: Vec<String>) -> Result<()> {
         }
     });
 
-    for received in rx {
-        match received {
-            '@' => break,
-            _ => {
-                match child_stdin.write(received.to_string().as_bytes()) {
+    let mut buf = [0; 8];
+    loop {
+        let n = tty.read(&mut buf[..]).unwrap();
+        println!("[tty loop read {:?}]", n);
+        if n > 0 {
+            stdout.write(&mut buf[..n]).unwrap();
+            stdout.flush().unwrap();
+        }
+
+        match rx.recv() {
+            Ok(received) => {
+                println!("[rx write {:?}]", received);
+                match tty.write(received.to_string().as_bytes()) {
                     Ok(_) => (),
                     Err(e) => eprintln!("[RX] {:?}", e),
                 }
-                // match tty.write(received.to_string().as_bytes()) {
-                //     Ok(_) => (),
-                //     Err(e) => eprintln!("{:?}", e),
-                // }
-                // stdout.write(received).unwrap();
-            }
+            },
+            Err(e) => {
+                eprintln!("[RX] {:?}", e);
+                break;
+            },
         }
     }
 
-    let mut buf = [0; 8];
-    loop {
-        let n = child_stdout_buffer.read(&mut buf[..]).unwrap();
-        // let n = tty.read(&mut buf[..]).unwrap();
-        if n == 0 {
-            break;
-        }
-
-        stdout.write(&mut buf[..n]).unwrap();
-        // stdout.flush().unwrap();
-    }
-
-    handle.join().unwrap();
+    user_input.join().unwrap();
     Ok(())
 }
 
