@@ -197,9 +197,9 @@ stopping the container.
 
 ### build
 
-`docker compose build ...`
+`docker build . -t ...`
 
-*Completions: services defined in Compose YAML file(s)*
+*Completions: local image repository names*
 
 ### clean
 

@@ -7,5 +7,5 @@ use crate::subcommands::docker;
 pub struct Images {}
 
 pub fn images() -> Result<()> {
-    docker(vec!["images"])
+    docker(crate::vec_of_strings!["images"])
 }

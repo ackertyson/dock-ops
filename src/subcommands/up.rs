@@ -11,13 +11,13 @@ pub struct Up {
 }
 
 pub fn up(Up { detached, service }: &Up) -> Result<()> {
-    let mut args = vec!["up"];
+    let mut args = crate::vec_of_strings!["up"];
     match detached {
-        true => args.push("-d"),
+        true => args.push("-d".to_string()),
         false => (),
     }
     match service {
-        Some(val) => args.push(val),
+        Some(val) => args.push(val.to_string()),
         None => (),
     }
     compose(args)

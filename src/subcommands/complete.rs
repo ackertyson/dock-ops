@@ -5,26 +5,39 @@ use structopt::StructOpt;
 
 use crate::config::{AppConfig, get};
 use crate::subcommands::{completion_containers, completion_images, completion_services};
+use crate::util::*;
 
 #[derive(StructOpt)]
 pub struct Complete {
     pub arg: String,
 }
 
+fn strip_flags(args: &Vec<&str>) -> Vec<String> {
+    args.iter()
+        .filter(|arg| !arg.starts_with('-'))
+        .map(|s| s.to_string())
+        .collect()
+}
+
 pub fn complete(Complete { arg }: &Complete) -> Result<()> {
-    let args = arg.split(' ').collect::<Vec<_>>();
-    let cmd: &str = args.get(0).unwrap();
+    // remove flags/options so they don't F up our math
+    let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
+    let cmds = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
+    let cmd: &str = cmds.get(0).unwrap();
+
     match args.len() {
-        1 => { // command like: $ dock _
+        0 => { // $ dock <empty_or_partial_subcommand>_
             let AppConfig { aliases, .. } = get(&String::from("development.json"))?;
-            let builtins = vec![
-                "alias", "aliases", "build", "config", "down", "exec", "images", "logs", "ps", "psa", "rmi", "setup", "up"
+            let builtins = crate::vec_of_strings![
+                "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs",
+                "ps", "psa", "restart", "rmi", "run", "setup", "up"
             ];
-            let mut all = aliases.keys().map(AsRef::as_ref).collect::<Vec<_>>();
-            all.append(&mut builtins.clone());
+            let all = concat(
+                builtins,
+                aliases.keys().map(String::to_owned).collect());
             Ok(io::stdout().write_all(all.join(" ").as_bytes())?)
         },
-        2 => match cmd { // command like: $ dock <partial_subcommand> _
+        1 => match cmd { // $ dock <subcommand> _
             "attach" | "stop" => {
                 Ok(io::stdout().write_all(&completion_containers()?)?)
             },
@@ -34,11 +47,11 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
             "build" => {
                 Ok(io::stdout().write_all(&completion_images(false)?)?)
             },
-            "exec" | "logs" | "run" | "up" => {
+            "exec" | "logs" | "restart" | "run" | "up" => {
                 Ok(io::stdout().write_all(&completion_services()?.join(" ").as_bytes())?)
             },
             _ => Ok(()), // empty return will invoke shell default completions
         },
-        _ => Ok(()), // command like: $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
+        _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
     }
 }

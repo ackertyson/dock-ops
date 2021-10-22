@@ -7,5 +7,5 @@ use crate::subcommands::docker;
 pub struct Psa {}
 
 pub fn psa() -> Result<()> {
-    docker(vec!["ps"])
+    docker(crate::vec_of_strings!["ps"])
 }

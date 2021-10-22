@@ -9,10 +9,10 @@ pub struct Logs {
 }
 
 pub fn logs(Logs { service }: &Logs) -> Result<()> {
-    let mut args = vec!["logs"];
-    args.push("-f");
+    let mut args = crate::vec_of_strings!["logs"];
+    args.push("-f".to_string());
     match service {
-        Some(val) => args.push(val),
+        Some(val) => args.push(val.to_string()),
         None => (),
     }
     compose(args)

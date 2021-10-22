@@ -1,8 +1,9 @@
 use anyhow::Result;
 
 use crate::config::{AppConfig, get};
-use crate::opts::Dock;
+use crate::Dock;
 use crate::subcommands::sys_cmd;
+use crate::util::*;
 
 pub fn invoke_alias(args: &Vec<String>, Dock { reinvoked, .. }: &Dock) -> Result<()> {
     match reinvoked {
@@ -12,14 +13,14 @@ pub fn invoke_alias(args: &Vec<String>, Dock { reinvoked, .. }: &Dock) -> Result
             let AppConfig { aliases,  .. } = get(&String::from("development.json"))?;
             match aliases.get(name) {
                 Some(command) => {
-                    let mut reinvoked_args = vec!["-r"];
-                    reinvoked_args.append(&mut command.split(" ").collect());
-                    sys_cmd("dock", reinvoked_args)
+                    sys_cmd("dock", concat(
+                        crate::vec_of_strings!["-r"],
+                        command.split(' ').map(String::from).collect()))
                 },
                 None => { // any unmatched subcommand will land here (because of structopt "external_subcommand" annotation)
                     println!("[ERROR] Unknown command '{}'", name);
                     println!();
-                    sys_cmd("dock", vec!["-r", "help"])
+                    sys_cmd("dock", crate::vec_of_strings!["-r", "help"])
                 },
             }
         }

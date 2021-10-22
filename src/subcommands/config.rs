@@ -7,5 +7,5 @@ use crate::subcommands::compose;
 pub struct Config {}
 
 pub fn config() -> Result<()> {
-    compose(vec!["config"])
+    compose(crate::vec_of_strings!["config"])
 }
