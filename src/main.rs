@@ -10,26 +10,31 @@ mod term;
 mod util;
 
 fn main() -> Result<()> {
-    let input = Dock::from_args();
-    match &input.cmd {
-        Cmd::Alias(args) => alias(args),
-        Cmd::Aliases(_) => aliases(),
+    let Dock { cmd, mode, production, reinvoked } = Dock::from_args();
+    let mode = match production {
+        true => "production".to_string(),
+        _ => mode.or(Some("development".to_string())).unwrap(),
+    };
+
+    match &cmd {
+        Cmd::Alias(args) => alias(args, &mode),
+        Cmd::Aliases(_) => aliases(&mode),
         Cmd::Attach(args) => attach(args),
         Cmd::Build(args) => build(args),
-        Cmd::Complete(args) => complete(args),
-        Cmd::Config(_) => config(),
-        Cmd::Down(_) => down(),
-        Cmd::Exec(args) => exec(args),
+        Cmd::Complete(args) => complete(args, &mode),
+        Cmd::Config(_) => config(&mode),
+        Cmd::Down(_) => down(&mode),
+        Cmd::Exec(args) => exec(args, &mode),
         Cmd::Images(_) => images(),
-        Cmd::Logs(args) => logs(args),
-        Cmd::Ps(args) => ps(args),
+        Cmd::Logs(args) => logs(args, &mode),
+        Cmd::Ps(args) => ps(args, &mode),
         Cmd::Psa(_) => psa(),
-        Cmd::Restart(args) => restart(args),
+        Cmd::Restart(args) => restart(args, &mode),
         Cmd::Rmi(args) => rmi(args),
-        Cmd::Run(args) => run(args),
-        Cmd::Setup(_) => setup(),
-        Cmd::Up(args) => up(args),
-        Cmd::InvokedAlias(args) => invoke_alias(args, &input),
+        Cmd::Run(args) => run(args, &mode),
+        Cmd::Setup(_) => setup(&mode),
+        Cmd::Up(args) => up(args, &mode),
+        Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, &mode),
     }
 }
 
@@ -48,7 +53,7 @@ pub struct Dock {
 
 #[derive(StructOpt)]
 pub enum Cmd {
-    #[structopt(about = "[DockOps] create command alias")]
+    #[structopt(about = "[DockOps] create/destroy command alias")]
     Alias(Alias),
     #[structopt(about = "[DockOps] list command aliases")]
     Aliases(Aliases),
@@ -58,19 +63,19 @@ pub enum Cmd {
     Build(Build),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
-    #[structopt(about = "docker compose config")]
+    #[structopt(about = "docker compose config ...")]
     Config(Config),
-    #[structopt(about = "docker compose down --remove-orphans")]
+    #[structopt(about = "docker compose down --remove-orphans ...")]
     Down(Down),
     #[structopt(about = "docker compose exec ...")]
     Exec(Exec),
-    #[structopt(about = "docker images")]
+    #[structopt(about = "docker images ...")]
     Images(Images),
     #[structopt(about = "docker compose logs -f ...")]
     Logs(Logs),
-    #[structopt(about = "docker compose ps")]
+    #[structopt(about = "docker compose ps ...")]
     Ps(Ps),
-    #[structopt(about = "docker ps")]
+    #[structopt(about = "docker ps ...")]
     Psa(Psa),
     #[structopt(about = "docker compose restart ...")]
     Restart(Restart),

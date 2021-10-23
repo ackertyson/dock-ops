@@ -16,12 +16,13 @@ pub enum ExecCmd {
     Args(Vec<String>),
 }
 
-pub fn exec(Exec { cmd }: &Exec) -> Result<()> {
+pub fn exec(Exec { cmd }: &Exec, mode: &String) -> Result<()> {
     match cmd {
         ExecCmd::Args(args) => {
             compose(concat(
                 crate::vec_of_strings!["exec"],
-                args.iter().map(String::to_owned).collect()))
+                args.iter().map(String::to_owned).collect()),
+            mode)
         }
     }
 }

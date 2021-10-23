@@ -7,14 +7,10 @@ use crate::config::{AppConfig, get};
 #[derive(StructOpt)]
 pub struct Aliases {}
 
-pub fn aliases() -> Result<()> {
-    match get(&String::from("development.json")) {
-        Ok(AppConfig { aliases, .. }) => {
-            for (key, val) in aliases.iter() {
-                println!("{} => {}", style(key).cyan().bold(), val);
-            }
-            Ok(())
-        },
-        Err(_) => Ok(()),
+pub fn aliases(mode: &String) -> Result<()> {
+    let AppConfig { aliases, .. } = get(mode)?;
+    for (key, val) in aliases.iter() {
+        println!("{} => {}", style(key).cyan().bold(), val);
     }
+    Ok(())
 }

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{self, Write};
 
 use anyhow::Result;
@@ -12,22 +13,25 @@ pub struct Complete {
     pub arg: String,
 }
 
-fn strip_flags(args: &Vec<&str>) -> Vec<String> {
-    args.iter()
-        .filter(|arg| !arg.starts_with('-'))
-        .map(|s| s.to_string())
-        .collect()
-}
-
-pub fn complete(Complete { arg }: &Complete) -> Result<()> {
+// TODO mode flags break completion...
+pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
-    let cmds = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
-    let cmd: &str = cmds.get(0).unwrap();
+    let cmd_slice = args
+        .splice(..1, crate::vec_of_strings![])
+        .collect::<Vec<_>>();
+    let cmd: &str = cmd_slice.get(0).unwrap();
 
     match args.len() {
         0 => { // $ dock <empty_or_partial_subcommand>_
-            let AppConfig { aliases, .. } = get(&String::from("development.json"))?;
+            let AppConfig { aliases, .. } = match get(mode) {
+                Ok(result) => result,
+                _ => AppConfig {
+                    aliases: HashMap::new(),
+                    compose_files: crate::vec_of_strings![],
+                    version: 1,
+                }
+            };
             let builtins = crate::vec_of_strings![
                 "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs",
                 "ps", "psa", "restart", "rmi", "run", "setup", "up"
@@ -37,6 +41,7 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
                 aliases.keys().map(String::to_owned).collect());
             Ok(io::stdout().write_all(all.join(" ").as_bytes())?)
         },
+
         1 => match cmd { // $ dock <subcommand> _
             "attach" | "stop" => {
                 Ok(io::stdout().write_all(&completion_containers()?)?)
@@ -48,10 +53,18 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
                 Ok(io::stdout().write_all(&completion_images(false)?)?)
             },
             "exec" | "logs" | "restart" | "run" | "up" => {
-                Ok(io::stdout().write_all(&completion_services()?.join(" ").as_bytes())?)
+                Ok(io::stdout().write_all(&completion_services(mode)?.join(" ").as_bytes())?)
             },
             _ => Ok(()), // empty return will invoke shell default completions
         },
+
         _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
     }
+}
+
+fn strip_flags(args: &Vec<&str>) -> Vec<String> {
+    args.iter()
+        .filter(|arg| !arg.starts_with('-'))
+        .map(|s| s.to_string())
+        .collect()
 }

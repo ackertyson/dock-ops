@@ -1,15 +1,28 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::docker;
+use crate::subcommands::compose;
 use crate::util::concat;
 
 #[derive(StructOpt)]
 pub struct Run {
-    pub service: String,
-    pub args: Vec<String>,
+    #[structopt(subcommand)]
+    pub cmd: RunCmd,
 }
 
-pub fn run(Run { service, args }: &Run) -> Result<()> {
-    docker(concat(crate::vec_of_strings!["run", "--rm", service], args.to_owned()))
+#[derive(StructOpt)]
+pub enum RunCmd {
+    #[structopt(external_subcommand)]
+    Args(Vec<String>),
+}
+
+pub fn run(Run { cmd }: &Run, mode: &String) -> Result<()> {
+    match cmd {
+        RunCmd::Args(args) => {
+            compose(concat(
+                crate::vec_of_strings!["run", "--rm"],
+                args.iter().map(String::to_owned).collect()),
+            mode)
+        }
+    }
 }

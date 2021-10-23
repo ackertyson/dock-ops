@@ -10,24 +10,24 @@ use crate::term::show_setup;
 #[derive(StructOpt)]
 pub struct Setup {}
 
-pub fn setup() -> Result<()> {
+pub fn setup(mode: &String) -> Result<()> {
     let yamls = yaml_filenames()?;
     if yamls.len() == 0 {
         println!("No YAML files found; quitting.");
         return Ok(());
     }
 
-    let new_files = show_setup(yamls)?;
+    let new_files = show_setup(yamls, mode)?;
     match new_files.len() > 0 {
         true => {
-            match get(&String::from("development.json")) {
+            match get(mode) {
                 Ok(AppConfig { aliases, version, .. }) => {
                     let config = AppConfig {
                         aliases,
                         compose_files: new_files,
                         version
                     };
-                    put(&String::from("development.json"), config)
+                    put(mode, config)
                 },
                 Err(_) => {
                     let config = AppConfig {
@@ -35,7 +35,7 @@ pub fn setup() -> Result<()> {
                         compose_files: new_files,
                         version: 1,
                     };
-                    put(&String::from("development.json"), config)
+                    put(mode, config)
                 },
             }
         },
