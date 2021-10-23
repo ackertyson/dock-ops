@@ -50,6 +50,17 @@ If for some reason you don't want to install the DockOps shell completion script
 
 3. `./install.sh`
 
+## Road map
+
+Future plans/features...
+
+- per-command preferences for compose vs. vanilla docker
+- global alias defs
+- fall back to Docker-provided completions?
+- binary releases
+- tests
+- 
+
 ## Testing
 
 `cargo test` (there aren't any yet)

@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
 use crate::fs::{read, write};
+use crate::term::confirm_create_config_dir_ui;
 
 #[derive(Serialize, Deserialize)]
 pub struct AppConfig {
@@ -47,9 +48,14 @@ fn config_path(filename: &String) -> Result<PathBuf> {
     let mut base = home_dir().unwrap().join(".dock-ops");
     match base.exists() {
         true => (),
-        // TODO actually 1) ask and 2) create or bail
-        false => println!("Directory {:?} does not exist; okay to create? Y/n", base.as_os_str()),
+        false => {
+            match confirm_create_config_dir_ui(&base)? {
+                false => panic!("User denied request"),
+                _ => (),
+            }
+        }
     }
+
     current_dir().unwrap().components()
         .filter(|x| match x { // turn absolute path into relative by removing root
             Component::RootDir => false,

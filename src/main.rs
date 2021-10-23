@@ -11,6 +11,16 @@ mod util;
 
 fn main() -> Result<()> {
     let input = Dock::from_args();
+
+    // let mode = match input {
+    //     Dock { mode: Some(x), .. } => x,
+    //     _ => "development",
+    // };
+    // let x = Args {
+    //     mode,
+    //     command: input.cmd,
+    // };
+
     match &input.cmd {
         Cmd::Alias(args) => alias(args),
         Cmd::Aliases(_) => aliases(),

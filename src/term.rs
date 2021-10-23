@@ -1,5 +1,7 @@
+use std::fs::create_dir_all;
 use std::io::Write;
 use std::io::{self, stdin};
+use std::path::PathBuf;
 use std::process::Command;
 
 use anyhow::Result;
@@ -43,6 +45,29 @@ pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
         .output()?;
 
     Ok(output.stdout)
+}
+
+pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
+    let mut stdout = io::stdout().into_raw_mode()?;
+    let stdin = stdin();
+
+    write!(stdout,
+           "{}Directory {} does not exist; okay to create? (Y/n) ",
+           termion::cursor::Hide,
+           base.as_os_str().to_str().unwrap()
+    ).unwrap();
+    stdout.lock().flush().unwrap();
+
+    let result = match stdin.events().next().unwrap()? {
+        Event::Key(Key::Char('y')) | Event::Key(Key::Ctrl('Y')) => {
+            create_dir_all(base).expect("Could not create dir");
+            true
+        },
+        _ => false,
+    };
+
+    write!(stdout, "\r\n{}", termion::cursor::Show).unwrap();
+    Ok(result)
 }
 
 fn filelist(files: &Vec<String>) -> String {

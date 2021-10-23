@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{self, Write};
 
 use anyhow::Result;
@@ -20,7 +21,14 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
 
     match args.len() {
         0 => { // $ dock <empty_or_partial_subcommand>_
-            let AppConfig { aliases, .. } = get(&String::from("development.json"))?;
+            let AppConfig { aliases, .. } = match get(&String::from("development.json")) {
+                Ok(result) => result,
+                _ => AppConfig {
+                    aliases: HashMap::new(),
+                    compose_files: crate::vec_of_strings![],
+                    version: 1,
+                }
+            };
             let builtins = crate::vec_of_strings![
                 "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs",
                 "ps", "psa", "restart", "rmi", "run", "setup", "up"
