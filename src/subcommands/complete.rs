@@ -12,13 +12,6 @@ pub struct Complete {
     pub arg: String,
 }
 
-fn strip_flags(args: &Vec<&str>) -> Vec<String> {
-    args.iter()
-        .filter(|arg| !arg.starts_with('-'))
-        .map(|s| s.to_string())
-        .collect()
-}
-
 pub fn complete(Complete { arg }: &Complete) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
@@ -54,4 +47,11 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
         },
         _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
     }
+}
+
+fn strip_flags(args: &Vec<&str>) -> Vec<String> {
+    args.iter()
+        .filter(|arg| !arg.starts_with('-'))
+        .map(|s| s.to_string())
+        .collect()
 }

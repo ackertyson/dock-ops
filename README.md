@@ -1,8 +1,8 @@
 # DockOps
 
-***[2021-10-14]** v0.4.0 The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. The "updated" [compose-v2](https://github.com/ackertyson/dock-ops/tree/compose-v2) branch of the Ruby version is still available. Et voila!*
+***[2021-10-14]** v0.4.0 - The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board (commonly 30% faster; some commands up to 90% faster than the Ruby version) and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. The "updated" [compose-v2](https://github.com/ackertyson/dock-ops/tree/compose-v2) branch of the Ruby version is still available. Et voila!*
 
-***[2021-06-11]** v0.3.0 Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
+***[2021-06-11]** v0.3.0 - Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
 for [Compose V1](https://docs.docker.com/compose/cli-command/) behavior.*
 
 This is an eminently useful CLI utility for nerds who do a lot of Docker
@@ -28,17 +28,11 @@ bash history? Now there's a better way: see the CUSTOM ALIASES section below.
 
 1. Install [Rust](https://www.rust-lang.org/tools/install) (specifically you'll need `cargo`)
 2. Clone this repo and `cd` into that directory
-3. `./install.sh`
+3. `./install.sh completion`
 
 The install script will build the Rust binary and copy it into `/usr/local/bin`
 
-### Bash completions
-
-If you want to install the DockOps completion script (and why wouldn't you!?), replace Step 3 above with:
-
-3. `./install.sh completion`
-
-This will copy the included completion script into your `~/`. You will then need to add
+This will also copy the included completion script into your `~/`. You will then need to add
 
 `. ~/dock-ops-completion.bash`
 
@@ -49,6 +43,12 @@ This will copy the included completion script into your `~/`. You will then need
 for completions to be available in any open terminals.
 
 *NOTE: you still need to install the real Docker applications; DockOps is just a wrapper.*
+
+### Without completions
+
+If for some reason you don't want to install the DockOps shell completion script, replace Step 3 above with:
+
+3. `./install.sh`
 
 ## Testing
 

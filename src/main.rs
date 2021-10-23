@@ -48,7 +48,7 @@ pub struct Dock {
 
 #[derive(StructOpt)]
 pub enum Cmd {
-    #[structopt(about = "[DockOps] create command alias")]
+    #[structopt(about = "[DockOps] create/destroy command alias")]
     Alias(Alias),
     #[structopt(about = "[DockOps] list command aliases")]
     Aliases(Aliases),
@@ -58,19 +58,19 @@ pub enum Cmd {
     Build(Build),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
-    #[structopt(about = "docker compose config")]
+    #[structopt(about = "docker compose config ...")]
     Config(Config),
-    #[structopt(about = "docker compose down --remove-orphans")]
+    #[structopt(about = "docker compose down --remove-orphans ...")]
     Down(Down),
     #[structopt(about = "docker compose exec ...")]
     Exec(Exec),
-    #[structopt(about = "docker images")]
+    #[structopt(about = "docker images ...")]
     Images(Images),
     #[structopt(about = "docker compose logs -f ...")]
     Logs(Logs),
-    #[structopt(about = "docker compose ps")]
+    #[structopt(about = "docker compose ps ...")]
     Ps(Ps),
-    #[structopt(about = "docker ps")]
+    #[structopt(about = "docker ps ...")]
     Psa(Psa),
     #[structopt(about = "docker compose restart ...")]
     Restart(Restart),
