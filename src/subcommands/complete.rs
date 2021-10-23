@@ -13,6 +13,7 @@ pub struct Complete {
     pub arg: String,
 }
 
+// TODO mode flags break completion...
 pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
