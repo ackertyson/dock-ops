@@ -2,13 +2,14 @@ use std::collections::HashMap;
 use std::io::{self, Write};
 
 use anyhow::Result;
-use structopt::StructOpt;
+use structopt::{clap::AppSettings, StructOpt};
 
 use crate::config::{AppConfig, get};
 use crate::subcommands::{completion_containers, completion_images, completion_services};
 use crate::util::*;
 
 #[derive(StructOpt)]
+#[structopt(setting = AppSettings::AllowLeadingHyphen)] // to allow flags in completion argument
 pub struct Complete {
     pub arg: String,
 }
