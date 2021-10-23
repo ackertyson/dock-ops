@@ -17,7 +17,9 @@ pub struct Complete {
 pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
-    let cmd_slice = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
+    let cmd_slice = args
+        .splice(..1, crate::vec_of_strings![])
+        .collect::<Vec<_>>();
     let cmd: &str = cmd_slice.get(0).unwrap();
 
     match args.len() {
@@ -39,6 +41,7 @@ pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
                 aliases.keys().map(String::to_owned).collect());
             Ok(io::stdout().write_all(all.join(" ").as_bytes())?)
         },
+
         1 => match cmd { // $ dock <subcommand> _
             "attach" | "stop" => {
                 Ok(io::stdout().write_all(&completion_containers()?)?)
@@ -54,6 +57,7 @@ pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
             },
             _ => Ok(()), // empty return will invoke shell default completions
         },
+
         _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
     }
 }

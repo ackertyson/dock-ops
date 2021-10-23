@@ -64,7 +64,10 @@ fn completion_services(mode: &String) -> Result<Vec<String>> {
     let services = configured_yamls(mode)
         .iter()
         .map(|filename| get_yaml(filename).expect(filename))
-        .map(|ComposeFile { services }| services.keys().map(String::from).collect::<Vec<_>>().clone())
+        .map(|ComposeFile { services }| services.keys()
+            .map(String::from)
+            .collect::<Vec<_>>()
+            .clone())
         .flatten()
         .collect::<Vec<_>>();
     Ok(services.clone())
@@ -74,14 +77,17 @@ fn compose(args: Vec<String>, mode: &String) -> Result<()> {
     docker(concat(
         crate::vec_of_strings!["compose"],
         concat(
-            configured_yamls(mode).iter().map(|file| crate::vec_of_strings!["-f", file]).flatten().collect(),
+            configured_yamls(mode).iter()
+                .map(|file| crate::vec_of_strings!["-f", file])
+                .flatten()
+                .collect(),
             args)))
 }
 
 fn configured_yamls(mode: &String) -> Vec<String> {
     match get(mode) {
         Ok(AppConfig { compose_files, .. }) => compose_files,
-        Err(_) => crate::vec_of_strings!["docker-compose.development.yaml".to_string()],
+        Err(_) => crate::vec_of_strings![],
     }
 }
 
