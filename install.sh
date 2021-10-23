@@ -2,10 +2,11 @@
 
 OPTS=$1
 
-echo "Installing DockOps..."
+echo "Building DockOps..."
 echo
 cargo build --release && \
   echo && \
+  echo "Installing binary..." && \
   cp -v target/release/dock /usr/local/bin/ && \
   cat <<EOF
 

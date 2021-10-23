@@ -8,13 +8,9 @@ use crate::config::{AppConfig, get};
 pub struct Aliases {}
 
 pub fn aliases() -> Result<()> {
-    match get(&String::from("development.json")) {
-        Ok(AppConfig { aliases, .. }) => {
-            for (key, val) in aliases.iter() {
-                println!("{} => {}", style(key).cyan().bold(), val);
-            }
-            Ok(())
-        },
-        Err(_) => Ok(()),
+    let AppConfig { aliases, .. } = get(&String::from("development.json"))?;
+    for (key, val) in aliases.iter() {
+        println!("{} => {}", style(key).cyan().bold(), val);
     }
+    Ok(())
 }

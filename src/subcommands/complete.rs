@@ -15,8 +15,8 @@ pub struct Complete {
 pub fn complete(Complete { arg }: &Complete) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
-    let cmds = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
-    let cmd: &str = cmds.get(0).unwrap();
+    let cmd_slice = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
+    let cmd: &str = cmd_slice.get(0).unwrap();
 
     match args.len() {
         0 => { // $ dock <empty_or_partial_subcommand>_

@@ -33,6 +33,11 @@ fn main() -> Result<()> {
     }
 }
 
+pub struct Args {
+    pub command: Dock,
+    pub mode: String,
+}
+
 #[derive(StructOpt)]
 #[structopt(name = "DockOps")]
 pub struct Dock {

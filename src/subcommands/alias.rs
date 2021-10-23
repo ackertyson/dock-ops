@@ -14,29 +14,25 @@ pub struct Alias {
 }
 
 pub fn alias(Alias { name, delete, args }: &Alias) -> Result<()> {
-    match get(&String::from("development.json")) {
-        Ok(AppConfig { mut aliases, compose_files, version }) => {
-            match delete {
-                true => {
-                    aliases.remove(&name.to_string());
-                    let config = AppConfig {
-                        aliases,
-                        compose_files,
-                        version
-                    };
-                    put(&String::from("development.json"), config)
-                },
-                _ => {
-                    aliases.insert(name.to_string(), args.join(" "));
-                    let config = AppConfig {
-                        aliases,
-                        compose_files,
-                        version
-                    };
-                    put(&String::from("development.json"), config)
-                }
-            }
+    let AppConfig { mut aliases, compose_files, version } = get(&String::from("development.json"))?;
+    match delete {
+        true => {
+            aliases.remove(&name.to_string());
+            let config = AppConfig {
+                aliases,
+                compose_files,
+                version
+            };
+            put(&String::from("development.json"), config)
         },
-        Err(_) => Ok(()),
+        _ => {
+            aliases.insert(name.to_string(), args.join(" "));
+            let config = AppConfig {
+                aliases,
+                compose_files,
+                version
+            };
+            put(&String::from("development.json"), config)
+        }
     }
 }

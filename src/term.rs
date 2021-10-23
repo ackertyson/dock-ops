@@ -27,7 +27,7 @@ pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     select_files_ui(files)
 }
 
-pub fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
+pub fn external_spawn(command: &str, args: Vec<String>) -> Result<()> {
     Command::new(command)
         .args(args)
         .spawn()
@@ -37,7 +37,7 @@ pub fn sys_cmd(command: &str, args: Vec<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn sys_cmd_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
+pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
     let output = Command::new(command)
         .args(args)
         .output()?;

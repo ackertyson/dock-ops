@@ -5,7 +5,7 @@ use walkdir::WalkDir;
 
 use crate::config::{AppConfig, ComposeFile, get};
 use crate::fs::read;
-use crate::term::{sys_cmd, sys_cmd_output};
+use crate::term::{external_spawn, external_output};
 use crate::util::*;
 
 pub mod alias;
@@ -49,20 +49,14 @@ pub mod all {
     pub use crate::subcommands::up::*;
 }
 
-pub fn get_yaml(filename: &String) -> Result<ComposeFile> {
-    let raw = read(PathBuf::from(filename))?;
-    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
-    Ok(compose)
-}
-
 fn completion_containers() -> Result<Vec<u8>> {
-    sys_cmd_output("docker", crate::vec_of_strings!["ps", "--format", "\"{{.Names}}\""])
+    external_output("docker", crate::vec_of_strings!["ps", "--format", "\"{{.Names}}\""])
 }
 
 fn completion_images(with_tags: bool) -> Result<Vec<u8>> {
     match with_tags {
-        true => sys_cmd_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}:{{.Tag}}"]),
-        _ => sys_cmd_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}"]),
+        true => external_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}:{{.Tag}}"]),
+        _ => external_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}"]),
     }
 }
 
@@ -92,8 +86,13 @@ fn configured_yamls() -> Vec<String> {
 }
 
 fn docker(args: Vec<String>) -> Result<()> {
-    sys_cmd("docker", args)?;
-    Ok(())
+    external_spawn("docker", args)
+}
+
+fn get_yaml(filename: &String) -> Result<ComposeFile> {
+    let raw = read(PathBuf::from(filename))?;
+    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
+    Ok(compose)
 }
 
 fn yaml_filenames() -> Result<Vec<String>> {
