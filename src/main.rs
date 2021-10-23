@@ -25,7 +25,7 @@ fn main() -> Result<()> {
         Cmd::Config(_) => config(&mode),
         Cmd::Down(_) => down(&mode),
         Cmd::Exec(args) => exec(args, &mode),
-        Cmd::Images(_) => images(),
+        Cmd::Images(args) => images(args),
         Cmd::Logs(args) => logs(args, &mode),
         Cmd::Ps(args) => ps(args, &mode),
         Cmd::Psa(_) => psa(),
