@@ -11,8 +11,12 @@ use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
-    let bling = Style::new().cyan().bold();
+pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
+    let bling = match mode.as_str() {
+        "development" => Style::new().cyan().bold(),
+        "production" => Style::new().red().bold(),
+        _ => Style::new().green().bold(),
+    };
     println!("Available YAML files:");
     for (pos, file) in files.iter().enumerate() {
         println!("{}. {}", bling.apply_to(pos + 1), file)
@@ -24,7 +28,7 @@ pub fn show_setup(files: Vec<String>) -> Result<Vec<String>> {
     println!("- [{}]ancel {}", bling.apply_to("C"), "(exit without saving changes)");
     println!("- [{}] {}", bling.apply_to("ENTER"), "(exit and save changes)");
     println!();
-    println!("In {} mode, Docker Compose commands should use:", "DEVELOPMENT");
+    println!("In {} mode, Docker Compose commands should use:", mode.to_uppercase());
 
     select_files_ui(files)
 }

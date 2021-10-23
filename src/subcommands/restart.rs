@@ -8,6 +8,6 @@ pub struct Restart {
     pub name: String,
 }
 
-pub fn restart(Restart { name }: &Restart) -> Result<()> {
-    compose(crate::vec_of_strings!["restart", name])
+pub fn restart(Restart { name }: &Restart, mode: &String) -> Result<()> {
+    compose(crate::vec_of_strings!["restart", name], mode)
 }

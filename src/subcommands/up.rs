@@ -10,7 +10,7 @@ pub struct Up {
     pub service: Option<String>,
 }
 
-pub fn up(Up { detached, service }: &Up) -> Result<()> {
+pub fn up(Up { detached, service }: &Up, mode: &String) -> Result<()> {
     let mut args = crate::vec_of_strings!["up"];
     match detached {
         true => args.push("-d".to_string()),
@@ -20,5 +20,5 @@ pub fn up(Up { detached, service }: &Up) -> Result<()> {
         Some(val) => args.push(val.to_string()),
         None => (),
     }
-    compose(args)
+    compose(args, mode)
 }

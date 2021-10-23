@@ -23,8 +23,8 @@ pub struct ComposeFile {
     pub services: HashMap<String, Value>,
 }
 
-pub fn get(filename: &String) -> Result<AppConfig> {
-    match read(config_path(filename)?) {
+pub fn get(mode: &String) -> Result<AppConfig> {
+    match read(config_path(filename_for_mode(mode))?) {
         Ok(raw) => Ok(serde_json::from_str(&raw)?),
         Err(_) => {
             Ok(AppConfig {
@@ -36,15 +36,15 @@ pub fn get(filename: &String) -> Result<AppConfig> {
     }
 }
 
-pub fn put(filename: &String, config: AppConfig) -> Result<()> {
+pub fn put(mode: &String, config: AppConfig) -> Result<()> {
     let contents = serde_json::to_string(&config).expect("Could not serialize config");
-    let path = config_path(filename).expect("No such path");
+    let path = config_path(filename_for_mode(mode)).expect("No such path");
     write(&path, contents).expect("No such file");
     println!("Changes saved to {:?}", path.into_os_string().into_string().unwrap());
     Ok(())
 }
 
-fn config_path(filename: &String) -> Result<PathBuf> {
+fn config_path(filename: String) -> Result<PathBuf> {
     let mut base = home_dir().unwrap().join(".dock-ops");
     match base.exists() {
         true => (),
@@ -65,4 +65,8 @@ fn config_path(filename: &String) -> Result<PathBuf> {
     create_dir_all(&base).expect("Could not create dir");
     base.push(filename);
     Ok(base)
+}
+
+fn filename_for_mode(mode: &String) -> String {
+    format!("{}.json", mode)
 }

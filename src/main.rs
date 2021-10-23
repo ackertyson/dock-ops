@@ -10,42 +10,32 @@ mod term;
 mod util;
 
 fn main() -> Result<()> {
-    let input = Dock::from_args();
+    let Dock { cmd, mode, production, reinvoked } = Dock::from_args();
+    let mode = match production {
+        true => "production".to_string(),
+        _ => mode.or(Some("development".to_string())).unwrap(),
+    };
 
-    // let mode = match input {
-    //     Dock { mode: Some(x), .. } => x,
-    //     _ => "development",
-    // };
-    // let x = Args {
-    //     mode,
-    //     command: input.cmd,
-    // };
-
-    match &input.cmd {
-        Cmd::Alias(args) => alias(args),
-        Cmd::Aliases(_) => aliases(),
+    match &cmd {
+        Cmd::Alias(args) => alias(args, &mode),
+        Cmd::Aliases(_) => aliases(&mode),
         Cmd::Attach(args) => attach(args),
         Cmd::Build(args) => build(args),
-        Cmd::Complete(args) => complete(args),
-        Cmd::Config(_) => config(),
-        Cmd::Down(_) => down(),
-        Cmd::Exec(args) => exec(args),
+        Cmd::Complete(args) => complete(args, &mode),
+        Cmd::Config(_) => config(&mode),
+        Cmd::Down(_) => down(&mode),
+        Cmd::Exec(args) => exec(args, &mode),
         Cmd::Images(_) => images(),
-        Cmd::Logs(args) => logs(args),
-        Cmd::Ps(args) => ps(args),
+        Cmd::Logs(args) => logs(args, &mode),
+        Cmd::Ps(args) => ps(args, &mode),
         Cmd::Psa(_) => psa(),
-        Cmd::Restart(args) => restart(args),
+        Cmd::Restart(args) => restart(args, &mode),
         Cmd::Rmi(args) => rmi(args),
-        Cmd::Run(args) => run(args),
-        Cmd::Setup(_) => setup(),
-        Cmd::Up(args) => up(args),
-        Cmd::InvokedAlias(args) => invoke_alias(args, &input),
+        Cmd::Run(args) => run(args, &mode),
+        Cmd::Setup(_) => setup(&mode),
+        Cmd::Up(args) => up(args, &mode),
+        Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, &mode),
     }
-}
-
-pub struct Args {
-    pub command: Dock,
-    pub mode: String,
 }
 
 #[derive(StructOpt)]

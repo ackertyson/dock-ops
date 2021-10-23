@@ -16,12 +16,13 @@ pub enum RunCmd {
     Args(Vec<String>),
 }
 
-pub fn run(Run { cmd }: &Run) -> Result<()> {
+pub fn run(Run { cmd }: &Run, mode: &String) -> Result<()> {
     match cmd {
         RunCmd::Args(args) => {
             compose(concat(
                 crate::vec_of_strings!["run", "--rm"],
-                args.iter().map(String::to_owned).collect()))
+                args.iter().map(String::to_owned).collect()),
+            mode)
         }
     }
 }

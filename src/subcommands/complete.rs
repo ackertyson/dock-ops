@@ -13,7 +13,7 @@ pub struct Complete {
     pub arg: String,
 }
 
-pub fn complete(Complete { arg }: &Complete) -> Result<()> {
+pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
     // remove flags/options so they don't F up our math
     let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
     let cmd_slice = args.splice(..1, crate::vec_of_strings![]).collect::<Vec<_>>();
@@ -21,7 +21,7 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
 
     match args.len() {
         0 => { // $ dock <empty_or_partial_subcommand>_
-            let AppConfig { aliases, .. } = match get(&String::from("development.json")) {
+            let AppConfig { aliases, .. } = match get(mode) {
                 Ok(result) => result,
                 _ => AppConfig {
                     aliases: HashMap::new(),
@@ -49,7 +49,7 @@ pub fn complete(Complete { arg }: &Complete) -> Result<()> {
                 Ok(io::stdout().write_all(&completion_images(false)?)?)
             },
             "exec" | "logs" | "restart" | "run" | "up" => {
-                Ok(io::stdout().write_all(&completion_services()?.join(" ").as_bytes())?)
+                Ok(io::stdout().write_all(&completion_services(mode)?.join(" ").as_bytes())?)
             },
             _ => Ok(()), // empty return will invoke shell default completions
         },

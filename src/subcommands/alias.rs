@@ -13,8 +13,8 @@ pub struct Alias {
     pub args: Vec<String>,
 }
 
-pub fn alias(Alias { name, delete, args }: &Alias) -> Result<()> {
-    let AppConfig { mut aliases, compose_files, version } = get(&String::from("development.json"))?;
+pub fn alias(Alias { name, delete, args }: &Alias, mode: &String) -> Result<()> {
+    let AppConfig { mut aliases, compose_files, version } = get(mode)?;
     match delete {
         true => {
             aliases.remove(&name.to_string());
@@ -23,7 +23,7 @@ pub fn alias(Alias { name, delete, args }: &Alias) -> Result<()> {
                 compose_files,
                 version
             };
-            put(&String::from("development.json"), config)
+            put(mode, config)
         },
         _ => {
             aliases.insert(name.to_string(), args.join(" "));
@@ -32,7 +32,7 @@ pub fn alias(Alias { name, delete, args }: &Alias) -> Result<()> {
                 compose_files,
                 version
             };
-            put(&String::from("development.json"), config)
+            put(mode, config)
         }
     }
 }
