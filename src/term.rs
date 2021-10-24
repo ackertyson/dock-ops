@@ -11,6 +11,14 @@ use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+pub fn color_for_mode(mode: &String) -> Style {
+    match mode.as_str() {
+        "development" => Style::new().cyan().bold(),
+        "production" => Style::new().red().bold(),
+        _ => Style::new().green().bold(),
+    }
+}
+
 pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
     let mut stdout = io::stdout().into_raw_mode()?;
     let stdin = stdin();
@@ -53,11 +61,7 @@ pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
 }
 
 pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
-    let bling = match mode.as_str() {
-        "development" => Style::new().cyan().bold(),
-        "production" => Style::new().red().bold(),
-        _ => Style::new().green().bold(),
-    };
+    let bling = color_for_mode(mode);
     println!("Available YAML files:");
     for (pos, file) in files.iter().enumerate() {
         println!("{}. {}", bling.apply_to(pos + 1), file)

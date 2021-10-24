@@ -35,6 +35,7 @@ fn main() -> Result<()> {
         Cmd::Run(subcmd) => subcmd.process(mode),
         Cmd::Setup(subcmd) => subcmd.process(mode),
         Cmd::Up(subcmd) => subcmd.process(mode),
+        // InvokedAlias is a different breed; don't try Subcommand trait it
         Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, mode.unwrap()),
     }
 }
