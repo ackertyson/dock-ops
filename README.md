@@ -1,6 +1,6 @@
 # DockOps
 
-***[2021-10-14]** v0.4.0 - The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board (many commands 30% faster; some up to 93% faster than the Ruby version) and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. The "updated" [compose-v2](https://github.com/ackertyson/dock-ops/tree/compose-v2) branch of the Ruby version is still available. Et voila!*
+***[2021-10-14]** v0.4.0 - The entire app has been rewritten in Rust, which yields noticeable performance improvements across the board (many commands 30% faster; some up to 93% faster than the Ruby version) and makes the binary more distributable. Not all features listed below have been (yet) ported to the new version; do `dock help` to see the current list. The "updated" [compose-v2](https://github.com/ackertyson/dock-ops/tree/compose-v2) branch of the Ruby version is still available. Et voila! [Note that some commands have been dropped because `docker-machine` has been deprecated :( Best bet is to move your remote Docker Compose provisioning to CI.]]*
 
 ***[2021-06-11]** v0.3.0 - Docker Compose commands are now invoked via `docker compose` (Compose V2) instead of the dedicated `docker-compose` command; see DockOps [compose-v1 branch](https://github.com/ackertyson/dock-ops/tree/compose-v1)
 for [Compose V1](https://docs.docker.com/compose/cli-command/) behavior.*
@@ -173,24 +173,21 @@ not a parameter to the `-nm` FLAG.
 ## Deployed Docker machines
 
 If you routinely find yourself deploying Docker Compose apps to remote hosts
-provisioned via `docker-machine create`, I recommend checking out the
-`dock-ops-wrapper.bash` script included with this project. You can then do `dock
-use MACHINENAME` to connect to a remote instance, run Docker commands on the
-remote just the same as you would run them locally, and then `dock unuse` to
-return to your local environment.
-
-If you have no idea what I'm talking about but have a Docker Compose app which
-you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
-should look into this!
-
-You'll probably also want to check out [docker-machine-prompt](https://github.com/docker/machine/blob/master/contrib/completion/bash/docker-machine-prompt.bash).
+provisioned via `docker-machine create`... I'm sorry to inform you that the `docker-machine`
+project has been deprecated :(  Your best bet is to move your Docker Compose remote
+provisioning into a CI job. [DockOps used to support several `docker-machine` commands.]
 
 ## Command equivalents
 
-Last but not least, here's what all the DockOps commands actually do...
+Last but not least, here's what all the DockOps commands actually do. For more info,
+do `dock help` or `dock help <subcommand>` at the CLI.
 
 *Note: though the name of this package is `DockOps`, the actual CLI command is
 simply `dock`*
+
+### alias
+
+Create/destroy command alias.
 
 ### aliases
 
@@ -267,25 +264,11 @@ List services defined in Compose YAML file(s).
 
 `docker ps`
 
-### pull
-
-`docker pull ...`
-
-### push
-
-`docker push ...`
-
-*Completions: local image repository names (with tags)*
-
 ### restart
 
 `docker compose restart ...`
 
 *Completions: services defined in Compose YAML file(s)*
-
-### rls
-
-`docker-machine ls`
 
 ### rmi
 
@@ -299,12 +282,6 @@ List services defined in Compose YAML file(s).
 
 *Completions: services defined in Compose YAML file(s)*
 
-### scp
-
-`docker-machine scp ...`
-
-*Completions: provisioned machine names*
-
 ### setup
 
 Configure the Docker Compose command which DockOps should use for current
@@ -312,12 +289,6 @@ project.
 
 This command will configure the specified mode (see MODES section above).
 To set up for *deploy* mode, for instance, do `dock -m deploy setup`.
-
-### ssh
-
-`docker-machine ssh ...`
-
-*Completions: provisioned machine names*
 
 ### stop
 
