@@ -63,7 +63,7 @@ pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
     stdout.lock().flush().unwrap();
 
     let result = match stdin.events().next().unwrap()? {
-        Event::Key(Key::Char('y')) | Event::Key(Key::Ctrl('Y')) => {
+        Event::Key(Key::Char('y')) | Event::Key(Key::Char('Y')) | Event::Key(Key::Char('\n')) => {
             create_dir_all(base).expect("Could not create dir");
             true
         },
