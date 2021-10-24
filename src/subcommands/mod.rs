@@ -47,10 +47,15 @@ pub mod all {
     pub use crate::subcommands::run::*;
     pub use crate::subcommands::setup::*;
     pub use crate::subcommands::up::*;
+    pub use crate::subcommands::Subcommand;
+}
+
+pub trait Subcommand {
+    fn process(&self, mode: Option<&String>) -> Result<()>;
 }
 
 fn completion_containers() -> Result<Vec<u8>> {
-    external_output("docker", crate::vec_of_strings!["ps", "--format", "\"{{.Names}}\""])
+    external_output("docker", crate::vec_of_strings!["ps", "--format", "{{.Names}}"])
 }
 
 fn completion_images(with_tags: bool) -> Result<Vec<u8>> {

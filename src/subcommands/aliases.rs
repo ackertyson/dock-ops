@@ -1,16 +1,21 @@
 use anyhow::Result;
-use console::style;
 use structopt::StructOpt;
 
 use crate::config::{AppConfig, get};
+use crate::subcommands::Subcommand;
+use crate::term::color_for_mode;
 
 #[derive(StructOpt)]
 pub struct Aliases {}
 
-pub fn aliases(mode: &String) -> Result<()> {
-    let AppConfig { aliases, .. } = get(mode)?;
-    for (key, val) in aliases.iter() {
-        println!("{} => {}", style(key).cyan().bold(), val);
+impl Subcommand for Aliases {
+    fn process(&self, mode: Option<&String>) -> Result<()> {
+        let mode = mode.unwrap();
+        let AppConfig { aliases, .. } = get(&mode)?;
+        let bling = color_for_mode(&mode);
+        for (key, val) in aliases.iter() {
+            println!("{} => {}", bling.apply_to(key), val);
+        }
+        Ok(())
     }
-    Ok(())
 }

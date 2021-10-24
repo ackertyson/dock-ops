@@ -1,11 +1,13 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::docker;
+use crate::subcommands::{docker, Subcommand};
 
 #[derive(StructOpt)]
 pub struct Psa {}
 
-pub fn psa() -> Result<()> {
-    docker(crate::vec_of_strings!["ps"])
+impl Subcommand for Psa {
+    fn process(&self, _mode: Option<&String>) -> Result<()> {
+        docker(crate::vec_of_strings!["ps"])
+    }
 }

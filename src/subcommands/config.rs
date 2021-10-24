@@ -1,11 +1,13 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::compose;
+use crate::subcommands::{compose, Subcommand};
 
 #[derive(StructOpt)]
 pub struct Config {}
 
-pub fn config(mode: &String) -> Result<()> {
-    compose(crate::vec_of_strings!["config"], mode)
+impl Subcommand for Config {
+    fn process(&self, mode: Option<&String>) -> Result<()> {
+        compose(crate::vec_of_strings!["config"], mode.unwrap())
+    }
 }

@@ -1,13 +1,16 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::compose;
+use crate::subcommands::{compose, Subcommand};
 
 #[derive(StructOpt)]
 pub struct Restart {
     pub name: String,
 }
 
-pub fn restart(Restart { name }: &Restart, mode: &String) -> Result<()> {
-    compose(crate::vec_of_strings!["restart", name], mode)
+impl Subcommand for Restart {
+    fn process(&self, mode: Option<&String>) -> Result<()> {
+        let Restart { name } = self;
+        compose(crate::vec_of_strings!["restart", name], mode.unwrap())
+    }
 }

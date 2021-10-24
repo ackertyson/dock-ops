@@ -50,7 +50,7 @@ If for some reason you don't want to install the DockOps shell completion script
 
 3. `./install.sh`
 
-## Road map
+## Wish list
 
 Future plans/features...
 
@@ -173,24 +173,21 @@ not a parameter to the `-nm` FLAG.
 ## Deployed Docker machines
 
 If you routinely find yourself deploying Docker Compose apps to remote hosts
-provisioned via `docker-machine create`, I recommend checking out the
-`dock-ops-wrapper.bash` script included with this project. You can then do `dock
-use MACHINENAME` to connect to a remote instance, run Docker commands on the
-remote just the same as you would run them locally, and then `dock unuse` to
-return to your local environment.
-
-If you have no idea what I'm talking about but have a Docker Compose app which
-you want to run on a single (i.e., non-Swarm) cloud instance somewhere, you
-should look into this!
-
-You'll probably also want to check out [docker-machine-prompt](https://github.com/docker/machine/blob/master/contrib/completion/bash/docker-machine-prompt.bash).
+provisioned via `docker-machine create`... I'm sorry to inform you that the `docker-machine`
+project has been deprecated :(  Your best bet is to move your Docker Compose remote
+provisioning into a CI job. [DockOps used to support several `docker-machine` commands.]
 
 ## Command equivalents
 
-Last but not least, here's what all the DockOps commands actually do...
+Last but not least, here's what all the DockOps commands actually do. For more info,
+do `dock help` or `dock help <subcommand>` at the CLI.
 
 *Note: though the name of this package is `DockOps`, the actual CLI command is
 simply `dock`*
+
+### alias
+
+Create/destroy command alias.
 
 ### aliases
 
@@ -267,25 +264,11 @@ List services defined in Compose YAML file(s).
 
 `docker ps`
 
-### pull
-
-`docker pull ...`
-
-### push
-
-`docker push ...`
-
-*Completions: local image repository names (with tags)*
-
 ### restart
 
 `docker compose restart ...`
 
 *Completions: services defined in Compose YAML file(s)*
-
-### rls
-
-`docker-machine ls`
 
 ### rmi
 
@@ -299,12 +282,6 @@ List services defined in Compose YAML file(s).
 
 *Completions: services defined in Compose YAML file(s)*
 
-### scp
-
-`docker-machine scp ...`
-
-*Completions: provisioned machine names*
-
 ### setup
 
 Configure the Docker Compose command which DockOps should use for current
@@ -312,12 +289,6 @@ project.
 
 This command will configure the specified mode (see MODES section above).
 To set up for *deploy* mode, for instance, do `dock -m deploy setup`.
-
-### ssh
-
-`docker-machine ssh ...`
-
-*Completions: provisioned machine names*
 
 ### stop
 
