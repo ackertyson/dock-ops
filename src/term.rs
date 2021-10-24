@@ -66,7 +66,7 @@ pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
     println!("Commands:");
     println!("- [{}, {}, ..., {}] {}", bling.apply_to(1), bling.apply_to(2), bling.apply_to("N"), "Add YAML file");
     println!("- [{}] {}", bling.apply_to("BACKSPACE"), "Remove YAML file");
-    println!("- [{}]ancel {}", bling.apply_to("C"), "(exit without saving changes)");
+    println!("- [{}]ancel or [{}]uit {}", bling.apply_to("C"), bling.apply_to("Q"), "(exit without saving changes)");
     println!("- [{}] {}", bling.apply_to("ENTER"), "(exit and save changes)");
     println!();
     println!("In {} mode, Docker Compose commands should use:", mode.to_uppercase());
@@ -108,7 +108,7 @@ fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
     for c in stdin.events() {
         let evt = c.unwrap();
         match evt {
-            Event::Key(Key::Char('c')) | Event::Key(Key::Ctrl('c')) | Event::Key(Key::Esc) => {
+            Event::Key(Key::Char('c')) | Event::Key(Key::Char('q')) | Event::Key(Key::Ctrl('c')) | Event::Key(Key::Esc) => {
                 selected_files.clear();
                 write!(stdout, "\r\n").unwrap();
                 break;
