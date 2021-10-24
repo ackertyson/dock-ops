@@ -50,7 +50,7 @@ If for some reason you don't want to install the DockOps shell completion script
 
 3. `./install.sh`
 
-## Road map
+## Wish list
 
 Future plans/features...
 

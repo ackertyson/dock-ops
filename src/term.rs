@@ -11,46 +11,6 @@ use termion::event::{Event, Key};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
-    let bling = match mode.as_str() {
-        "development" => Style::new().cyan().bold(),
-        "production" => Style::new().red().bold(),
-        _ => Style::new().green().bold(),
-    };
-    println!("Available YAML files:");
-    for (pos, file) in files.iter().enumerate() {
-        println!("{}. {}", bling.apply_to(pos + 1), file)
-    }
-    println!();
-    println!("Commands:");
-    println!("- [{}, {}, ..., {}] {}", bling.apply_to(1), bling.apply_to(2), bling.apply_to("N"), "Add YAML file");
-    println!("- [{}] {}", bling.apply_to("BACKSPACE"), "Remove YAML file");
-    println!("- [{}]ancel {}", bling.apply_to("C"), "(exit without saving changes)");
-    println!("- [{}] {}", bling.apply_to("ENTER"), "(exit and save changes)");
-    println!();
-    println!("In {} mode, Docker Compose commands should use:", mode.to_uppercase());
-
-    select_files_ui(files)
-}
-
-pub fn external_spawn(command: &str, args: Vec<String>) -> Result<()> {
-    Command::new(command)
-        .args(args)
-        .spawn()
-        .unwrap()
-        .wait()?;
-
-    Ok(())
-}
-
-pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
-    let output = Command::new(command)
-        .args(args)
-        .output()?;
-
-    Ok(output.stdout)
-}
-
 pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
     let mut stdout = io::stdout().into_raw_mode()?;
     let stdin = stdin();
@@ -72,6 +32,46 @@ pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
 
     write!(stdout, "\r\n{}", termion::cursor::Show).unwrap();
     Ok(result)
+}
+
+pub fn external_spawn(command: &str, args: Vec<String>) -> Result<()> {
+    Command::new(command)
+        .args(args)
+        .spawn()
+        .unwrap()
+        .wait()?;
+
+    Ok(())
+}
+
+pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
+    let output = Command::new(command)
+        .args(args)
+        .output()?;
+
+    Ok(output.stdout)
+}
+
+pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
+    let bling = match mode.as_str() {
+        "development" => Style::new().cyan().bold(),
+        "production" => Style::new().red().bold(),
+        _ => Style::new().green().bold(),
+    };
+    println!("Available YAML files:");
+    for (pos, file) in files.iter().enumerate() {
+        println!("{}. {}", bling.apply_to(pos + 1), file)
+    }
+    println!();
+    println!("Commands:");
+    println!("- [{}, {}, ..., {}] {}", bling.apply_to(1), bling.apply_to(2), bling.apply_to("N"), "Add YAML file");
+    println!("- [{}] {}", bling.apply_to("BACKSPACE"), "Remove YAML file");
+    println!("- [{}]ancel {}", bling.apply_to("C"), "(exit without saving changes)");
+    println!("- [{}] {}", bling.apply_to("ENTER"), "(exit and save changes)");
+    println!();
+    println!("In {} mode, Docker Compose commands should use:", mode.to_uppercase());
+
+    select_files_ui(files)
 }
 
 fn filelist(files: &Vec<String>) -> String {

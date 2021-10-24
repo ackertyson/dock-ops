@@ -30,6 +30,7 @@ pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
 }
 
 fn complete_subcommands(mode: &String) -> Result<()> {
+    // TODO alias completions do not honor MODE (via completion script)
     let AppConfig { aliases, .. } = match get(mode) {
         Ok(result) => result,
         _ => AppConfig {
@@ -52,6 +53,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
 }
 
 fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
+    // TODO service completions do not honor MODE (via completion script)
     match cmd {
         "attach" | "stop" => {
             Ok(io::stdout().write_all(&completion_containers()?)?)
