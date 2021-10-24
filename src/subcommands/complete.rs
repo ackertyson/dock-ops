@@ -5,7 +5,7 @@ use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
 use crate::config::{AppConfig, get};
-use crate::subcommands::{completion_containers, completion_images, completion_services};
+use crate::subcommands::{completion_containers, completion_images, completion_services, Subcommand};
 use crate::util::*;
 
 #[derive(StructOpt)]
@@ -14,18 +14,22 @@ pub struct Complete {
     pub arg: String,
 }
 
-pub fn complete(Complete { arg }: &Complete, mode: &String) -> Result<()> {
-    // remove flags/options so they don't F up our math
-    let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
-    let cmd_slice = args
-        .splice(..1, crate::vec_of_strings![])
-        .collect::<Vec<_>>();
-    let cmd: &str = cmd_slice.get(0).unwrap();
+impl Subcommand for Complete {
+    fn process(&self, mode: Option<&String>) -> Result<()> {
+        let Complete { arg } = self;
+        let mode = mode.unwrap();
+        // remove flags/options so they don't F up our math
+        let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
+        let cmd_slice = args
+            .splice(..1, crate::vec_of_strings![])
+            .collect::<Vec<_>>();
+        let cmd: &str = cmd_slice.get(0).unwrap();
 
-    match args.len() {
-        0 => complete_subcommands(mode), // $ dock <empty_or_partial_subcommand>_
-        1 => complete_subcommand_args(cmd, mode), // $ dock <subcommand> _
-        _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
+        match args.len() {
+            0 => complete_subcommands(&mode), // $ dock <empty_or_partial_subcommand>_
+            1 => complete_subcommand_args(cmd, &mode), // $ dock <subcommand> _
+            _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
+        }
     }
 }
 

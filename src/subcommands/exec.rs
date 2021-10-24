@@ -1,7 +1,7 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::compose;
+use crate::subcommands::{compose, Subcommand};
 use crate::util::concat;
 
 #[derive(StructOpt)]
@@ -16,13 +16,16 @@ pub enum ExecCmd {
     Args(Vec<String>),
 }
 
-pub fn exec(Exec { cmd }: &Exec, mode: &String) -> Result<()> {
-    match cmd {
-        ExecCmd::Args(args) => {
-            compose(concat(
-                crate::vec_of_strings!["exec"],
-                args.iter().map(String::to_owned).collect()),
-            mode)
+impl Subcommand for Exec {
+    fn process(&self, mode: Option<&String>) -> Result<()> {
+        let Exec { cmd } = self;
+        match cmd {
+            ExecCmd::Args(args) => {
+                compose(concat(
+                    crate::vec_of_strings!["exec"],
+                    args.iter().map(String::to_owned).collect()),
+                        mode.unwrap())
+            }
         }
     }
 }

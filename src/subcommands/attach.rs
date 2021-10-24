@@ -1,7 +1,7 @@
 use anyhow::Result;
 use structopt::StructOpt;
 
-use crate::subcommands::docker;
+use crate::subcommands::{docker, Subcommand};
 
 #[derive(StructOpt)]
 pub struct Attach {
@@ -9,6 +9,9 @@ pub struct Attach {
     pub container: String,
 }
 
-pub fn attach(Attach { container }: &Attach) -> Result<()> {
-    docker(crate::vec_of_strings!["attach", "--sig-proxy=false", container])
+impl Subcommand for Attach {
+    fn process(&self, _mode: Option<&String>) -> Result<()> {
+        let Attach { container } = self;
+        docker(crate::vec_of_strings!["attach", "--sig-proxy=false", container])
+    }
 }

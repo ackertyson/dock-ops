@@ -47,6 +47,11 @@ pub mod all {
     pub use crate::subcommands::run::*;
     pub use crate::subcommands::setup::*;
     pub use crate::subcommands::up::*;
+    pub use crate::subcommands::Subcommand;
+}
+
+pub trait Subcommand {
+    fn process(&self, mode: Option<&String>) -> Result<()>;
 }
 
 fn completion_containers() -> Result<Vec<u8>> {
