@@ -4,8 +4,9 @@ use std::io::{self, Write};
 use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
-use crate::config::{AppConfig, get};
-use crate::subcommands::{completion_containers, completion_images, completion_services, Subcommand};
+use crate::config::{AppConfig, ComposeFile, get};
+use crate::subcommands::{configured_yamls, get_yaml, Subcommand};
+use crate::term::external_output;
 use crate::util::*;
 
 #[derive(StructOpt)]
@@ -33,6 +34,30 @@ impl Subcommand for Complete {
     }
 }
 
+fn completion_containers() -> Result<Vec<u8>> {
+    external_output("docker", crate::vec_of_strings!["ps", "--format", "{{.Names}}"])
+}
+
+fn completion_images(with_tags: bool) -> Result<Vec<u8>> {
+    match with_tags {
+        true => external_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}:{{.Tag}}"]),
+        _ => external_output("docker", crate::vec_of_strings!["images", "--format", "{{.Repository}}"]),
+    }
+}
+
+fn completion_services(mode: &String) -> Result<Vec<String>> {
+    let services = configured_yamls(mode)
+        .iter()
+        .map(|filename| get_yaml(filename).expect(filename))
+        .map(|ComposeFile { services }| services.keys()
+            .map(String::from)
+            .collect::<Vec<_>>()
+            .clone())
+        .flatten()
+        .collect::<Vec<_>>();
+    Ok(services.clone())
+}
+
 fn complete_subcommands(mode: &String) -> Result<()> {
     // TODO alias completions do not honor MODE (via completion script)
     let AppConfig { aliases, .. } = match get(mode) {
@@ -53,7 +78,8 @@ fn complete_subcommands(mode: &String) -> Result<()> {
         builtins,
         aliases.keys().map(String::to_owned).collect());
 
-    Ok(io::stdout().write_all(all.join(" ").as_bytes())?)
+    // join on "\n" because fish requires it and bash will put up with it
+    Ok(io::stdout().write_all(all.join("\n").as_bytes())?)
 }
 
 fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
@@ -72,7 +98,7 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
         },
 
         "exec" | "logs" | "restart" | "run" | "up" => {
-            Ok(io::stdout().write_all(&completion_services(mode)?.join(" ").as_bytes())?)
+            Ok(io::stdout().write_all(&completion_services(mode)?.join("\n").as_bytes())?)
         },
 
         _ => Ok(()), // empty return will invoke shell default completions
@@ -81,6 +107,7 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
 
 fn strip_flags(args: &Vec<&str>) -> Vec<String> {
     args.iter()
+        .filter(|arg| !arg.starts_with("dock"))
         .filter(|arg| !arg.starts_with('-'))
         .map(|s| s.to_string())
         .collect()
