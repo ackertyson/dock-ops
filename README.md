@@ -28,9 +28,17 @@ bash history? Now there's a better way: see the CUSTOM ALIASES section below.
 
 1. Install [Rust](https://www.rust-lang.org/tools/install) (specifically you'll need `cargo`)
 2. Clone this repo and `cd` into that directory
-3. `./install.sh completion`
+3. `./install.sh`
 
 The install script will build the Rust binary and copy it into `/usr/local/bin`
+
+*NOTE: you still need to install the real Docker applications; DockOps is just a wrapper.*
+
+### Shell completions (Bash)
+
+To install completions for Bash, replace installation step 3 above with:
+
+3. `./install.sh completion`
 
 This will also copy the included completion script into your `~/`. You will then need to add
 
@@ -42,13 +50,11 @@ This will also copy the included completion script into your `~/`. You will then
 
 for completions to be available in any open terminals.
 
-*NOTE: you still need to install the real Docker applications; DockOps is just a wrapper.*
+### Shell completions (Fish)
 
-### Without completions
+To install completions for Fish, run installation steps 1-3 above and then do:
 
-If for some reason you don't want to install the DockOps shell completion script, replace Step 3 above with:
-
-3. `./install.sh`
+4. `./install_fish_completions.fish`
 
 ## Wish list
 

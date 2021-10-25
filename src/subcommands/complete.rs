@@ -53,7 +53,8 @@ fn complete_subcommands(mode: &String) -> Result<()> {
         builtins,
         aliases.keys().map(String::to_owned).collect());
 
-    Ok(io::stdout().write_all(all.join(" ").as_bytes())?)
+    // join on "\n" because fish requires it and bash will put up with it
+    Ok(io::stdout().write_all(all.join("\n").as_bytes())?)
 }
 
 fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
@@ -72,7 +73,7 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
         },
 
         "exec" | "logs" | "restart" | "run" | "up" => {
-            Ok(io::stdout().write_all(&completion_services(mode)?.join(" ").as_bytes())?)
+            Ok(io::stdout().write_all(&completion_services(mode)?.join("\n").as_bytes())?)
         },
 
         _ => Ok(()), // empty return will invoke shell default completions
@@ -81,6 +82,7 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
 
 fn strip_flags(args: &Vec<&str>) -> Vec<String> {
     args.iter()
+        .filter(|arg| !arg.starts_with("dock"))
         .filter(|arg| !arg.starts_with('-'))
         .map(|s| s.to_string())
         .collect()
