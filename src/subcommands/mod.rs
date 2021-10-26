@@ -90,7 +90,7 @@ fn yaml_filenames() -> Result<Vec<String>> {
         .filter_map(Result::ok)
         .filter(|entry| {
             let f_name = entry.file_name().to_string_lossy();
-            f_name.ends_with(".yaml")
+            f_name.ends_with(".yaml") || f_name.ends_with(".yml")
         })
         .map(|entry| entry.file_name().to_string_lossy().to_string())
         .collect();
