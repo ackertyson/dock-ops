@@ -2,6 +2,7 @@ use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
 use crate::subcommands::all::*;
+use crate::util::mode_from;
 
 mod config;
 mod fs;
@@ -11,10 +12,7 @@ mod util;
 
 fn main() -> Result<()> {
     let Dock { cmd, mode, production, reinvoked } = Dock::from_args();
-    let mode = match production {
-        true => "production".to_string(),
-        _ => mode.or(Some("development".to_string())).unwrap(),
-    };
+    let mode = mode_from(production, mode);
     let mode = Some(&mode);
 
     match &cmd {
@@ -22,7 +20,7 @@ fn main() -> Result<()> {
         Cmd::Aliases(subcmd) => subcmd.process(mode),
         Cmd::Attach(subcmd) => subcmd.process(None),
         Cmd::Build(subcmd) => subcmd.process(None),
-        Cmd::Complete(subcmd) => subcmd.process(mode),
+        Cmd::Complete(subcmd) => subcmd.process(None),
         Cmd::Config(subcmd) => subcmd.process(mode),
         Cmd::Down(subcmd) => subcmd.process(mode),
         Cmd::Exec(subcmd) => subcmd.process(mode),

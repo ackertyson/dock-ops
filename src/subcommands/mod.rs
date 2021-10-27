@@ -1,10 +1,6 @@
-use std::path::PathBuf;
-
 use anyhow::Result;
-use walkdir::WalkDir;
 
-use crate::config::{AppConfig, ComposeFile, get};
-use crate::fs::read;
+use crate::config::{AppConfig, get};
 use crate::term::{external_spawn};
 use crate::util::*;
 
@@ -76,23 +72,3 @@ fn docker(args: Vec<String>) -> Result<()> {
     external_spawn("docker", args)
 }
 
-fn get_yaml(filename: &String) -> Result<ComposeFile> {
-    let raw = read(PathBuf::from(filename))?;
-    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
-    Ok(compose)
-}
-
-fn yaml_filenames() -> Result<Vec<String>> {
-    let names = WalkDir::new(".")
-        .max_depth(1)
-        .follow_links(false)
-        .into_iter()
-        .filter_map(Result::ok)
-        .filter(|entry| {
-            let f_name = entry.file_name().to_string_lossy();
-            f_name.ends_with(".yaml") || f_name.ends_with(".yml")
-        })
-        .map(|entry| entry.file_name().to_string_lossy().to_string())
-        .collect();
-    Ok(names)
-}

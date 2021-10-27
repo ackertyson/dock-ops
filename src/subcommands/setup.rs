@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use structopt::StructOpt;
+use walkdir::WalkDir;
 
 use crate::config::{AppConfig, get, put};
-use crate::subcommands::{Subcommand, yaml_filenames};
+use crate::subcommands::Subcommand;
 use crate::term::show_setup;
 
 #[derive(StructOpt)]
@@ -47,4 +48,19 @@ impl Subcommand for Setup {
             },
         }
     }
+}
+
+fn yaml_filenames() -> Result<Vec<String>> {
+    let names = WalkDir::new(".")
+        .max_depth(1)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            let f_name = entry.file_name().to_string_lossy();
+            f_name.ends_with(".yaml") || f_name.ends_with(".yml")
+        })
+        .map(|entry| entry.file_name().to_string_lossy().to_string())
+        .collect();
+    Ok(names)
 }
