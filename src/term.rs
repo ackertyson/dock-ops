@@ -126,30 +126,21 @@ fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
                 write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
             },
             Event::Key(Key::Char('1')) => {
-                match filename_to_add(&files, &selected_files, 0) {
-                    Some(filename) => {
-                        selected_files.push(filename);
-                        write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
-                    },
-                    None => (),
+                if let Some(filename) = filename_to_add(&files, &selected_files, 0) {
+                    selected_files.push(filename);
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                 }
             },
             Event::Key(Key::Char('2')) => {
-                match filename_to_add(&files, &selected_files, 1) {
-                    Some(filename) => {
-                        selected_files.push(filename);
-                        write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
-                    },
-                    None => (),
+                if let Some(filename) = filename_to_add(&files, &selected_files, 1) {
+                    selected_files.push(filename);
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                 }
             },
             Event::Key(Key::Char('3')) => {
-                match filename_to_add(&files, &selected_files, 2) {
-                    Some(filename) => {
-                        selected_files.push(filename);
-                        write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
-                    },
-                    None => (),
+                if let Some(filename) = filename_to_add(&files, &selected_files, 2) {
+                    selected_files.push(filename);
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                 }
             },
             _ => (),

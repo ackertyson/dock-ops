@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::io::{self, Write};
+use std::path::PathBuf;
 
 use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
 use crate::config::{AppConfig, ComposeFile, get};
-use crate::subcommands::{configured_yamls, get_yaml, Subcommand};
+use crate::subcommands::{configured_yamls, Subcommand};
+use crate::fs::read;
 use crate::term::external_output;
 use crate::util::*;
 
@@ -16,9 +18,9 @@ pub struct Complete {
 }
 
 impl Subcommand for Complete {
-    fn process(&self, mode: Option<&String>) -> Result<()> {
+    fn process(&self, _mode: Option<&String>) -> Result<()> {
         let Complete { arg } = self;
-        let mode = mode.unwrap();
+        let mode = "development".to_string(); // TODO need to extract this from front of 'arg'
         // remove flags/options so they don't F up our math
         let mut args = strip_flags(&arg.split(' ').collect::<Vec<_>>());
         let cmd_slice = args
@@ -78,7 +80,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
         builtins,
         aliases.keys().map(String::to_owned).collect());
 
-    // join on "\n" because fish requires it and bash will put up with it
+    // join on "\n" (instead of space-delimited) because fish requires it and bash will tolerate it
     Ok(io::stdout().write_all(all.join("\n").as_bytes())?)
 }
 
@@ -103,6 +105,12 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
 
         _ => Ok(()), // empty return will invoke shell default completions
     }
+}
+
+fn get_yaml(filename: &String) -> Result<ComposeFile> {
+    let raw = read(PathBuf::from(filename))?;
+    let compose: ComposeFile = serde_yaml::from_str(&raw).expect("Could not parse YAML");
+    Ok(compose)
 }
 
 fn strip_flags(args: &Vec<&str>) -> Vec<String> {
