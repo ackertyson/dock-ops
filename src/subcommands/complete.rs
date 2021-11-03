@@ -80,7 +80,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
         builtins,
         aliases.keys().map(String::to_owned).collect());
 
-    // join on "\n" because fish requires it and bash will put up with it
+    // join on "\n" (instead of space-delimited) because fish requires it and bash will tolerate it
     Ok(io::stdout().write_all(all.join("\n").as_bytes())?)
 }
 
