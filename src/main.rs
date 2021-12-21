@@ -20,6 +20,7 @@ fn main() -> Result<()> {
         Cmd::Aliases(subcmd) => subcmd.process(mode),
         Cmd::Attach(subcmd) => subcmd.process(None),
         Cmd::Build(subcmd) => subcmd.process(None),
+        Cmd::Clean(subcmd) => subcmd.process(None),
         Cmd::Complete(subcmd) => subcmd.process(None),
         Cmd::Config(subcmd) => subcmd.process(mode),
         Cmd::Down(subcmd) => subcmd.process(mode),
@@ -61,6 +62,8 @@ pub enum Cmd {
     Attach(Attach),
     #[structopt(about = "docker build . -t ...")]
     Build(Build),
+    #[structopt(about = "docker rm $(docker ps -f status=exited -a -q); docker rmi $(docker images -f dangling=true -a -q); docker volume rm $(docker volume ls -f dangling=true -q)")]
+    Clean(Clean),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
     #[structopt(about = "docker compose config ...")]

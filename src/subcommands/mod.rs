@@ -1,13 +1,14 @@
 use anyhow::Result;
 
 use crate::config::{AppConfig, get};
-use crate::term::{external_spawn};
+use crate::term::{external_output, external_spawn};
 use crate::util::*;
 
 pub mod alias;
 pub mod aliases;
 pub mod attach;
 pub mod build;
+pub mod clean;
 pub mod complete;
 pub mod config;
 pub mod down;
@@ -29,6 +30,7 @@ pub mod all {
     pub use crate::subcommands::aliases::*;
     pub use crate::subcommands::attach::*;
     pub use crate::subcommands::build::*;
+    pub use crate::subcommands::clean::*;
     pub use crate::subcommands::complete::*;
     pub use crate::subcommands::config::*;
     pub use crate::subcommands::down::*;
@@ -72,3 +74,6 @@ fn docker(args: Vec<String>) -> Result<()> {
     external_spawn("docker", args)
 }
 
+fn docker_capture(args: Vec<String>) -> Result<Vec<u8>> {
+    external_output("docker", args)
+}

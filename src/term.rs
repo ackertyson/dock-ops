@@ -143,6 +143,18 @@ fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
                     write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
                 }
             },
+            Event::Key(Key::Char('4')) => {
+                if let Some(filename) = filename_to_add(&files, &selected_files, 3) {
+                    selected_files.push(filename);
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                }
+            },
+            Event::Key(Key::Char('5')) => {
+                if let Some(filename) = filename_to_add(&files, &selected_files, 4) {
+                    selected_files.push(filename);
+                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                }
+            },
             _ => (),
         }
         stdout.flush().unwrap();
