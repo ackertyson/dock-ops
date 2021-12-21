@@ -72,7 +72,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
     };
 
     let builtins = crate::vec_of_strings![
-                "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs",
+                "alias", "aliases", "attach", "build", "clean", "config", "down", "exec", "images", "logs",
                 "ps", "psa", "restart", "rmi", "run", "setup", "up"
             ];
 
