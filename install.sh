@@ -6,8 +6,8 @@ echo "Building DockOps..."
 echo
 cargo build --release && \
   echo && \
-  echo "Installing binary..." && \
-  cp -iv target/release/dock /usr/local/bin/ && \
+  echo "Linking binary..." && \
+  ln -s target/release/dock /usr/local/bin/dock && \
   cat <<EOF
 
 Done! The 'dock' command should now be available; try 'dock help' to start. Or 'dock setup' if you're the adventurous type.
