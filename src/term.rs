@@ -110,8 +110,7 @@ fn select_files_ui(files: Vec<String>, preselected: Vec<String>) -> Result<Vec<S
     let mut selected_files = preselected.clone();
 
     for c in stdin.events() {
-        let evt = c.unwrap();
-        match evt {
+        match c.unwrap() {
             Event::Key(Key::Char('c')) | Event::Key(Key::Char('q')) | Event::Key(Key::Ctrl('c')) | Event::Key(Key::Esc) => {
                 selected_files.clear();
                 write!(stdout, "\r\n").unwrap();
@@ -125,8 +124,8 @@ fn select_files_ui(files: Vec<String>, preselected: Vec<String>) -> Result<Vec<S
                 selected_files.pop();
                 write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
             },
-            Event::Key(Key::Char(c)) => {
-                match char::to_digit(c, 10) {
+            Event::Key(Key::Char(n)) => {
+                match char::to_digit(n, 10) {
                     Some(x) => { // numeric char inputs
                         if let Some(filename) = filename_to_add(&files, &selected_files, (x as usize) - 1) {
                             selected_files.push(filename);
