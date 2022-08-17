@@ -20,6 +20,7 @@ fn main() -> Result<()> {
         Cmd::Aliases(subcmd) => subcmd.process(mode),
         Cmd::Attach(subcmd) => subcmd.process(None),
         Cmd::Build(subcmd) => subcmd.process(None),
+        Cmd::Clean(subcmd) => subcmd.process(None),
         Cmd::Complete(subcmd) => subcmd.process(None),
         Cmd::Config(subcmd) => subcmd.process(mode),
         Cmd::Down(subcmd) => subcmd.process(mode),
@@ -32,6 +33,7 @@ fn main() -> Result<()> {
         Cmd::Rmi(subcmd) => subcmd.process(None),
         Cmd::Run(subcmd) => subcmd.process(mode),
         Cmd::Setup(subcmd) => subcmd.process(mode),
+        Cmd::Stop(subcmd) => subcmd.process(mode),
         Cmd::Up(subcmd) => subcmd.process(mode),
         // InvokedAlias is a different breed; don't try Subcommand trait it
         Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, mode.unwrap()),
@@ -61,6 +63,8 @@ pub enum Cmd {
     Attach(Attach),
     #[structopt(about = "docker build . -t ...")]
     Build(Build),
+    #[structopt(about = "docker system prune -f --volumes")]
+    Clean(Clean),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
     #[structopt(about = "docker compose config ...")]
@@ -85,6 +89,8 @@ pub enum Cmd {
     Run(Run),
     #[structopt(about = "[DockOps] update project configuration")]
     Setup(Setup),
+    #[structopt(about = "docker compose stop ...")]
+    Stop(Stop),
     #[structopt(about = "docker compose up ...")]
     Up(Up),
     #[structopt(external_subcommand)]

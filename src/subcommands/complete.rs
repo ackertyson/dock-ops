@@ -72,9 +72,9 @@ fn complete_subcommands(mode: &String) -> Result<()> {
     };
 
     let builtins = crate::vec_of_strings![
-                "alias", "aliases", "attach", "build", "config", "down", "exec", "images", "logs",
-                "ps", "psa", "restart", "rmi", "run", "setup", "up"
-            ];
+        "alias", "aliases", "attach", "build", "clean", "config", "down", "exec",
+        "images", "logs", "ps", "psa", "restart", "rmi", "run", "setup", "stop", "up"
+    ];
 
     let all = concat(
         builtins,
@@ -87,7 +87,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
 fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
     // TODO service completions do not honor MODE (via completion script)
     match cmd {
-        "attach" | "stop" => {
+        "attach" => {
             Ok(io::stdout().write_all(&completion_containers()?)?)
         },
 
@@ -99,7 +99,7 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
             Ok(io::stdout().write_all(&completion_images(false)?)?)
         },
 
-        "exec" | "logs" | "restart" | "run" | "up" => {
+        "exec" | "logs" | "restart" | "run" | "stop" | "up" => {
             Ok(io::stdout().write_all(&completion_services(mode)?.join("\n").as_bytes())?)
         },
 

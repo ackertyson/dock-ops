@@ -20,7 +20,8 @@ impl Subcommand for Setup {
             return Ok(());
         }
 
-        let new_files = show_setup(yamls, mode)?;
+        let AppConfig { compose_files, .. } = get(mode)?;
+        let new_files = show_setup(yamls, compose_files, mode)?;
         match new_files.len() > 0 {
             true => {
                 match get(mode) {

@@ -8,6 +8,7 @@ pub mod alias;
 pub mod aliases;
 pub mod attach;
 pub mod build;
+pub mod clean;
 pub mod complete;
 pub mod config;
 pub mod down;
@@ -21,6 +22,7 @@ pub mod restart;
 pub mod rmi;
 pub mod run;
 pub mod setup;
+pub mod stop;
 pub mod up;
 
 pub mod all {
@@ -29,6 +31,7 @@ pub mod all {
     pub use crate::subcommands::aliases::*;
     pub use crate::subcommands::attach::*;
     pub use crate::subcommands::build::*;
+    pub use crate::subcommands::clean::*;
     pub use crate::subcommands::complete::*;
     pub use crate::subcommands::config::*;
     pub use crate::subcommands::down::*;
@@ -42,6 +45,7 @@ pub mod all {
     pub use crate::subcommands::rmi::*;
     pub use crate::subcommands::run::*;
     pub use crate::subcommands::setup::*;
+    pub use crate::subcommands::stop::*;
     pub use crate::subcommands::up::*;
     pub use crate::subcommands::Subcommand;
 }

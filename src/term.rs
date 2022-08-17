@@ -60,7 +60,7 @@ pub fn external_output(command: &str, args: Vec<String>) -> Result<Vec<u8>> {
     Ok(output.stdout)
 }
 
-pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
+pub fn show_setup(files: Vec<String>, preselected: Vec<String>, mode: &String) -> Result<Vec<String>> {
     let bling = color_for_mode(mode);
     println!("Available YAML files:");
     for (pos, file) in files.iter().enumerate() {
@@ -75,7 +75,7 @@ pub fn show_setup(files: Vec<String>, mode: &String) -> Result<Vec<String>> {
     println!();
     println!("In {} mode, Docker Compose commands should use:", mode.to_uppercase());
 
-    select_files_ui(files)
+    select_files_ui(files, preselected)
 }
 
 fn filelist(files: &Vec<String>) -> String {
@@ -100,14 +100,14 @@ fn filename_to_add(available: &Vec<String>, selected: &Vec<String>, pos: usize) 
     }
 }
 
-fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
+fn select_files_ui(files: Vec<String>, preselected: Vec<String>) -> Result<Vec<String>> {
     // Set terminal to raw mode to allow reading stdin one key at a time
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let stdin = stdin();
 
-    write!(stdout, "{}% docker compose {}", termion::cursor::Hide, filelist(&files)).unwrap();
+    write!(stdout, "{}% docker compose {}", termion::cursor::Hide, filelist(&preselected)).unwrap();
     stdout.lock().flush().unwrap();
-    let mut selected_files = files.clone();
+    let mut selected_files = preselected.clone();
 
     for c in stdin.events() {
         let evt = c.unwrap();
@@ -125,22 +125,15 @@ fn select_files_ui(files: Vec<String>) -> Result<Vec<String>> {
                 selected_files.pop();
                 write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
             },
-            Event::Key(Key::Char('1')) => {
-                if let Some(filename) = filename_to_add(&files, &selected_files, 0) {
-                    selected_files.push(filename);
-                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
-                }
-            },
-            Event::Key(Key::Char('2')) => {
-                if let Some(filename) = filename_to_add(&files, &selected_files, 1) {
-                    selected_files.push(filename);
-                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
-                }
-            },
-            Event::Key(Key::Char('3')) => {
-                if let Some(filename) = filename_to_add(&files, &selected_files, 2) {
-                    selected_files.push(filename);
-                    write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+            Event::Key(Key::Char(c)) => {
+                match char::to_digit(c, 10) {
+                    Some(x) => { // numeric char inputs
+                        if let Some(filename) = filename_to_add(&files, &selected_files, (x as usize) - 1) {
+                            selected_files.push(filename);
+                            write!(stdout, "\r{}% docker compose {}", termion::clear::CurrentLine, filelist(&selected_files)).unwrap();
+                        }
+                    },
+                    None => ()
                 }
             },
             _ => (),
