@@ -7,7 +7,7 @@ echo
 cargo build --release && \
   echo && \
   echo "Linking binary..." && \
-  ln -s target/release/dock /usr/local/bin/dock && \
+  ln -s $PWD/target/release/dock /usr/local/bin/dock && \
   cat <<EOF
 
 Done! The 'dock' command should now be available; try 'dock help' to start. Or 'dock setup' if you're the adventurous type.
