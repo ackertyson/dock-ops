@@ -10,6 +10,7 @@ pub struct Passthru {
     pub user_args: Vec<String>,
 }
 
+// TODO allow aliases to supercede built-ins of same name
 impl Passthru {
     pub fn compose(&self, system_args: Vec<String>, mode: String) -> Result<()> {
         let Passthru { user_args } = self;

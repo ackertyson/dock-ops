@@ -24,9 +24,9 @@ pub fn confirm_create_config_dir_ui(base: &PathBuf) -> Result<bool> {
     let stdin = stdin();
 
     write!(stdout,
-           "{}Directory {} does not exist; okay to create? (Y/n) ",
-           termion::cursor::Hide,
-           base.as_os_str().to_str().unwrap()
+        "{}Directory {} does not exist; okay to create? (Y/n) ",
+        termion::cursor::Hide,
+        base.as_os_str().to_str().unwrap()
     ).unwrap();
     stdout.lock().flush().unwrap();
 
