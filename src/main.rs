@@ -39,7 +39,7 @@ fn main() -> Result<()> {
 }
 
 #[derive(StructOpt)]
-#[structopt(name = "DockOps")]
+#[structopt(name = "DockOps", about = "See full docs at https://github.com/ackertyson/dock-ops")]
 pub struct Dock {
     #[structopt(short, long, help = "Arbitrary MODE")]
     pub mode: Option<String>,
