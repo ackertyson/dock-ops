@@ -13,30 +13,28 @@ mod util;
 fn main() -> Result<()> {
     let Dock { cmd, mode, production, reinvoked } = Dock::from_args();
     let mode = mode_from(production, mode);
-    let mode = Some(&mode);
 
     match &cmd {
-        Cmd::Alias(subcmd) => subcmd.process(mode),
-        Cmd::Aliases(subcmd) => subcmd.process(mode),
-        Cmd::Attach(subcmd) => subcmd.process(None),
-        Cmd::Build(subcmd) => subcmd.process(None),
-        Cmd::Clean(subcmd) => subcmd.process(None),
-        Cmd::Complete(subcmd) => subcmd.process(None),
-        Cmd::Config(subcmd) => subcmd.process(mode),
-        Cmd::Down(subcmd) => subcmd.process(mode),
-        Cmd::Exec(subcmd) => subcmd.process(mode),
-        Cmd::Images(subcmd) => subcmd.process(None),
-        Cmd::Logs(subcmd) => subcmd.process(mode),
-        Cmd::Ps(subcmd) => subcmd.process(mode),
-        Cmd::Psa(subcmd) => subcmd.process(None),
-        Cmd::Restart(subcmd) => subcmd.process(mode),
-        Cmd::Rmi(subcmd) => subcmd.process(None),
-        Cmd::Run(subcmd) => subcmd.process(mode),
-        Cmd::Setup(subcmd) => subcmd.process(mode),
-        Cmd::Stop(subcmd) => subcmd.process(mode),
-        Cmd::Up(subcmd) => subcmd.process(mode),
-        // InvokedAlias is a different breed; don't try Subcommand trait it
-        Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, mode.unwrap()),
+        Cmd::Alias(alias) => alias.process(mode),
+        Cmd::Aliases(aliases) => aliases.process(mode),
+        Cmd::Attach(passthru) => passthru.docker(vec_of_strings!["attach", "--sig-proxy=false"]),
+        Cmd::Build(passthru) => passthru.docker(vec_of_strings!["build", ".", "-t"]),
+        Cmd::Clean(passthru) => passthru.docker(vec_of_strings!["system", "prune", "-f", "--volumes"]),
+        Cmd::Complete(complete) => complete.process(),
+        Cmd::Config(passthru) => passthru.compose(vec_of_strings!["config"], mode),
+        Cmd::Down(passthru) => passthru.compose(vec_of_strings!["down", "--remove-orphans"], mode),
+        Cmd::Exec(passthru) => passthru.compose(vec_of_strings!["exec"], mode),
+        Cmd::Images(passthru) => passthru.docker(vec_of_strings!["images"]),
+        Cmd::Logs(passthru) => passthru.compose(vec_of_strings!["logs", "-f"], mode),
+        Cmd::Ps(passthru) => passthru.compose(vec_of_strings!["ps"], mode),
+        Cmd::Psa(passthru) => passthru.docker(vec_of_strings!["ps"]),
+        Cmd::Restart(passthru) => passthru.compose(vec_of_strings!["restart"], mode),
+        Cmd::Rmi(passthru) => passthru.docker(vec_of_strings!["rmi"]),
+        Cmd::Run(passthru) => passthru.compose(vec_of_strings!["run", "--rm"], mode),
+        Cmd::Setup(setup) => setup.process(mode),
+        Cmd::Stop(passthru) => passthru.compose(vec_of_strings!["stop"], mode),
+        Cmd::Up(passthru) => passthru.compose(vec_of_strings!["up"], mode),
+        Cmd::InvokedAlias(args) => invoke_alias(args, reinvoked, mode),
     }
 }
 
@@ -60,39 +58,39 @@ pub enum Cmd {
     #[structopt(about = "[DockOps] list command aliases")]
     Aliases(Aliases),
     #[structopt(about = "docker attach --sig-proxy=false ...")]
-    Attach(Attach),
+    Attach(Passthru),
     #[structopt(about = "docker build . -t ...")]
-    Build(Build),
+    Build(Passthru),
     #[structopt(about = "docker system prune -f --volumes")]
-    Clean(Clean),
+    Clean(Passthru),
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
     #[structopt(about = "docker compose config ...")]
-    Config(Config),
+    Config(Passthru),
     #[structopt(about = "docker compose down --remove-orphans ...")]
-    Down(Down),
+    Down(Passthru),
     #[structopt(about = "docker compose exec ...")]
-    Exec(Exec),
+    Exec(Passthru),
     #[structopt(about = "docker images ...")]
-    Images(Images),
+    Images(Passthru),
     #[structopt(about = "docker compose logs -f ...")]
-    Logs(Logs),
+    Logs(Passthru),
     #[structopt(about = "docker compose ps ...")]
-    Ps(Ps),
+    Ps(Passthru),
     #[structopt(about = "docker ps ...")]
-    Psa(Psa),
+    Psa(Passthru),
     #[structopt(about = "docker compose restart ...")]
-    Restart(Restart),
+    Restart(Passthru),
     #[structopt(about = "docker rmi ...")]
-    Rmi(Rmi),
+    Rmi(Passthru),
     #[structopt(about = "docker compose run --rm ...")]
-    Run(Run),
+    Run(Passthru),
     #[structopt(about = "[DockOps] update project configuration")]
     Setup(Setup),
     #[structopt(about = "docker compose stop ...")]
-    Stop(Stop),
+    Stop(Passthru),
     #[structopt(about = "docker compose up ...")]
-    Up(Up),
+    Up(Passthru),
     #[structopt(external_subcommand)]
     InvokedAlias(Vec<String>),
 }

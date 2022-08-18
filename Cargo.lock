@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "dock"
-version = "0.4.3"
+version = "0.4.5"
 dependencies = [
  "anyhow",
  "console",

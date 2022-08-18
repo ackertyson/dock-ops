@@ -1,6 +1,6 @@
 [package]
 name = "dock"
-version = "0.4.4"
+version = "0.4.5"
 authors = ["Tyson Acker <tyson@tysonacker.io>"]
 edition = "2018"
 description = "CLI convenience wrapper for Docker (and especially Docker Compose) development"

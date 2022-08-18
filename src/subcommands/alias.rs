@@ -2,7 +2,6 @@ use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
 use crate::config::{AppConfig, get, put};
-use crate::subcommands::Subcommand;
 
 #[derive(StructOpt)]
 #[structopt(setting = AppSettings::TrailingVarArg)]
@@ -14,10 +13,9 @@ pub struct Alias {
     pub args: Vec<String>,
 }
 
-impl Subcommand for Alias {
-    fn process(&self, mode: Option<&String>) -> Result<()> {
+impl Alias {
+    pub fn process(&self, mode: String) -> Result<()> {
         let Alias { name, delete, args } = self;
-        let mode = mode.unwrap();
         let AppConfig { mut aliases, compose_files, version } = get(&mode)?;
         match delete {
             true => {
