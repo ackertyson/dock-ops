@@ -10,7 +10,7 @@ repository = "https://github.com/ackertyson/dock-ops"
 
 [dependencies]
 anyhow = "1.0.44"
-console = "0.14.1"
+console = "0.15.1"
 dirs = "4.0.0"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0"
