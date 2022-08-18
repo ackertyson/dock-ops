@@ -18,10 +18,11 @@ fn main() -> Result<()> {
         Cmd::Alias(alias) => alias.process(mode),
         Cmd::Aliases(aliases) => aliases.process(mode),
         Cmd::Attach(passthru) => passthru.docker(vec_of_strings!["attach", "--sig-proxy=false"]),
-        Cmd::Build(passthru) => passthru.docker(vec_of_strings!["build", ".", "-t"]),
+        Cmd::Build(passthru) => passthru.compose(vec_of_strings!["build"], mode),
         Cmd::Clean(passthru) => passthru.docker(vec_of_strings!["system", "prune", "-f", "--volumes"]),
         Cmd::Complete(complete) => complete.process(),
         Cmd::Config(passthru) => passthru.compose(vec_of_strings!["config"], mode),
+        Cmd::Dbuild(passthru) => passthru.docker(vec_of_strings!["build", ".", "-t"]),
         Cmd::Down(passthru) => passthru.compose(vec_of_strings!["down", "--remove-orphans"], mode),
         Cmd::Exec(passthru) => passthru.compose(vec_of_strings!["exec"], mode),
         Cmd::Images(passthru) => passthru.docker(vec_of_strings!["images"]),
@@ -65,7 +66,7 @@ pub enum Cmd {
     #[structopt(about = "docker attach --sig-proxy=false ...")]
     Attach(Passthru),
 
-    #[structopt(about = "docker build . -t ...")]
+    #[structopt(about = "docker compose build ...")]
     Build(Passthru),
 
     #[structopt(about = "docker system prune -f --volumes")]
@@ -76,6 +77,9 @@ pub enum Cmd {
 
     #[structopt(about = "docker compose config ...")]
     Config(Passthru),
+
+    #[structopt(about = "docker build . -t ...")]
+    Dbuild(Passthru),
 
     #[structopt(about = "docker compose down --remove-orphans ...")]
     Down(Passthru),

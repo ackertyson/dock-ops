@@ -72,7 +72,7 @@ fn complete_subcommands(mode: String) -> Result<()> {
     };
 
     let builtins = crate::vec_of_strings![
-        "alias", "aliases", "attach", "build", "clean", "config", "down", "exec",
+        "alias", "aliases", "attach", "build", "clean", "config", "dbuild", "down", "exec",
         "images", "logs", "ps", "psa", "restart", "rmi", "run", "setup", "stop", "up"
     ];
 
@@ -95,11 +95,11 @@ fn complete_subcommand_args(cmd: &str, mode: String) -> Result<()> {
             Ok(io::stdout().write_all(&completion_images(true)?)?)
         },
 
-        "build" => {
+        "dbuild" => {
             Ok(io::stdout().write_all(&completion_images(false)?)?)
         },
 
-        "exec" | "logs" | "restart" | "run" | "stop" | "up" => {
+        "build" | "exec" | "logs" | "restart" | "run" | "stop" | "up" => {
             Ok(io::stdout().write_all(&completion_services(mode)?.join("\n").as_bytes())?)
         },
 
