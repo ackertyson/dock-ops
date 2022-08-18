@@ -8,7 +8,9 @@ use crate::config::{AppConfig, get, put};
 pub struct Alias {
     #[structopt(short, long)]
     pub delete: bool,
+
     pub name: String,
+
     #[structopt(conflicts_with("delete"))]
     pub args: Vec<String>,
 }

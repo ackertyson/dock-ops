@@ -43,10 +43,13 @@ fn main() -> Result<()> {
 pub struct Dock {
     #[structopt(short, long, help = "Arbitrary MODE")]
     pub mode: Option<String>,
+
     #[structopt(short, long, help = "Production MODE")]
     pub production: bool,
+
     #[structopt(short, long, hidden = true, about = "[internal] to prevent infinitely looped alias invocation")]
     pub reinvoked: bool,
+
     #[structopt(subcommand)]
     pub cmd: Cmd,
 }
@@ -55,42 +58,61 @@ pub struct Dock {
 pub enum Cmd {
     #[structopt(about = "[DockOps] create/destroy command alias")]
     Alias(Alias),
+
     #[structopt(about = "[DockOps] list command aliases")]
     Aliases(Aliases),
+
     #[structopt(about = "docker attach --sig-proxy=false ...")]
     Attach(Passthru),
+
     #[structopt(about = "docker build . -t ...")]
     Build(Passthru),
+
     #[structopt(about = "docker system prune -f --volumes")]
     Clean(Passthru),
+
     #[structopt(setting = AppSettings::Hidden, about = "[internal] generate completions")]
     Complete(Complete),
+
     #[structopt(about = "docker compose config ...")]
     Config(Passthru),
+
     #[structopt(about = "docker compose down --remove-orphans ...")]
     Down(Passthru),
+
     #[structopt(about = "docker compose exec ...")]
     Exec(Passthru),
+
     #[structopt(about = "docker images ...")]
     Images(Passthru),
+
     #[structopt(about = "docker compose logs -f ...")]
     Logs(Passthru),
+
     #[structopt(about = "docker compose ps ...")]
     Ps(Passthru),
+
     #[structopt(about = "docker ps ...")]
     Psa(Passthru),
+
     #[structopt(about = "docker compose restart ...")]
     Restart(Passthru),
+
     #[structopt(about = "docker rmi ...")]
     Rmi(Passthru),
+
     #[structopt(about = "docker compose run --rm ...")]
     Run(Passthru),
+
     #[structopt(about = "[DockOps] update project configuration")]
     Setup(Setup),
+
     #[structopt(about = "docker compose stop ...")]
     Stop(Passthru),
+
     #[structopt(about = "docker compose up ...")]
     Up(Passthru),
+
     #[structopt(external_subcommand)]
     InvokedAlias(Vec<String>),
 }
