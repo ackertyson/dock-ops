@@ -5,8 +5,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
-use crate::config::{AppConfig, ComposeFile, get};
-use crate::subcommands::configured_yamls;
+use crate::config::{AppConfig, ComposeFile, configured_yamls, get};
 use crate::fs::read;
 use crate::term::external_output;
 use crate::util::*;

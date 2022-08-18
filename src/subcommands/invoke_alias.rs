@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use crate::config::{AppConfig, get};
-use crate::subcommands::external_spawn;
+use crate::term::external_spawn;
 use crate::util::*;
 
 pub fn invoke_alias(args: &Vec<String>, reinvoked: bool, mode: String) -> Result<()> {

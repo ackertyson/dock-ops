@@ -1,7 +1,8 @@
 use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
-use crate::subcommands::{compose, docker};
+use crate::config::configured_yamls;
+use crate::term::external_spawn;
 use crate::util::*;
 
 #[derive(StructOpt)]
@@ -23,4 +24,19 @@ impl Passthru {
 
         docker(concat(system_args, user_args.clone()))
     }
+}
+
+fn compose(args: Vec<String>, mode: String) -> Result<()> {
+    docker(concat(
+        crate::vec_of_strings!["compose"],
+        concat(
+            configured_yamls(mode).iter()
+                .map(|file| crate::vec_of_strings!["-f", file])
+                .flatten()
+                .collect(),
+            args)))
+}
+
+fn docker(args: Vec<String>) -> Result<()> {
+    external_spawn("docker", args)
 }

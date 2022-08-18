@@ -23,6 +23,13 @@ pub struct ComposeFile {
     pub services: HashMap<String, Value>,
 }
 
+pub fn configured_yamls(mode: String) -> Vec<String> {
+    match get(&mode) {
+        Ok(AppConfig { compose_files, .. }) => compose_files,
+        Err(_) => crate::vec_of_strings![],
+    }
+}
+
 pub fn get(mode: &String) -> Result<AppConfig> {
     match read(config_path(filename_for_mode(mode))?) {
         Ok(raw) => Ok(serde_json::from_str(&raw)?),
