@@ -7,7 +7,8 @@ echo
 cargo build --release && \
   echo && \
   echo "Installing binary..." && \
-  cp -iv target/release/dock /usr/local/bin/ && \
+  cp target/release/dock target/release/dock_bin && \
+  mv -iv target/release/dock_bin /usr/local/bin/dock && \
   cat <<EOF
 
 Done! The 'dock' command should now be available; try 'dock help' to start. Or 'dock setup' if you're the adventurous type.

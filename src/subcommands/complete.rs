@@ -5,8 +5,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use structopt::{clap::AppSettings, StructOpt};
 
-use crate::config::{AppConfig, ComposeFile, get};
-use crate::subcommands::{configured_yamls, Subcommand};
+use crate::config::{AppConfig, ComposeFile, configured_yamls, get};
 use crate::fs::read;
 use crate::term::external_output;
 use crate::util::*;
@@ -17,8 +16,8 @@ pub struct Complete {
     pub arg: String,
 }
 
-impl Subcommand for Complete {
-    fn process(&self, _mode: Option<&String>) -> Result<()> {
+impl Complete {
+    pub fn process(&self) -> Result<()> {
         let Complete { arg } = self;
         let mode = "development".to_string(); // TODO need to extract this from front of 'arg'
         // remove flags/options so they don't F up our math
@@ -29,8 +28,8 @@ impl Subcommand for Complete {
         let cmd: &str = cmd_slice.get(0).unwrap();
 
         match args.len() {
-            0 => complete_subcommands(&mode), // $ dock <empty_or_partial_subcommand>_
-            1 => complete_subcommand_args(cmd, &mode), // $ dock <subcommand> _
+            0 => complete_subcommands(mode), // $ dock <empty_or_partial_subcommand>_
+            1 => complete_subcommand_args(cmd, mode), // $ dock <subcommand> _
             _ => Ok(()), // $ dock <subcommand> <arg> _  (empty return will invoke shell default completions)
         }
     }
@@ -47,7 +46,7 @@ fn completion_images(with_tags: bool) -> Result<Vec<u8>> {
     }
 }
 
-fn completion_services(mode: &String) -> Result<Vec<String>> {
+fn completion_services(mode: String) -> Result<Vec<String>> {
     let services = configured_yamls(mode)
         .iter()
         .map(|filename| get_yaml(filename).expect(filename))
@@ -60,9 +59,9 @@ fn completion_services(mode: &String) -> Result<Vec<String>> {
     Ok(services.clone())
 }
 
-fn complete_subcommands(mode: &String) -> Result<()> {
+fn complete_subcommands(mode: String) -> Result<()> {
     // TODO alias completions do not honor MODE (via completion script)
-    let AppConfig { aliases, .. } = match get(mode) {
+    let AppConfig { aliases, .. } = match get(&mode) {
         Ok(result) => result,
         _ => AppConfig {
             aliases: HashMap::new(),
@@ -72,7 +71,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
     };
 
     let builtins = crate::vec_of_strings![
-        "alias", "aliases", "attach", "build", "clean", "config", "down", "exec",
+        "alias", "aliases", "attach", "build", "clean", "config", "dbuild", "down", "exec",
         "images", "logs", "ps", "psa", "restart", "rmi", "run", "setup", "stop", "up"
     ];
 
@@ -84,7 +83,7 @@ fn complete_subcommands(mode: &String) -> Result<()> {
     Ok(io::stdout().write_all(all.join("\n").as_bytes())?)
 }
 
-fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
+fn complete_subcommand_args(cmd: &str, mode: String) -> Result<()> {
     // TODO service completions do not honor MODE (via completion script)
     match cmd {
         "attach" => {
@@ -95,11 +94,11 @@ fn complete_subcommand_args(cmd: &str, mode: &String) -> Result<()> {
             Ok(io::stdout().write_all(&completion_images(true)?)?)
         },
 
-        "build" => {
+        "dbuild" => {
             Ok(io::stdout().write_all(&completion_images(false)?)?)
         },
 
-        "exec" | "logs" | "restart" | "run" | "stop" | "up" => {
+        "build" | "exec" | "logs" | "restart" | "run" | "stop" | "up" => {
             Ok(io::stdout().write_all(&completion_services(mode)?.join("\n").as_bytes())?)
         },
 

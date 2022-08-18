@@ -5,33 +5,31 @@ use structopt::StructOpt;
 use walkdir::WalkDir;
 
 use crate::config::{AppConfig, get, put};
-use crate::subcommands::Subcommand;
 use crate::term::show_setup;
 
 #[derive(StructOpt)]
 pub struct Setup {}
 
-impl Subcommand for Setup {
-    fn process(&self, mode: Option<&String>) -> Result<()> {
-        let mode = mode.unwrap();
+impl Setup {
+    pub fn process(&self, mode: String) -> Result<()> {
         let yamls = yaml_filenames()?;
         if yamls.len() == 0 {
             println!("No YAML files found; quitting.");
             return Ok(());
         }
 
-        let AppConfig { compose_files, .. } = get(mode)?;
-        let new_files = show_setup(yamls, compose_files, mode)?;
+        let AppConfig { compose_files, .. } = get(&mode)?;
+        let new_files = show_setup(yamls, compose_files, &mode)?;
         match new_files.len() > 0 {
             true => {
-                match get(mode) {
+                match get(&mode) {
                     Ok(AppConfig { aliases, version, .. }) => {
                         let config = AppConfig {
                             aliases,
                             compose_files: new_files,
                             version
                         };
-                        put(mode, config)
+                        put(&mode, config)
                     },
                     Err(_) => {
                         let config = AppConfig {
@@ -39,7 +37,7 @@ impl Subcommand for Setup {
                             compose_files: new_files,
                             version: 1,
                         };
-                        put(mode, config)
+                        put(&mode, config)
                     },
                 }
             },
@@ -55,6 +53,7 @@ fn yaml_filenames() -> Result<Vec<String>> {
     let names = WalkDir::new(".")
         .max_depth(1)
         .follow_links(false)
+        .sort_by_file_name()
         .into_iter()
         .filter_map(Result::ok)
         .filter(|entry| {

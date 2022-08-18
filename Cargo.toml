@@ -1,6 +1,6 @@
 [package]
 name = "dock"
-version = "0.4.4"
+version = "0.4.5"
 authors = ["Tyson Acker <tyson@tysonacker.io>"]
 edition = "2018"
 description = "CLI convenience wrapper for Docker (and especially Docker Compose) development"
@@ -10,7 +10,7 @@ repository = "https://github.com/ackertyson/dock-ops"
 
 [dependencies]
 anyhow = "1.0.44"
-console = "0.14.1"
+console = "0.15.1"
 dirs = "4.0.0"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0"
